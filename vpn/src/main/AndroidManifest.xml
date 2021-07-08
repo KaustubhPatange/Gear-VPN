@@ -1,0 +1,23 @@
+<manifest package="de.blinkt.openvpn"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <application>
+        <activity
+            android:name="de.blinkt.openvpn.DisconnectVPNActivity"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=".DisconnectVPN"
+            android:theme="@style/blinkt.dialog" />
+        <service
+            android:name="de.blinkt.openvpn.core.OpenVPNService"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

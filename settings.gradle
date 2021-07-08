@@ -1,0 +1,3 @@
+rootProject.name = "ComposeTest"
+include ':app'
+include ':vpn'

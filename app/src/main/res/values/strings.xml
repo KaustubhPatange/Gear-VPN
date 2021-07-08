@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">ComposeTest</string>
+
+    <string name="status_connect">CONNECT</string>
+    <string name="status_connecting">CONNECTING</string>
+    <string name="status_connected">CONNECTED</string>
+
+    <string name="channel_refresh">Refresh Vpn</string>
+    <string name="vpn_refresh">Refreshing VPN lists</string>
+    
+    <string name="vpn_status">⚠ %1$s</string>
+    <string name="vpn_status_hidden">✓ HIDDEN</string>
+    <string name="vpn_public_ip">YOUR PUBLIC IP:</string>
+    <string name="vpn_public_ip_unknown">UNKNOWN</string>
+    <string name="stop">STOP</string>
+    <string name="change_server">CHANGE</string>
+    <string name="choose_server">Choose a server</string>
+
+    <string name="premium_server">Premium servers</string>
+    <string name="free_server">Free servers</string>
+    <string name="server_ip">● %1$s</string>
+    <string name="server_subtitle">%1$s ● %2$s ● %3$s Mbps</string>
+
+    <string name="import_open_vpn">IMPORT OPEN-VPN CONFIGURATION</string>
+</resources>
