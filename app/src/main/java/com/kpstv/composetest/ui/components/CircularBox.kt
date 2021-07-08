@@ -63,7 +63,7 @@ private val circleDistance = 33.dp
 private val boxHeight = diameter + circleDistance.times(2) + dashSize.times(2)
 
 private fun getStatusAsText(context: Context, status: ConnectivityStatus): String {
-  return when(status) {
+  return when (status) {
     ConnectivityStatus.CONNECTING -> context.getString(R.string.status_connecting)
     ConnectivityStatus.CONNECTED -> context.getString(R.string.status_connected)
     else -> context.getString(R.string.status_connect)
@@ -144,7 +144,10 @@ fun CircularBox(
 
   BoxWithConstraints(modifier = Modifier.height(boxHeight)) {
     Text(
-      modifier = Modifier.align(Alignment.Center).alpha(alphaText.value).animateContentSize(),
+      modifier = Modifier
+        .align(Alignment.Center)
+        .alpha(alphaText.value)
+        .animateContentSize(),
       text = textState.value,
       style = MaterialTheme.typography.h5,
     )
@@ -454,9 +457,7 @@ fun CircularBox(
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-  ComposeTestTheme {
-    Surface(color = MaterialTheme.colors.background) {
-      CircularBox(status = ConnectivityStatus.NONE)
-    }
+  CommonPreviewTheme {
+    CircularBox(status = ConnectivityStatus.NONE)
   }
 }

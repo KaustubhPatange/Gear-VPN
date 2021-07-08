@@ -3,15 +3,11 @@ package com.kpstv.composetest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.coroutineScope
 import com.google.accompanist.insets.ProvideWindowInsets
-import com.google.accompanist.insets.navigationBarsPadding
-import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.composetest.extensions.utils.Initializer
 import com.kpstv.composetest.ui.screens.NavigationScreen
 import com.kpstv.composetest.ui.theme.ComposeTestTheme

@@ -35,10 +35,7 @@ import com.kpstv.composetest.data.models.VpnConfiguration
 import com.kpstv.composetest.ui.components.CircularBox
 import com.kpstv.composetest.ui.components.ConnectivityStatus
 import com.kpstv.composetest.ui.components.ThemeButton
-import com.kpstv.composetest.ui.theme.ComposeTestTheme
-import com.kpstv.composetest.ui.theme.cyanDark
-import com.kpstv.composetest.ui.theme.greenColorDark
-import com.kpstv.composetest.ui.theme.purpleColor
+import com.kpstv.composetest.ui.theme.*
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -53,7 +50,8 @@ fun MainScreen(
     if (connectivityStatus.value == ConnectivityStatus.CONNECTED) greenColorDark else MaterialTheme.colors.error
   )
 
-  val ipText = stringResource(R.string.vpn_status, publicIp ?: stringResource(R.string.vpn_public_ip_unknown))
+  val ipText =
+    stringResource(R.string.vpn_status, publicIp ?: stringResource(R.string.vpn_public_ip_unknown))
 
   Column(
     modifier = Modifier
@@ -63,7 +61,7 @@ fun MainScreen(
       .fillMaxSize()
   ) {
     Text(
-      text = "Sparkle VPN",
+      text = "Facade",
       modifier = Modifier.align(Alignment.CenterHorizontally),
       style = MaterialTheme.typography.h4
     )
@@ -111,7 +109,7 @@ fun MainScreen(
     ) {
       AnimatedVisibility(visible = configuration.isNotEmpty()) {
         Image(
-          painter =  rememberCoilPainter(configuration.countryFlagUrl),
+          painter = rememberCoilPainter(configuration.countryFlagUrl),
           modifier = Modifier
             .padding(10.dp)
             .requiredWidthIn(max = 50.dp)
@@ -124,9 +122,11 @@ fun MainScreen(
 
       Spacer(modifier = Modifier.padding(start = 10.dp))
 
-      Column(modifier = Modifier
-        .weight(1f)
-        .align(Alignment.CenterVertically)) {
+      Column(
+        modifier = Modifier
+          .weight(1f)
+          .align(Alignment.CenterVertically)
+      ) {
         Text(
           text = configuration.country,
           style = MaterialTheme.typography.h2,
@@ -190,9 +190,7 @@ fun MainScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewStartScreen() {
-  ComposeTestTheme {
-    Surface(color = MaterialTheme.colors.background) {
-      MainScreen(publicIp = "104.156.232.238")
-    }
+  CommonPreviewTheme {
+    MainScreen(publicIp = "104.156.232.238")
   }
 }

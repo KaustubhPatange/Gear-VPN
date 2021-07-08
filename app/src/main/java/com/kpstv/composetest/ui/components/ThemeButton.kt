@@ -7,7 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.kpstv.composetest.ui.theme.ComposeTestTheme
+import com.kpstv.composetest.ui.theme.CommonPreviewTheme
 
 @Composable
 fun ThemeButton(onClick: () -> Unit, modifier: Modifier = Modifier, text: String) {
@@ -25,9 +25,7 @@ fun ThemeButton(onClick: () -> Unit, modifier: Modifier = Modifier, text: String
 @Preview(showBackground = true)
 @Composable
 fun PreviewThemeButton() {
-  ComposeTestTheme {
-    Surface(color = MaterialTheme.colors.background) {
-      ThemeButton(onClick = {}, text = "BUTTON")
-    }
+  CommonPreviewTheme {
+    ThemeButton(onClick = {}, text = "BUTTON")
   }
 }

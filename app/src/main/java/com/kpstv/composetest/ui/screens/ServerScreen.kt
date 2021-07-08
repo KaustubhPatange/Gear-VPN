@@ -36,7 +36,7 @@ import com.kpstv.composetest.R
 import com.kpstv.composetest.data.db.repository.VpnLoadState
 import com.kpstv.composetest.data.models.VpnConfiguration
 import com.kpstv.composetest.ui.components.ThemeButton
-import com.kpstv.composetest.ui.theme.ComposeTestTheme
+import com.kpstv.composetest.ui.theme.CommonPreviewTheme
 import com.kpstv.composetest.ui.theme.dotColor
 import com.kpstv.composetest.ui.theme.goldenYellow
 
@@ -88,7 +88,11 @@ fun ServerScreen(
           CommonItem(config = item, onClick = {})
 
           if (index == vpnState.configs.size - 1) {
-            Spacer(modifier = Modifier.height(100.dp).navigationBarsPadding())
+            Spacer(
+              modifier = Modifier
+                .height(100.dp)
+                .navigationBarsPadding()
+            )
           }
         }
       }
@@ -265,28 +269,37 @@ private fun CommonItem(
 @Preview(showBackground = true)
 @Composable
 fun PreviewServerScreen() {
-  ComposeTestTheme {
-    Surface(color = MaterialTheme.colors.background) {
-      ServerScreen(vpnState = VpnLoadState.Loading())
-    }
+  CommonPreviewTheme {
+    ServerScreen(vpnState = VpnLoadState.Loading())
   }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewCommonItem() {
-  ComposeTestTheme {
-    Surface(color = MaterialTheme.colors.background) {
-      CommonItem(
-        config = VpnConfiguration.createEmpty().copy(
-          country = "United States",
-          countryFlagUrl = "",
-          ip = "192.168.1.1",
-          sessions = "61 sessions",
-          upTime = "89 days",
-          speed = "73.24"
-        )
-      )
-    }
+  CommonPreviewTheme {
+    CommonItem(
+      config = createTestConfiguration()
+    )
   }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCommonItemPremium() {
+  CommonPreviewTheme {
+    CommonItem(
+      config = createTestConfiguration().copy(premium = true)
+    )
+  }
+}
+
+private fun createTestConfiguration() =
+  VpnConfiguration.createEmpty().copy(
+    country = "United States",
+    countryFlagUrl = "",
+    ip = "192.168.1.1",
+    sessions = "61 sessions",
+    upTime = "89 days",
+    speed = "73.24"
+  )
