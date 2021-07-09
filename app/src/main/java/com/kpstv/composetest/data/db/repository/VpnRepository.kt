@@ -28,6 +28,8 @@ class VpnRepository @Inject constructor(
 
   fun fetch(forceNetwork: Boolean = false): Flow<VpnLoadState> = flow {
 
+    emit(VpnLoadState.Loading())
+
     fun convert(list: List<VpnConfiguration>): List<VpnConfiguration> {
       return list.sortedByDescending { it.speed.toFloat() }.subList(0, min(list.size, 3)).map {
         it.copy(premium = true)
@@ -49,7 +51,7 @@ class VpnRepository @Inject constructor(
       onComplete = {configs ->
         val final = convert(configs)
         emit(VpnLoadState.Completed(final))
-//        vpnDao.insertAll(final) TODO: Disable right now
+        vpnDao.insertAll(final)
       }
     )
   }

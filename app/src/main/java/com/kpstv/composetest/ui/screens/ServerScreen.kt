@@ -35,6 +35,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.kpstv.composetest.R
 import com.kpstv.composetest.data.db.repository.VpnLoadState
 import com.kpstv.composetest.data.models.VpnConfiguration
+import com.kpstv.composetest.extensions.utils.FlagUtils
 import com.kpstv.composetest.ui.components.ThemeButton
 import com.kpstv.composetest.ui.theme.CommonPreviewTheme
 import com.kpstv.composetest.ui.theme.dotColor
@@ -44,7 +45,8 @@ import com.kpstv.composetest.ui.theme.goldenYellow
 @Composable
 fun ServerScreen(
   vpnState: VpnLoadState,
-  onBackButton: () -> Unit = {}
+  onBackButton: () -> Unit = {},
+  onRefresh: () -> Unit = {}
 ) {
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
 
@@ -52,8 +54,8 @@ fun ServerScreen(
     modifier = Modifier
       .fillMaxSize(),
     state = swipeRefreshState,
-    onRefresh = {},
-    swipeEnabled = false,
+    onRefresh = onRefresh,
+    swipeEnabled = (vpnState is VpnLoadState.Completed),
     indicator = { state, trigger ->
       SwipeRefreshIndicator(
         state = state,
@@ -209,15 +211,18 @@ private fun CommonItem(
   ) {
     if (config.countryFlagUrl.isNotEmpty()) {
       Image(
-        painter = rememberCoilPainter(config.countryFlagUrl, fadeIn = true),
+        painter = rememberCoilPainter(
+          FlagUtils.getOrNull(config.country) ?: config.countryFlagUrl,
+          fadeIn = true
+        ),
         modifier = Modifier
-          .padding(10.dp)
+          .padding(5.dp)
           .requiredWidthIn(max = 40.dp)
           .fillMaxHeight()
-          .clip(shape = CircleShape)
-          .scale(0.7f),
+//          .clip(shape = CircleShape)
+          .scale(1f),
         contentDescription = "Country flag",
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.Fit
       )
     } else {
       Spacer(modifier = Modifier.width(50.dp))

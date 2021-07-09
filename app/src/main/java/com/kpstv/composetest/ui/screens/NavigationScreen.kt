@@ -1,8 +1,6 @@
 package com.kpstv.composetest.ui.screens
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kpstv.composetest.data.db.repository.VpnLoadState
 import com.kpstv.composetest.ui.viewmodels.VpnViewModel
@@ -11,6 +9,7 @@ import com.kpstv.navigation.compose.Fade
 import com.kpstv.navigation.compose.Route
 import com.kpstv.navigation.compose.SlideRight
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.parcelize.Parcelize
 
 sealed class NavigationRoute : Route {
@@ -27,14 +26,19 @@ sealed class NavigationRoute : Route {
   }
 }
 
+private class Load(val refresh: Boolean = false)
+
 @Composable
 fun NavigationScreen(
   navigator: ComposeNavigator,
   viewModel: VpnViewModel = viewModel()
 ) {
+  val shouldRefresh = remember { mutableStateOf(Load(), policy = referentialEqualityPolicy()) }
+  val vpnCollectJob = remember(shouldRefresh.value) { SupervisorJob() }
+
   val location = viewModel.publicIp.collectAsState()
   val currentConfig = viewModel.currentVpn.collectAsState()
-  val vpnLoadState = viewModel.fetchServers().collectAsState(initial = VpnLoadState.Loading(), context = Dispatchers.IO)
+  val vpnLoadState = viewModel.fetchServers(shouldRefresh.value.refresh).collectAsState(initial = VpnLoadState.Loading(), context = vpnCollectJob + Dispatchers.IO)
 
   navigator.Setup(key = NavigationRoute.key, initial = NavigationRoute.Main()) { controller, dest ->
     when (dest) {
@@ -52,7 +56,11 @@ fun NavigationScreen(
       )
       is NavigationRoute.Server -> ServerScreen(
         vpnState = vpnLoadState.value,
-        onBackButton = { controller.goBack() }
+        onBackButton = { controller.goBack() },
+        onRefresh = {
+          vpnCollectJob.cancel()
+          shouldRefresh.value = Load(refresh = true)
+        }
       )
     }
   }

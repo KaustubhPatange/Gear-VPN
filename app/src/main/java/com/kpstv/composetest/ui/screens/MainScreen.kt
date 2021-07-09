@@ -32,6 +32,7 @@ import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.composetest.R
 import com.kpstv.composetest.data.models.VpnConfiguration
+import com.kpstv.composetest.extensions.utils.FlagUtils
 import com.kpstv.composetest.ui.components.CircularBox
 import com.kpstv.composetest.ui.components.ConnectivityStatus
 import com.kpstv.composetest.ui.components.ThemeButton
@@ -109,7 +110,9 @@ fun MainScreen(
     ) {
       AnimatedVisibility(visible = configuration.isNotEmpty()) {
         Image(
-          painter = rememberCoilPainter(configuration.countryFlagUrl),
+          painter = rememberCoilPainter(
+            FlagUtils.getOrNull(configuration.country) ?: configuration.countryFlagUrl
+          ),
           modifier = Modifier
             .padding(10.dp)
             .requiredWidthIn(max = 50.dp)
