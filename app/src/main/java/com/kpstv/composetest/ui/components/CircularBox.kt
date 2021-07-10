@@ -9,9 +9,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -363,14 +362,7 @@ fun CircularBox(
         )
       }
       ConnectivityStatus.CONNECTED -> {
-        Log.e(
-          "Connected",
-          "Yellow: ${rotateArcYellow.velocity}, ${rotateArcYellow.velocityVector}, ${rotateArcYellow.value}"
-        )
-        Log.e(
-          "Connected",
-          "Cyan: ${rotateArcCyan.velocity}, ${rotateArcCyan.velocityVector}, ${rotateArcCyan.value}"
-        )
+        sweepArc.snapTo(maxSweepAngle)
 
         launch {
           degreesOuter.snapTo(0f)
@@ -447,6 +439,13 @@ fun CircularBox(
       ConnectivityStatus.NONE -> {
         reset()
       }
+      /*ConnectivityStatus.ALREADY_CONNECTED -> {
+        arcOffsetState.value = dashSizePx / 1.2f
+        circularState.value = CircularAnimateState.SHRINK_OUT_BIT
+        degreesOuter.snapTo(0f)
+        rotateArcYellow.snapTo(508f)
+        rotateArcCyan.snapTo(511f)
+      }*/
       else -> {
 
       }
@@ -459,5 +458,42 @@ fun CircularBox(
 fun DefaultPreview() {
   CommonPreviewTheme {
     CircularBox(status = ConnectivityStatus.NONE)
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlaygroundPreview() {
+  val status = remember { mutableStateOf(ConnectivityStatus.NONE) }
+
+  LaunchedEffect(status.value) {
+    if (status.value == ConnectivityStatus.CONNECTING) {
+      delay(8000)
+      status.value = ConnectivityStatus.CONNECTED
+      delay(100)
+      status.value = ConnectivityStatus.NONE
+    }
+  }
+
+  CommonPreviewTheme {
+    Column(
+      modifier = Modifier.fillMaxSize(),
+      verticalArrangement = Arrangement.Center,
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      CircularBox(status = status.value)
+      Spacer(modifier = Modifier.height(30.dp))
+      ThemeButton(
+        onClick = {
+          when (status.value) {
+            ConnectivityStatus.NONE -> status.value = ConnectivityStatus.CONNECTING
+            ConnectivityStatus.CONNECTED -> status.value = ConnectivityStatus.DISCONNECT
+            else -> status.value = ConnectivityStatus.NONE
+          }
+        },
+        text = if (status.value == ConnectivityStatus.DISCONNECT || status.value == ConnectivityStatus.NONE)
+          "Connect" else "Disconnect"
+      )
+    }
   }
 }

@@ -9,6 +9,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.coroutineScope
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.kpstv.composetest.extensions.utils.Initializer
+import com.kpstv.composetest.ui.helpers.VpnHelper
 import com.kpstv.composetest.ui.screens.NavigationScreen
 import com.kpstv.composetest.ui.theme.ComposeTestTheme
 import com.kpstv.navigation.compose.ComposeNavigator
@@ -17,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
   private lateinit var navigator: ComposeNavigator
+  private val vpnHelper by lazy { VpnHelper(this) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -34,5 +36,8 @@ class MainActivity : ComponentActivity() {
         }
       }
     }
+
+
+    vpnHelper.initializeAndObserve()
   }
 }

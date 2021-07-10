@@ -11,12 +11,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,16 +40,20 @@ import com.kpstv.composetest.ui.theme.*
 fun MainScreen(
   publicIp: String?,
   configuration: VpnConfiguration = VpnConfiguration.createEmpty(),
-  onChangeServer: () -> Unit = {}
+  connectivityStatus: ConnectivityStatus = ConnectivityStatus.NONE,
+  onChangeServer: () -> Unit = {},
+  onConnectClick: () -> Unit = {},
+  onDisconnect: () -> Unit = {}
 ) {
-  val connectivityStatus = remember { mutableStateOf(ConnectivityStatus.NONE) }
+//  val connectivityStatus = remember { mutableStateOf(ConnectivityStatus.NONE) }
 
   val ipTextColor: Color by animateColorAsState(
-    if (connectivityStatus.value == ConnectivityStatus.CONNECTED) greenColorDark else MaterialTheme.colors.error
+    if (connectivityStatus == ConnectivityStatus.CONNECTED) greenColorDark else MaterialTheme.colors.error
   )
 
-  val ipText =
+  val ipText = if (connectivityStatus != ConnectivityStatus.CONNECTED)
     stringResource(R.string.vpn_status, publicIp ?: stringResource(R.string.vpn_public_ip_unknown))
+  else stringResource(R.string.vpn_status_hidden)
 
   Column(
     modifier = Modifier
@@ -69,7 +70,7 @@ fun MainScreen(
 
     Spacer(modifier = Modifier.weight(0.5f))
 
-    CircularBox(status = connectivityStatus.value)
+    CircularBox(status = connectivityStatus)
 
     Spacer(modifier = Modifier.padding(top = 30.dp))
 
@@ -150,7 +151,8 @@ fun MainScreen(
         modifier = Modifier
           .fillMaxHeight()
           .clip(RoundedCornerShape(5.dp)),
-        text = stringResource(R.string.change_server)
+        text = stringResource(R.string.change_server),
+        enabled = connectivityStatus != ConnectivityStatus.CONNECTED
       )
     }
 
@@ -164,21 +166,31 @@ fun MainScreen(
         .height(55.dp)
     ) {
       ThemeButton(
-        onClick = { },
+        enabled = connectivityStatus != ConnectivityStatus.CONNECTING,
+        onClick = {
+          if (connectivityStatus == ConnectivityStatus.CONNECTED) {
+            onDisconnect.invoke()
+          } else {
+            onConnectClick.invoke()
+          }
+        },
         modifier = Modifier
           .weight(1f)
           .clip(RoundedCornerShape(10.dp))
           .fillMaxHeight()
           .animateContentSize(),
-        text = stringResource(R.string.status_connect)
+        text = if (connectivityStatus != ConnectivityStatus.CONNECTED)
+          stringResource(R.string.status_connect)
+        else stringResource(R.string.status_disconnect)
       )
 
-      AnimatedVisibility(visible = connectivityStatus.value == ConnectivityStatus.CONNECTING) {
-        Spacer(modifier = Modifier.padding(start = 20.dp))
+//      Spacer(modifier = Modifier.padding(start = 20.dp))
 
+      AnimatedVisibility(visible = connectivityStatus == ConnectivityStatus.CONNECTING) {
         ThemeButton(
-          onClick = {},
+          onClick = onDisconnect,
           modifier = Modifier
+            .padding(start = 20.dp)
             .clip(RoundedCornerShape(10.dp))
             .fillMaxHeight(),
           text = stringResource(R.string.stop)

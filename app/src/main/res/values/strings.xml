@@ -2,6 +2,7 @@
     <string name="app_name">ComposeTest</string>
 
     <string name="status_connect">CONNECT</string>
+    <string name="status_disconnect">DISCONNECT</string>
     <string name="status_connecting">CONNECTING</string>
     <string name="status_connected">CONNECTED</string>
 
@@ -22,4 +23,7 @@
     <string name="server_subtitle">%1$s ● %2$s ● %3$s Mbps</string>
 
     <string name="import_open_vpn">IMPORT OPEN-VPN CONFIGURATION</string>
+
+    <string name="vpn_disconnect">Disconnected successfully</string>
+    <string name="vpn_error">Could not connect to the server</string>
 </resources>

@@ -40,11 +40,14 @@ fun NavigationScreen(
   val currentConfig = viewModel.currentVpn.collectAsState()
   val vpnLoadState = viewModel.fetchServers(shouldRefresh.value.refresh).collectAsState(initial = VpnLoadState.Loading(), context = vpnCollectJob + Dispatchers.IO)
 
+  val connectivityStatus = viewModel.connectivityStatus.collectAsState()
+
   navigator.Setup(key = NavigationRoute.key, initial = NavigationRoute.Main()) { controller, dest ->
     when (dest) {
       is NavigationRoute.Main -> MainScreen(
         publicIp = location.value?.query,
         configuration = currentConfig.value,
+        connectivityStatus = connectivityStatus.value,
         onChangeServer = {
           controller.navigateTo(NavigationRoute.Server()) {
             withAnimation {
@@ -52,6 +55,12 @@ fun NavigationScreen(
               current = Fade
             }
           }
+        },
+        onConnectClick = {
+          viewModel.connect()
+        },
+        onDisconnect = {
+          viewModel.disconnect()
         }
       )
       is NavigationRoute.Server -> ServerScreen(
@@ -60,32 +69,12 @@ fun NavigationScreen(
         onRefresh = {
           vpnCollectJob.cancel()
           shouldRefresh.value = Load(refresh = true)
+        },
+        onItemClick = { config ->
+          viewModel.changeServer(config)
+          controller.goBack()
         }
       )
     }
   }
-  /*val status = remember { mutableStateOf(ConnectivityStatus.NONE) }
-
-  LaunchedEffect(status.value) {
-    if (status.value == ConnectivityStatus.CONNECTING) {
-      delay(8000)
-      status.value = ConnectivityStatus.CONNECTED
-      delay(100)
-      status.value = ConnectivityStatus.NONE
-    }
-  }
-
-  CircularBox(status = status.value)
-  Button(onClick = {
-    when (status.value) {
-      ConnectivityStatus.NONE -> status.value = ConnectivityStatus.CONNECTING
-      ConnectivityStatus.CONNECTED -> status.value = ConnectivityStatus.DISCONNECT
-      else -> status.value = ConnectivityStatus.NONE
-    }
-  }) {
-    Text(
-      if (status.value == ConnectivityStatus.DISCONNECT || status.value == ConnectivityStatus.NONE)
-        "Connect" else "Disconnect"
-    )
-  }*/
 }

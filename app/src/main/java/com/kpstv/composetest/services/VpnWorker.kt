@@ -51,7 +51,7 @@ class VpnWorker @AssistedInject constructor(
         .setConstraints(constraints)
         .build()
 
-      WorkManager.getInstance(context).enqueueUniquePeriodicWork(ID, ExistingPeriodicWorkPolicy.KEEP, request)
+      WorkManager.getInstance(context).enqueueUniquePeriodicWork(ID, ExistingPeriodicWorkPolicy.REPLACE, request)
     }
 
     fun stop(context: Context) {

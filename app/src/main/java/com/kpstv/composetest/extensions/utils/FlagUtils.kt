@@ -28,12 +28,14 @@ object FlagUtils {
       "Italy": "https://image.flaticon.com/icons/png/512/197/197626.png",
       "Brazil": "https://image.flaticon.com/icons/png/512/197/197386.png",
       "Russia": "https://image.flaticon.com/icons/png/512/197/197408.png",
+      "Russian": "https://image.flaticon.com/icons/png/512/197/197408.png",
       "Canada": "https://image.flaticon.com/icons/png/512/197/197430.png",
       "Australia": "https://image.flaticon.com/icons/png/512/197/197507.png",
       "India": "https://image.flaticon.com/icons/png/512/197/197419.png",
       "Thailand": "https://image.flaticon.com/icons/png/512/197/197452.png",
       "Singapore": "https://image.flaticon.com/icons/png/512/197/197496.png",
       "Vietnam": "https://image.flaticon.com/icons/png/512/197/197473.png",
+      "Viet Nam": "https://image.flaticon.com/icons/png/512/197/197473.png",
       "Switzerland": "https://image.flaticon.com/icons/png/512/197/197540.png",
       "Sweden": "https://image.flaticon.com/icons/png/512/197/197564.png",
       "Finland": "https://image.flaticon.com/icons/png/512/197/197585.png",
@@ -68,7 +70,10 @@ object FlagUtils {
       "Hungary": "https://image.flaticon.com/icons/png/512/197/197584.png",
       "Egypt": "https://image.flaticon.com/icons/png/512/197/197558.png",
       "Iceland": "https://image.flaticon.com/icons/png/512/197/197596.png",
-      "Lithuania": "https://cdn.countryflags.com/thumbs/lithuania/flag-round-250.png"
+      "Lithuania": "https://cdn.countryflags.com/thumbs/lithuania/flag-round-250.png",
+      "Bangladesh": "https://cdn.countryflags.com/thumbs/bangladesh/flag-round-250.png",
+      "Iraq": "https://cdn.countryflags.com/thumbs/iraq/flag-round-250.png",
+      "Iran": "https://cdn.countryflags.com/thumbs/iran/flag-round-250.png"
     }
   """
   private val flagObject = JSONObject(FlagJson)

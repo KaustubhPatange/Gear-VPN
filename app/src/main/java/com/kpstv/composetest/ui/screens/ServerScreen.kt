@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,7 +47,8 @@ import com.kpstv.composetest.ui.theme.goldenYellow
 fun ServerScreen(
   vpnState: VpnLoadState,
   onBackButton: () -> Unit = {},
-  onRefresh: () -> Unit = {}
+  onRefresh: () -> Unit = {},
+  onItemClick: (VpnConfiguration) -> Unit
 ) {
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
 
@@ -59,7 +61,7 @@ fun ServerScreen(
     indicator = { state, trigger ->
       SwipeRefreshIndicator(
         state = state,
-        refreshTriggerDistance = trigger,
+        refreshTriggerDistance = trigger + 20.dp,
         backgroundColor = MaterialTheme.colors.primary,
         contentColor = MaterialTheme.colors.onSecondary,
         refreshingOffset = 80.dp
@@ -87,7 +89,7 @@ fun ServerScreen(
             ServerHeader(title = stringResource(R.string.free_server))
             Spacer(modifier = Modifier.height(10.dp))
           }
-          CommonItem(config = item, onClick = {})
+          CommonItem(config = item, onClick = onItemClick)
 
           if (index == vpnState.configs.size - 1) {
             Spacer(
@@ -110,7 +112,7 @@ fun ServerScreen(
 private fun Header(onBackButton: () -> Unit) {
   Column(
     modifier = Modifier
-      .background(color = MaterialTheme.colors.background.copy(alpha = 0.9f))
+      .background(color = MaterialTheme.colors.background.copy(alpha = 0.93f))
       .statusBarsPadding()
       .padding(top = 10.dp)
   ) {
@@ -145,7 +147,7 @@ private fun Footer(modifier: Modifier = Modifier) {
   Column(
     modifier = modifier.then(
       Modifier
-        .background(color = MaterialTheme.colors.background.copy(alpha = 0.9f))
+        .background(color = MaterialTheme.colors.background.copy(alpha = 0.93f))
         .navigationBarsPadding()
     )
   ) {
@@ -189,7 +191,7 @@ private fun ServerHeader(title: String, premium: Boolean = false) {
 @Composable
 private fun CommonItem(
   config: VpnConfiguration,
-  onClick: () -> Unit = {}
+  onClick: (VpnConfiguration) -> Unit = {}
 ) {
   Spacer(modifier = Modifier.height(5.dp))
 
@@ -202,7 +204,7 @@ private fun CommonItem(
       )
       .height(65.dp)
       .clickable(
-        onClick = onClick,
+        onClick = { onClick.invoke(config) },
         /*interactionSource = remember { MutableInteractionSource() },
         indication = rememberRipple(radius = 10.dp)*/
       )
@@ -275,7 +277,7 @@ private fun CommonItem(
 @Composable
 fun PreviewServerScreen() {
   CommonPreviewTheme {
-    ServerScreen(vpnState = VpnLoadState.Loading())
+    ServerScreen(vpnState = VpnLoadState.Loading(), onItemClick = {})
   }
 }
 
