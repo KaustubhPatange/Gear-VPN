@@ -89,6 +89,7 @@ class VpnViewModel @Inject constructor(
       "RECONNECTING" -> VpnConnectionStatus.Reconnecting()
       "NONETWORK" -> VpnConnectionStatus.NoNetwork()
       "GET_CONFIG" -> VpnConnectionStatus.GetConfig()
+      "AUTH_FAILED" -> VpnConnectionStatus.AuthenticationFailed()
       "null" -> VpnConnectionStatus.NULL()
       "NOPROCESS" -> VpnConnectionStatus.NULL()
       "VPN_GENERATE_CONFIG" -> VpnConnectionStatus.NULL()

@@ -63,7 +63,7 @@ fun MainScreen(
       .fillMaxSize()
   ) {
     Text(
-      text = "Facade",
+      text = stringResource(R.string.app_name),
       modifier = Modifier.align(Alignment.CenterHorizontally),
       style = MaterialTheme.typography.h4
     )
@@ -117,14 +117,12 @@ fun MainScreen(
           modifier = Modifier
             .padding(10.dp)
             .requiredWidthIn(max = 50.dp)
-            .fillMaxHeight()
-            .clip(shape = CircleShape)
-            .scale(0.7f),
+            .fillMaxHeight(),
           contentDescription = "country",
         )
       }
 
-      Spacer(modifier = Modifier.padding(start = 10.dp))
+      Spacer(modifier = Modifier.width(10.dp))
 
       Column(
         modifier = Modifier
@@ -152,7 +150,7 @@ fun MainScreen(
           .fillMaxHeight()
           .clip(RoundedCornerShape(5.dp)),
         text = stringResource(R.string.change_server),
-        enabled = connectivityStatus != ConnectivityStatus.CONNECTED
+        enabled = connectivityStatus != ConnectivityStatus.CONNECTED || connectivityStatus != ConnectivityStatus.CONNECTING
       )
     }
 
@@ -166,7 +164,7 @@ fun MainScreen(
         .height(55.dp)
     ) {
       ThemeButton(
-        enabled = connectivityStatus != ConnectivityStatus.CONNECTING,
+        enabled = connectivityStatus != ConnectivityStatus.CONNECTING && configuration.isNotEmpty(),
         onClick = {
           if (connectivityStatus == ConnectivityStatus.CONNECTED) {
             onDisconnect.invoke()

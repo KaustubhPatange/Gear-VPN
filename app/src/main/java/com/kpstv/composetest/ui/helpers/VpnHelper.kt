@@ -62,6 +62,9 @@ class VpnHelper(private val activity: ComponentActivity) {
           if (isVpnStarted) stopVpn()
           prepareVpn(state.server, state.server.config)
         }
+        if (state is VpnConnectionStatus.AuthenticationFailed) {
+          Toasty.error(activity, getString(R.string.vpn_auth_failed)).show()
+        }
       }
     }
   }
@@ -94,7 +97,7 @@ class VpnHelper(private val activity: ComponentActivity) {
     try {
       val server = currentServer ?: throw Exception("Error: Server is null")
       val config = currentConfig ?: throw Exception("Error: Server config is null")
-      OpenVpnApi.startVpn(activity, config, server.country, "vpn", "vpn")
+      OpenVpnApi.startVpn(activity, config, server.country, server.username, server.password)
       isVpnStarted = true
     } catch (e: Exception) {
       e.printStackTrace()
@@ -142,6 +145,7 @@ sealed class VpnConnectionStatus(open val color: Int) {
   data class Connected(override val color: Int = Color.GREEN) : VpnConnectionStatus(color)
   data class Waiting(override val color: Int = Color.YELLOW) : VpnConnectionStatus(color)
   data class Authenticating(override val color: Int = Color.YELLOW) : VpnConnectionStatus(color)
+  data class AuthenticationFailed(override val color: Int = Color.YELLOW) : VpnConnectionStatus(color)
   data class Reconnecting(override val color: Int = Color.YELLOW) : VpnConnectionStatus(color)
   data class GetConfig(override val color: Int = Color.YELLOW) : VpnConnectionStatus(color)
   data class NoNetwork(override val color: Int = Color.RED) : VpnConnectionStatus(color)

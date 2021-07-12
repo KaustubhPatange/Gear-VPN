@@ -87,7 +87,8 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
               val vpnConfig = VpnConfiguration(
                 formatCountry(country), imageUrl, ip, sessions, uptime, speed.replace("Mbps", "").trim(),
                 data, score,
-                expiredTime
+                expiredTime,
+                "vpn", "vpn"
               )
               vpnConfigurations.add(vpnConfig)
               onNewConfigurationAdded.invoke(formatConfigurations(vpnConfigurations))

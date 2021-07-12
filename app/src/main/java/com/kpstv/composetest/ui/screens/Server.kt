@@ -2,27 +2,19 @@ package com.kpstv.composetest.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +29,7 @@ import com.kpstv.composetest.R
 import com.kpstv.composetest.data.db.repository.VpnLoadState
 import com.kpstv.composetest.data.models.VpnConfiguration
 import com.kpstv.composetest.extensions.utils.FlagUtils
+import com.kpstv.composetest.ui.components.Header
 import com.kpstv.composetest.ui.components.ThemeButton
 import com.kpstv.composetest.ui.theme.CommonPreviewTheme
 import com.kpstv.composetest.ui.theme.dotColor
@@ -101,44 +94,10 @@ fun ServerScreen(
         }
       }
 
-      Header(onBackButton = onBackButton)
+      Header(title = stringResource(R.string.choose_server), onBackButton = onBackButton)
 
       Footer(modifier = Modifier.align(Alignment.BottomCenter))
     }
-  }
-}
-
-@Composable
-private fun Header(onBackButton: () -> Unit) {
-  Column(
-    modifier = Modifier
-      .background(color = MaterialTheme.colors.background.copy(alpha = 0.93f))
-      .statusBarsPadding()
-      .padding(top = 10.dp)
-  ) {
-    Row(modifier = Modifier.padding(horizontal = 20.dp)) {
-      IconButton(
-        onClick = onBackButton,
-        modifier = Modifier
-          .clip(CircleShape)
-      ) {
-        Image(
-          painter = painterResource(R.drawable.ic_baseline_arrow_back_24),
-          contentDescription = "back button"
-        )
-      }
-      Text(
-        text = stringResource(R.string.choose_server),
-        modifier = Modifier
-          .align(Alignment.CenterVertically)
-          .weight(1f),
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.h4
-      )
-      Spacer(modifier = Modifier.width(24.dp))
-    }
-    Spacer(modifier = Modifier.height(10.dp))
-    Divider(color = MaterialTheme.colors.primaryVariant, thickness = 1.dp)
   }
 }
 

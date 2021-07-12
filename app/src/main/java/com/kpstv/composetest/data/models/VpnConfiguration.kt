@@ -14,6 +14,8 @@ data class VpnConfiguration(
   val config: String,
   val score: Long,
   val expireTime: Long,
+  val username: String,
+  val password: String,
   val premium: Boolean = false
 ) {
   @PrimaryKey(autoGenerate = true)
@@ -32,6 +34,8 @@ data class VpnConfiguration(
       upTime = "",
       speed = "",
       config = "",
+      username = "vpn",
+      password = "vpn",
       score = 0,
       expireTime = 0
     )

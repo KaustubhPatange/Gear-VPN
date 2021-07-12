@@ -30,12 +30,6 @@ class VpnRepository @Inject constructor(
 
     emit(VpnLoadState.Loading())
 
-    fun convert(list: List<VpnConfiguration>): List<VpnConfiguration> {
-      return list.sortedByDescending { it.speed.toFloat() }.subList(0, min(list.size, 3)).map {
-        it.copy(premium = true)
-      }.union(list).distinctBy { it.ip }
-    }
-
     val local = fetchFromLocal()
     val offsetDate = DateUtils.format(Calendar.getInstance().time).toLong()
     if (!forceNetwork && local.isNotEmpty() && offsetDate < local.first().expireTime) {
@@ -46,12 +40,11 @@ class VpnRepository @Inject constructor(
     // Parse from network
     openApiParser.parse(
       onNewConfigurationAdded = { configs ->
-        emit(VpnLoadState.Loading(convert(configs)))
+        emit(VpnLoadState.Loading(configs))
       },
-      onComplete = {configs ->
-        val final = convert(configs)
-        emit(VpnLoadState.Completed(final))
-        vpnDao.insertAll(final)
+      onComplete = { configs ->
+        emit(VpnLoadState.Completed(configs))
+        vpnDao.insertAll(configs)
       }
     )
   }

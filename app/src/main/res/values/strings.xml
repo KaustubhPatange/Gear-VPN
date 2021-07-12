@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ComposeTest</string>
+    <string name="app_name">Gear VPN</string>
 
     <string name="status_connect">CONNECT</string>
     <string name="status_disconnect">DISCONNECT</string>
@@ -17,6 +17,8 @@
     <string name="change_server">CHANGE</string>
     <string name="choose_server">Choose a server</string>
 
+    <string name="import_config">Import VPN Configuration</string>
+
     <string name="premium_server">Premium servers</string>
     <string name="free_server">Free servers</string>
     <string name="server_ip">● %1$s</string>
@@ -26,4 +28,16 @@
 
     <string name="vpn_disconnect">Disconnected successfully</string>
     <string name="vpn_error">Could not connect to the server</string>
+    <string name="vpn_auth_failed">Authentication failed</string>
+    <string name="save_profile">Save profile</string>
+    <string name="profile_path">Location: %1$s</string>
+    <string name="profile_path_invalid">Invalid config path</string>
+    <string name="profile_username">Username</string>
+    <string name="profile_password">Password</string>
+    <string name="profile_name">Profile Name</string>
+    <string name="choose">Choose</string>
+    <string name="profile_select_file">SELECT A FILE</string>
+    <string name="profile_add">ADD PROFILE</string>
+
+    <string name="profile_item_subtitle">Username: %1$s, Password: %1$s</string>
 </resources>
