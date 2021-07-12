@@ -37,7 +37,6 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-
     vpnHelper.initializeAndObserve()
   }
 }

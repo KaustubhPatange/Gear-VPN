@@ -30,4 +30,7 @@ object VpnModule {
 
   @[Singleton Provides]
   fun provideVpnDao(database: VpnDatabase) = database.getVPNDao()
+
+  @[Singleton Provides]
+  fun provideLocalDao(database: VpnDatabase) = database.getLocalDao()
 }

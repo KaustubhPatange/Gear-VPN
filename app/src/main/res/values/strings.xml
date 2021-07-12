@@ -37,7 +37,9 @@
     <string name="profile_name">Profile Name</string>
     <string name="choose">Choose</string>
     <string name="profile_select_file">SELECT A FILE</string>
-    <string name="profile_add">ADD PROFILE</string>
+    <string name="profile_connect">CONNECT TO PROFILE</string>
 
     <string name="profile_item_subtitle">Username: %1$s, Password: %1$s</string>
+    <string name="vpn_local_configurations">Local configurations</string>
+    <string name="invalid_config">Invalid config file</string>
 </resources>

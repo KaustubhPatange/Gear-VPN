@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.kpstv.composetest.extensions.utils
 
 import java.text.SimpleDateFormat

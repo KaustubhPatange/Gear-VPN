@@ -22,7 +22,7 @@ data class VpnConfiguration(
   var id: Int = 0
 
   fun isNotEmpty(): Boolean {
-    return country.isNotEmpty() && countryFlagUrl.isNotEmpty() && ip.isNotEmpty() && config.isNotEmpty()
+    return config.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()
   }
 
   companion object {
