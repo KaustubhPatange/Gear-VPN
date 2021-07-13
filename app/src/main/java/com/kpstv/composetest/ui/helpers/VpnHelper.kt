@@ -1,12 +1,10 @@
 package com.kpstv.composetest.ui.helpers
 
 import android.app.Activity
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.graphics.Color
 import android.net.VpnService
+import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
@@ -16,6 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.kpstv.composetest.R
 import com.kpstv.composetest.data.models.VpnConfiguration
+import com.kpstv.composetest.extensions.asShared
+import com.kpstv.composetest.extensions.asVpnConfig
 import com.kpstv.composetest.ui.viewmodels.VpnViewModel
 import de.blinkt.openvpn.DisconnectVPNActivity
 import de.blinkt.openvpn.OpenVpnApi
@@ -24,16 +24,25 @@ import de.blinkt.openvpn.core.OpenVPNThread
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.flow.collect
 
-// Cross ported https://github.com/KaustubhPatange/Moviesy/blob/master/app/src/main/java/com/kpstv/yts/vpn/VPNHelper.kt
+// Some implementations are taken from
+// https://github.com/KaustubhPatange/Moviesy/blob/master/app/src/main/java/com/kpstv/yts/vpn/VPNHelper.kt
+
 class VpnHelper(private val activity: ComponentActivity) {
   private val vpnViewModel by activity.viewModels<VpnViewModel>()
 
   private var isVpnStarted: Boolean = false
   private var currentServer: VpnConfiguration? = null
-  private var currentConfig: String? = null
+
+  private var openVpnService: OpenVPNService? = null
 
   private val lifecycleObserver = object : DefaultLifecycleObserver {
+    override fun onStop(owner: LifecycleOwner) {
+      val service = openVpnService ?: return
+      service.currentServer = currentServer?.asShared()
+      super.onPause(owner)
+    }
     override fun onDestroy(owner: LifecycleOwner) {
+      activity.unbindService(serviceConnection)
       LocalBroadcastManager.getInstance(activity).unregisterReceiver(broadcastReceiver)
       super.onDestroy(owner)
     }
@@ -60,13 +69,18 @@ class VpnHelper(private val activity: ComponentActivity) {
         if (state is VpnConnectionStatus.NewConnection) {
           // new server
           if (isVpnStarted) stopVpn()
-          prepareVpn(state.server, state.server.config)
+          prepareVpn(state.server)
         }
         if (state is VpnConnectionStatus.AuthenticationFailed) {
           Toasty.error(activity, getString(R.string.vpn_auth_failed)).show()
         }
+        if (state is VpnConnectionStatus.Connected) {
+          bindToVPNService()
+        }
       }
     }
+
+    bindToVPNService()
   }
 
   private fun stopVpn(): Boolean {
@@ -80,9 +94,8 @@ class VpnHelper(private val activity: ComponentActivity) {
     return false
   }
 
-  private fun prepareVpn(server: VpnConfiguration, config: String) {
+  private fun prepareVpn(server: VpnConfiguration) {
     this.currentServer = server
-    this.currentConfig = config
     if (!isVpnStarted) {
       val intent = VpnService.prepare(activity)
       if (intent != null) {
@@ -96,8 +109,7 @@ class VpnHelper(private val activity: ComponentActivity) {
   private fun startVpn() {
     try {
       val server = currentServer ?: throw Exception("Error: Server is null")
-      val config = currentConfig ?: throw Exception("Error: Server config is null")
-      OpenVpnApi.startVpn(activity, config, server.country, server.username, server.password)
+      OpenVpnApi.startVpn(activity, server.config, server.country, server.username, server.password)
       isVpnStarted = true
     } catch (e: Exception) {
       e.printStackTrace()
@@ -125,6 +137,28 @@ class VpnHelper(private val activity: ComponentActivity) {
       )
       vpnViewModel.dispatchConnectionDetail(detail)*/
     }
+  }
+
+  private fun bindToVPNService() {
+    val serviceIntent = Intent(activity, OpenVPNService::class.java).apply {
+      action = OpenVPNService.START_SERVICE
+    }
+    activity.bindService(serviceIntent, serviceConnection, 0)
+  }
+
+  private val serviceConnection = object : ServiceConnection {
+    override fun onServiceConnected(name: ComponentName?, binder: IBinder) {
+      val service = (binder as OpenVPNService.LocalBinder).service
+      if (service.currentServer != null) {
+        val server = service.currentServer.asVpnConfig()
+        currentServer = server
+
+        vpnViewModel.changeServer(server)
+        vpnViewModel.setPreConnectionStatus()
+      }
+      openVpnService = service
+    }
+    override fun onServiceDisconnected(name: ComponentName?) { openVpnService = null }
   }
 
   class VPNServiceContract : ActivityResultContract<Intent, Boolean>() {

@@ -1,3 +1,4 @@
 rootProject.name = "Gear VPN"
 include ':app'
 include ':vpn'
+include ':shared'

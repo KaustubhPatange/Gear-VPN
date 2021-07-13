@@ -88,6 +88,7 @@ dependencies {
     implementation "com.android.billingclient:billing-ktx:4.0.0"
 
     implementation project(":vpn")
+    implementation project(":shared")
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

@@ -79,6 +79,12 @@ class VpnViewModel @Inject constructor(
     }
   }
 
+  fun setPreConnectionStatus() {
+    viewModelScope.launch {
+      connectionStatusStateFlow.emit(VpnConnectionStatus.Connected())
+    }
+  }
+
   fun dispatchConnectionState(state: String) {
     // map from string to state
     val connectionState = when(state) {
