@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.kpstv.composetest">
+    package="com.kpstv.vpn">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
-        android:name=".App"
+        android:name="com.kpstv.vpn.App"
         android:allowBackup="true"
         android:extractNativeLibs="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,7 +17,7 @@
         android:theme="@style/Theme.Main"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".MainActivity"
+            android:name="com.kpstv.vpn.MainActivity"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".recievers.AppBroadcast"/>
+        <receiver android:name="com.kpstv.vpn.recievers.AppBroadcast"/>
 
         <provider
             android:name="androidx.work.impl.WorkManagerInitializer"
