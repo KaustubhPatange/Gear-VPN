@@ -3,7 +3,11 @@ buildscript {
         versions = [
                 "compose": "1.0.0-beta09",
                 "kotlin": "1.5.10",
-                "gradlePlugin": "7.1.0-alpha02"
+                "gradlePlugin": "7.1.0-alpha03",
+        ]
+        app = [
+                "versionCode": 2,
+                "versionName": "1.0"
         ]
     }
     repositories {

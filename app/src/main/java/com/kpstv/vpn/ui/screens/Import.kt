@@ -80,6 +80,7 @@ fun ImportScreen(
         ProfileItem(
           item = item,
           onSwipe = { config ->
+            // TODO: Try adding a delay to see if it fixes the issue
             importViewModel.removeConfig(config)
           },
           onItemClick = onItemClick
@@ -122,8 +123,8 @@ private fun ImportHeader(
 private fun Profile(connect: (config: LocalConfiguration, save: Boolean) -> Unit) {
   val context = LocalContext.current
 
-  val fileUri = remember { mutableStateOf(Uri.EMPTY) }
-  val fileLocation = derivedStateOf { fileUri.value.getFileName(context) }
+  val fileUri = remember { mutableStateOf<Uri?>(Uri.EMPTY) }
+  val fileLocation = derivedStateOf { fileUri.value?.getFileName(context) }
 
   val userName = rememberSaveable { mutableStateOf("") }
 
@@ -155,7 +156,8 @@ private fun Profile(connect: (config: LocalConfiguration, save: Boolean) -> Unit
         return@ProfileColumn
       }
       try {
-        context.contentResolver.openInputStream(fileUri.value)?.let { stream ->
+        val uri = fileUri.value ?: return@ProfileColumn
+        context.contentResolver.openInputStream(uri)?.let { stream ->
           val config = stream.bufferedReader().readText()
           // TODO: Add more ways to verify if this is a correct configuration file.
           stream.close()
