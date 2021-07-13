@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -28,87 +30,101 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toFile
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.insets.navigationBarsPadding
+import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.composetest.R
 import com.kpstv.composetest.data.models.LocalConfiguration
 import com.kpstv.composetest.extensions.utils.AppUtils.asPassword
+import com.kpstv.composetest.extensions.utils.AppUtils.getFileName
 import com.kpstv.composetest.ui.components.AnimatedSwipeDismiss
 import com.kpstv.composetest.ui.components.Header
 import com.kpstv.composetest.ui.components.ThemeButton
 import com.kpstv.composetest.ui.theme.CommonPreviewTheme
 import com.kpstv.composetest.ui.theme.dotColor
-import androidx.compose.ui.platform.LocalContext
+import com.kpstv.composetest.ui.viewmodels.ImportViewModel
 import es.dmoral.toasty.Toasty
 import java.io.FileNotFoundException
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kpstv.composetest.data.models.asVpnConfiguration
-import com.kpstv.composetest.ui.viewmodels.ImportViewModel
-import com.kpstv.composetest.ui.viewmodels.VpnViewModel
-import com.kpstv.navigation.compose.Fade
-import com.kpstv.navigation.compose.findController
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImportScreen(
   importViewModel: ImportViewModel = viewModel(),
-  vpnViewModel: VpnViewModel = viewModel(),
-  onDelete: (LocalConfiguration) -> Unit = {},
-  goBack: () -> Unit = {}
+  onItemClick: (LocalConfiguration) -> Unit,
+  goBack: () -> Unit
 ) {
-  val controller = findController(key = NavigationRoute.key)
-
   val localConfigurations = importViewModel.getConfigs.collectAsState(initial = emptyList())
 
   BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
     LazyColumn {
       itemsIndexed(localConfigurations.value) { index, item ->
         if (index == 0) {
-          Spacer(modifier = Modifier.height(100.dp))
+          Spacer(
+            modifier = Modifier
+              .statusBarsPadding()
+              .height(80.dp)
+          )
+          ImportHeader(onItemClick = onItemClick)
+          Spacer(modifier = Modifier.height(20.dp))
+          Divider(color = MaterialTheme.colors.primaryVariant, thickness = 1.dp)
+          Spacer(modifier = Modifier.height(15.dp))
+          Text(
+            text = stringResource(R.string.vpn_local_configurations),
+            modifier = Modifier.padding(horizontal = 20.dp),
+            style = MaterialTheme.typography.h4.copy(fontSize = 20.sp),
+            color = MaterialTheme.colors.onSecondary
+          )
+          Spacer(modifier = Modifier.height(5.dp))
         }
+
         ProfileItem(
           item = item,
-          onSwipe = onDelete
+          onSwipe = { config ->
+            importViewModel.removeConfig(config)
+          },
+          onItemClick = onItemClick
         )
+
+        if (index == localConfigurations.value.count() - 1) {
+          Spacer(
+            modifier = Modifier
+              .navigationBarsPadding()
+              .height(15.dp)
+          )
+        }
       }
     }
 
     Column {
       Header(title = stringResource(R.string.import_config), goBack)
-      Spacer(modifier = Modifier.height(10.dp))
-      Profile(
-        connect = { config, toSave ->
-          if (toSave) importViewModel.addConfig(config)
-          vpnViewModel.changeServer(config.asVpnConfiguration())
-
-          controller.navigateTo(NavigationRoute.Main()) {
-            popUpTo(NavigationRoute.Main()) {
-              inclusive = false
-            }
-            withAnimation {
-              target = Fade
-              current = Fade
-            }
-          }
-        }
-      )
-      Spacer(modifier = Modifier.height(10.dp))
-      Text(
-        text = stringResource(R.string.vpn_local_configurations),
-        style = MaterialTheme.typography.h4.copy(fontSize = 20.sp),
-        color = MaterialTheme.colors.onSecondary
-      )
+      if (localConfigurations.value.isEmpty()) {
+        Spacer(modifier = Modifier.height(10.dp))
+        ImportHeader(onItemClick = onItemClick)
+      }
     }
   }
 }
 
 @Composable
+private fun ImportHeader(
+  importViewModel: ImportViewModel = viewModel(),
+  onItemClick: (LocalConfiguration) -> Unit,
+) {
+  Profile(
+    connect = { config, toSave ->
+      if (toSave) importViewModel.addConfig(config)
+      onItemClick.invoke(config)
+    }
+  )
+}
+
+@Composable
 private fun Profile(connect: (config: LocalConfiguration, save: Boolean) -> Unit) {
-  val fileUri = remember { mutableStateOf(Uri.EMPTY) }
-  val fileLocation = derivedStateOf {
-    if (fileUri.value.scheme == "file") {
-      fileUri.value.toFile().absolutePath
-    } else null
-  }
   val context = LocalContext.current
+
+  val fileUri = remember { mutableStateOf(Uri.EMPTY) }
+  val fileLocation = derivedStateOf { fileUri.value.getFileName(context) }
+
   val userName = rememberSaveable { mutableStateOf("") }
 
   val password = rememberSaveable { mutableStateOf("") }
@@ -120,14 +136,11 @@ private fun Profile(connect: (config: LocalConfiguration, save: Boolean) -> Unit
   val openDocumentResult =
     rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
       fileUri.value = uri
-      if (uri.scheme == "file") {
-        uri.toFile().absolutePath
-      }
     }
 
   ProfileColumn(
     fileLocation = fileLocation.value,
-    onFileChoose = { openDocumentResult.launch(arrayOf("text/plain")) },
+    onFileChoose = { openDocumentResult.launch(arrayOf("application/octet-stream")) },
     userName = userName.value,
     onUserNameChanged = { userName.value = it },
     password = password.value,
@@ -137,6 +150,10 @@ private fun Profile(connect: (config: LocalConfiguration, save: Boolean) -> Unit
     saveProfile = saveProfile.value,
     onSaveProfileChanged = { saveProfile.value = it },
     onConnectToProfile = {
+      if (userName.value.isEmpty() || password.value.isEmpty() || profileName.value.isEmpty()) {
+        Toasty.error(context, context.getString(R.string.import_error_fields)).show()
+        return@ProfileColumn
+      }
       try {
         context.contentResolver.openInputStream(fileUri.value)?.let { stream ->
           val config = stream.bufferedReader().readText()
@@ -175,7 +192,7 @@ private fun ProfileColumn(
 ) {
   val passwordVisibility = remember { mutableStateOf(false) }
 
-  Column(modifier = Modifier.padding(15.dp)) {
+  Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)) {
     // Choose a file
     Row {
       Column(modifier = Modifier.weight(1f)) {
@@ -289,31 +306,21 @@ private fun ProfileColumn(
 }
 
 @Composable
-private fun ProfileItem(item: LocalConfiguration, onSwipe: (LocalConfiguration) -> Unit = {}) {
+private fun ProfileItem(
+  item: LocalConfiguration,
+  onItemClick: (LocalConfiguration) -> Unit,
+  onSwipe: (LocalConfiguration) -> Unit = {}
+) {
+  Spacer(modifier = Modifier.height(10.dp))
   AnimatedSwipeDismiss(
     item = item,
     background = { isDismissed ->
-      /** define your background delete view here
-       * possibly:
-      Box(
-      modifier = Modifier.fillMaxSize(),
-      backgroundColor = Color.Red,
-      paddingStart = 20.dp,
-      paddingEnd = 20.dp,
-      gravity = ContentGravity.CenterEnd
-      ) {
-      val alpha = animate( if (isDismissed) 0f else 1f)
-      Icon(Icons.Filled.Delete, tint = Color.White.copy(alpha = alpha))
-      }
-
-      using isDismissed to control alpha of the icon or content in the box
-       */
       Box(
         modifier = Modifier
           .fillMaxSize()
           .background(Color.Red)
-          .padding(horizontal = 20.dp)
-          .clip(RoundedCornerShape(10.dp)),
+          .clip(RoundedCornerShape(10.dp))
+          .padding(horizontal = 20.dp),
         contentAlignment = Alignment.CenterEnd,
       ) {
         val alpha by animateFloatAsState(if (isDismissed) 0f else 1f)
@@ -329,12 +336,14 @@ private fun ProfileItem(item: LocalConfiguration, onSwipe: (LocalConfiguration) 
         modifier = Modifier
           .fillMaxWidth()
           .wrapContentHeight()
+          .background(MaterialTheme.colors.background)
+          .padding(horizontal = 20.dp)
           .border(
             width = 1.5.dp,
             color = dotColor.copy(alpha = 0.7f),
             shape = RoundedCornerShape(10.dp)
           )
-          .background(MaterialTheme.colors.background)
+          .clickable(onClick = { onItemClick.invoke(item) })
           .padding(13.dp)
       ) {
         Column(
@@ -361,9 +370,6 @@ private fun ProfileItem(item: LocalConfiguration, onSwipe: (LocalConfiguration) 
             maxLines = 1
           )
         }
-        /*IconButton(onClick = {  }) {
-          Icon(painter = , contentDescription = )
-        }*/
       }
     },
     onDismiss = { onSwipe(it) }
@@ -390,7 +396,8 @@ fun PreviewProfileItem() {
         userName = "vpn",
         password = "vpn",
         config = ""
-      )
+      ),
+      onItemClick = {}
     )
   }
 }

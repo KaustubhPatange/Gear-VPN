@@ -3,6 +3,8 @@ package com.kpstv.composetest.ui.screens
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kpstv.composetest.data.db.repository.VpnLoadState
+import com.kpstv.composetest.data.models.asVpnConfiguration
+import com.kpstv.composetest.extensions.SlideTop
 import com.kpstv.composetest.ui.viewmodels.VpnViewModel
 import com.kpstv.navigation.compose.ComposeNavigator
 import com.kpstv.navigation.compose.Fade
@@ -21,6 +23,10 @@ sealed class NavigationRoute : Route {
   @Immutable
   data class Server(private val noArg: String = "") : NavigationRoute()
 
+  @Parcelize
+  @Immutable
+  data class Import(private val noArg: String = "") : NavigationRoute()
+
   companion object {
     val key = NavigationRoute::class
   }
@@ -38,7 +44,8 @@ fun NavigationScreen(
 
   val location = viewModel.publicIp.collectAsState()
   val currentConfig = viewModel.currentVpn.collectAsState()
-  val vpnLoadState = viewModel.fetchServers(shouldRefresh.value.refresh).collectAsState(initial = VpnLoadState.Loading(), context = vpnCollectJob + Dispatchers.IO)
+  val vpnLoadState = viewModel.fetchServers(shouldRefresh.value.refresh)
+    .collectAsState(initial = VpnLoadState.Loading(), context = vpnCollectJob + Dispatchers.IO)
 
   val connectivityStatus = viewModel.connectivityStatus.collectAsState()
 
@@ -70,10 +77,32 @@ fun NavigationScreen(
           vpnCollectJob.cancel()
           shouldRefresh.value = Load(refresh = true)
         },
+        onImportButton = {
+          controller.navigateTo(NavigationRoute.Import()) {
+            withAnimation {
+              target = SlideTop
+              current = Fade
+            }
+          }
+        },
         onItemClick = { config ->
           viewModel.changeServer(config)
           controller.goBack()
         }
+      )
+      is NavigationRoute.Import -> ImportScreen(
+        onItemClick = { config ->
+          viewModel.changeServer(config.asVpnConfiguration())
+
+          controller.navigateTo(NavigationRoute.Main()) {
+            popUpTo(NavigationRoute.Main())
+            withAnimation {
+              target = Fade
+              current = Fade
+            }
+          }
+        },
+        goBack = { controller.goBack() }
       )
     }
   }

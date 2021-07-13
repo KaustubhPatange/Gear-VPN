@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +29,7 @@ fun Header(title: String, onBackButton: () -> Unit = {}) {
       .statusBarsPadding()
       .padding(top = 10.dp)
   ) {
-    Row(modifier = Modifier.padding(horizontal = 20.dp)) {
+    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
       IconButton(
         onClick = onBackButton,
         modifier = Modifier
@@ -41,13 +42,10 @@ fun Header(title: String, onBackButton: () -> Unit = {}) {
       }
       Text(
         text = title,
-        modifier = Modifier
-          .align(Alignment.CenterVertically)
-          .weight(1f),
+        modifier = Modifier.align(Alignment.Center),
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.h4
       )
-      Spacer(modifier = Modifier.width(24.dp))
     }
     Spacer(modifier = Modifier.height(10.dp))
     Divider(color = MaterialTheme.colors.primaryVariant, thickness = 1.dp)

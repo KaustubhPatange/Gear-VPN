@@ -109,7 +109,7 @@ fun MainScreen(
         )
         .padding(10.dp)
     ) {
-      AnimatedVisibility(visible = configuration.isNotEmpty()) {
+      AnimatedVisibility(visible = configuration.countryFlagUrl.isNotEmpty()) {
         Image(
           painter = rememberCoilPainter(
             FlagUtils.getOrNull(configuration.country) ?: configuration.countryFlagUrl
@@ -150,7 +150,7 @@ fun MainScreen(
           .fillMaxHeight()
           .clip(RoundedCornerShape(5.dp)),
         text = stringResource(R.string.change_server),
-        enabled = connectivityStatus != ConnectivityStatus.CONNECTED || connectivityStatus != ConnectivityStatus.CONNECTING
+        enabled = connectivityStatus != ConnectivityStatus.CONNECTED && connectivityStatus != ConnectivityStatus.CONNECTING
       )
     }
 
@@ -181,8 +181,6 @@ fun MainScreen(
           stringResource(R.string.status_connect)
         else stringResource(R.string.status_disconnect)
       )
-
-//      Spacer(modifier = Modifier.padding(start = 20.dp))
 
       AnimatedVisibility(visible = connectivityStatus == ConnectivityStatus.CONNECTING) {
         ThemeButton(

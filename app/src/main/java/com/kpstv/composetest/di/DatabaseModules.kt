@@ -3,6 +3,8 @@ package com.kpstv.composetest.di
 import android.content.Context
 import androidx.room.Room
 import com.kpstv.composetest.data.db.database.VpnDatabase
+import com.kpstv.composetest.data.db.localized.LocalDao
+import com.kpstv.composetest.data.db.localized.VpnDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,8 +31,8 @@ object VpnModule {
   }
 
   @[Singleton Provides]
-  fun provideVpnDao(database: VpnDatabase) = database.getVPNDao()
+  fun provideVpnDao(database: VpnDatabase): VpnDao = database.getVPNDao()
 
   @[Singleton Provides]
-  fun provideLocalDao(database: VpnDatabase) = database.getLocalDao()
+  fun provideLocalDao(database: VpnDatabase): LocalDao = database.getLocalDao()
 }

@@ -17,7 +17,7 @@
     <string name="change_server">CHANGE</string>
     <string name="choose_server">Choose a server</string>
 
-    <string name="import_config">Import VPN Configuration</string>
+    <string name="import_config">Import</string>
 
     <string name="premium_server">Premium servers</string>
     <string name="free_server">Free servers</string>
@@ -37,9 +37,10 @@
     <string name="profile_name">Profile Name</string>
     <string name="choose">Choose</string>
     <string name="profile_select_file">SELECT A FILE</string>
-    <string name="profile_connect">CONNECT TO PROFILE</string>
+    <string name="profile_connect">CHANGE PROFILE</string>
 
-    <string name="profile_item_subtitle">Username: %1$s, Password: %1$s</string>
-    <string name="vpn_local_configurations">Local configurations</string>
+    <string name="profile_item_subtitle">Username: %1$s, Password: %2$s</string>
+    <string name="vpn_local_configurations">Saved profiles</string>
     <string name="invalid_config">Invalid config file</string>
+    <string name="import_error_fields">Required fields cannot be empty</string>
 </resources>

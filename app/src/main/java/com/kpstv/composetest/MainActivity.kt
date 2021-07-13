@@ -8,6 +8,7 @@ import androidx.compose.material.Surface
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.coroutineScope
 import com.google.accompanist.insets.ProvideWindowInsets
+import com.kpstv.composetest.extensions.SlideTopTransition
 import com.kpstv.composetest.extensions.utils.Initializer
 import com.kpstv.composetest.ui.helpers.VpnHelper
 import com.kpstv.composetest.ui.screens.NavigationScreen
@@ -23,7 +24,9 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     WindowCompat.setDecorFitsSystemWindows(window, false)
-    navigator = ComposeNavigator.with(this, savedInstanceState).initialize()
+    navigator = ComposeNavigator.with(this, savedInstanceState)
+      .registerTransitions(SlideTopTransition)
+      .initialize()
 
     Initializer.initialize(lifecycle.coroutineScope, this)
 

@@ -41,6 +41,7 @@ fun ServerScreen(
   vpnState: VpnLoadState,
   onBackButton: () -> Unit = {},
   onRefresh: () -> Unit = {},
+  onImportButton: () -> Unit = {},
   onItemClick: (VpnConfiguration) -> Unit
 ) {
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
@@ -96,13 +97,16 @@ fun ServerScreen(
 
       Header(title = stringResource(R.string.choose_server), onBackButton = onBackButton)
 
-      Footer(modifier = Modifier.align(Alignment.BottomCenter))
+      Footer(
+        modifier = Modifier.align(Alignment.BottomCenter),
+        onImportButton = onImportButton
+      )
     }
   }
 }
 
 @Composable
-private fun Footer(modifier: Modifier = Modifier) {
+private fun Footer(modifier: Modifier = Modifier, onImportButton: () -> Unit) {
   Column(
     modifier = modifier.then(
       Modifier
@@ -115,7 +119,7 @@ private fun Footer(modifier: Modifier = Modifier) {
     Spacer(modifier = Modifier.height(10.dp))
 
     ThemeButton(
-      onClick = { /*TODO*/ },
+      onClick = onImportButton,
       modifier = Modifier
         .padding(horizontal = 20.dp)
         .height(55.dp)

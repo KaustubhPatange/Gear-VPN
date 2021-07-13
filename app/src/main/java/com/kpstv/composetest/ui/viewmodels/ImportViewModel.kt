@@ -1,5 +1,6 @@
 package com.kpstv.composetest.ui.viewmodels
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kpstv.composetest.data.db.localized.LocalDao
@@ -14,6 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ImportViewModel @Inject constructor(
+  private val savedStateHandle: SavedStateHandle,
   private val localDao: LocalDao
 ) : ViewModel() {
   private val job = SupervisorJob()
@@ -24,6 +26,12 @@ class ImportViewModel @Inject constructor(
   fun addConfig(config: LocalConfiguration) {
     viewModelScope.launch {
       localDao.insert(config)
+    }
+  }
+
+  fun removeConfig(config: LocalConfiguration) {
+    viewModelScope.launch {
+      localDao.delete(config.id)
     }
   }
 
