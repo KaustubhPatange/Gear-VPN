@@ -62,6 +62,7 @@ fun ServerScreen(
       )
     }
   ) {
+    val freeServerIndex = vpnState.configs.indexOfFirst { !it.premium }
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
 
       LazyColumn(
@@ -78,7 +79,7 @@ fun ServerScreen(
             ServerHeader(title = stringResource(R.string.premium_server), premium = true)
             Spacer(modifier = Modifier.height(15.dp))
           }
-          if (index == 3) {
+          if (index == freeServerIndex) {
             Spacer(modifier = Modifier.height(15.dp))
             ServerHeader(title = stringResource(R.string.free_server))
             Spacer(modifier = Modifier.height(10.dp))

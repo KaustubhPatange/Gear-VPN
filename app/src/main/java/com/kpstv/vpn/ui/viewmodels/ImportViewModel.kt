@@ -30,7 +30,7 @@ class ImportViewModel @Inject constructor(
   }
 
   fun removeConfig(config: LocalConfiguration) {
-    viewModelScope.launch {
+    viewModelIOScope.launch {
       localDao.delete(config.id)
     }
   }

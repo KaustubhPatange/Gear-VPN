@@ -80,7 +80,6 @@ fun ImportScreen(
         ProfileItem(
           item = item,
           onSwipe = { config ->
-            // TODO: Try adding a delay to see if it fixes the issue
             importViewModel.removeConfig(config)
           },
           onItemClick = onItemClick

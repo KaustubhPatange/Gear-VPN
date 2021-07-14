@@ -6,6 +6,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -15,7 +16,7 @@ fun <T> AnimatedSwipeDismiss(
   background: @Composable (isDismissed: Boolean) -> Unit,
   content: @Composable (isDismissed: Boolean) -> Unit,
   directions: Set<DismissDirection> = setOf(DismissDirection.EndToStart),
-  enter: EnterTransition = expandVertically(),
+  enter: EnterTransition = EnterTransition.None,
   exit: ExitTransition = shrinkVertically(
     animationSpec = tween(
       durationMillis = 500,
@@ -28,6 +29,7 @@ fun <T> AnimatedSwipeDismiss(
 
   LaunchedEffect(dismissState.currentValue) {
     if (dismissState.currentValue == DismissValue.DismissedToStart) {
+      delay(600)
       onDismiss(item)
     }
   }

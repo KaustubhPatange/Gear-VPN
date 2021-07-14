@@ -28,7 +28,7 @@
 
     <string name="vpn_disconnect">Disconnected successfully</string>
     <string name="vpn_error">Could not connect to the server</string>
-    <string name="vpn_auth_failed">Authentication failed</string>
+    <string name="vpn_auth_failed">Authentication failed: Incorrect username or password</string>
     <string name="save_profile">Save profile</string>
     <string name="profile_path">Location: %1$s</string>
     <string name="profile_path_invalid">Invalid config path</string>
