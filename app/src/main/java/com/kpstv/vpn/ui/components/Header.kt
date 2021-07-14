@@ -26,7 +26,7 @@ fun Header(title: String, onBackButton: () -> Unit = {}) {
     modifier = Modifier
       .background(color = MaterialTheme.colors.background.copy(alpha = 0.93f))
       .statusBarsPadding()
-      .padding(top = 10.dp)
+      .padding(top = 5.dp)
   ) {
     Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
       IconButton(

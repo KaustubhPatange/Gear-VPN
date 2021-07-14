@@ -1,4 +1,5 @@
-# vpn-client
+# Gear VPN
+
 A VPN app made with Jetpack Compose
 
 ## Contribute

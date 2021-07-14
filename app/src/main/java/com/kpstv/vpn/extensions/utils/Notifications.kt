@@ -30,7 +30,7 @@ object Notifications {
 
     val builder = NotificationCompat.Builder(this, REFRESH_CHANNEL)
       .setContentTitle(getString(R.string.vpn_refresh))
-      .setSmallIcon(de.blinkt.openvpn.R.drawable.ic_baseline_vpn)
+      .setSmallIcon(R.drawable.ic_logo)
       .setProgress(100, 0, true)
       .addAction(R.drawable.ic_baseline_cancel_24, getString(android.R.string.cancel), cancelIntent)
 

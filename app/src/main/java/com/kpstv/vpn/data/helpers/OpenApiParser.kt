@@ -38,10 +38,7 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
         }
       vpnConfigurations.clear()
 
-//      val maxIteration = minOf(8, table.childrenSize()) TODO: See how much time it takes
       for (i in 1 until table.childrenSize()) {
-
-//        if (vpnConfigurations.size >= maxIteration) return vpnConfigurations
 
         val tr = table.child(i)
 
@@ -119,9 +116,9 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
   }
 
   private fun formatConfigurations(list: List<VpnConfiguration>): List<VpnConfiguration> {
-    return list.sortedByDescending { it.speed.toFloat() }.subList(0, min(list.size, 3)).map {
-      it.copy(premium = true)
-    }.union(list).distinctBy { it.ip }
+    return list.sortedByDescending { it.speed.toFloat() }.distinctBy { it.country }
+      .take(3).map { it.copy(premium = true) }
+      .union(list).distinctBy { it.ip }
   }
 
   private fun formatCountry(country: String): String {

@@ -9,6 +9,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,16 +58,24 @@ fun MainScreen(
 
   Column(
     modifier = Modifier
-      .padding(top = 15.dp)
+      .padding(top = 5.dp)
       .statusBarsPadding()
       .navigationBarsPadding()
       .fillMaxSize()
   ) {
-    Text(
-      text = stringResource(R.string.app_name),
-      modifier = Modifier.align(Alignment.CenterHorizontally),
-      style = MaterialTheme.typography.h4
-    )
+    Box(modifier = Modifier.fillMaxWidth()) {
+      Text(
+        text = stringResource(R.string.app_name),
+        modifier = Modifier.align(Alignment.Center).padding(top = 5.dp),
+        style = MaterialTheme.typography.h4
+      )
+      IconButton(
+        onClick = { /*TODO*/ },
+        modifier = Modifier.padding(end = 10.dp).align(Alignment.CenterEnd)
+      ) {
+        Image(painter = painterResource(R.drawable.ic_crown), contentDescription = "Get premium")
+      }
+    }
 
     Spacer(modifier = Modifier.weight(0.5f))
 
