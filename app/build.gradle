@@ -85,6 +85,8 @@ dependencies {
     implementation 'androidx.hilt:hilt-work:1.0.0'
     kapt "com.google.dagger:hilt-android-compiler:2.36"
 
+    implementation "com.airbnb.android:lottie-compose:1.0.0-rc01-1"
+
     implementation "com.android.billingclient:billing-ktx:4.0.0"
 
     implementation project(":vpn")

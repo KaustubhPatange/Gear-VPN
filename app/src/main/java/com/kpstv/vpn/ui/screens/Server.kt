@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,8 +32,7 @@ import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.FlagUtils
-import com.kpstv.vpn.ui.components.Header
-import com.kpstv.vpn.ui.components.ThemeButton
+import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.theme.goldenYellow
@@ -42,8 +44,10 @@ fun ServerScreen(
   onBackButton: () -> Unit = {},
   onRefresh: () -> Unit = {},
   onImportButton: () -> Unit = {},
+  suppressBackPress: (Boolean) -> Unit = {},
   onItemClick: (VpnConfiguration) -> Unit
 ) {
+  val premiumBottomSheet = rememberBottomSheetState()
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
 
   SwipeRefresh(
@@ -84,7 +88,7 @@ fun ServerScreen(
             ServerHeader(title = stringResource(R.string.free_server))
             Spacer(modifier = Modifier.height(10.dp))
           }
-          CommonItem(config = item, onClick = onItemClick)
+          CommonItem(config = item, premiumSheetState = premiumBottomSheet, onClick = onItemClick)
 
           if (index == vpnState.configs.size - 1) {
             Spacer(
@@ -104,6 +108,8 @@ fun ServerScreen(
       )
     }
   }
+
+  PremiumBottomSheet(premiumBottomSheet) { suppressBackPress(it) }
 }
 
 @Composable
@@ -154,6 +160,7 @@ private fun ServerHeader(title: String, premium: Boolean = false) {
 
 @Composable
 private fun CommonItem(
+  premiumSheetState: MutableState<BottomSheetState>,
   config: VpnConfiguration,
   onClick: (VpnConfiguration) -> Unit = {}
 ) {
@@ -168,7 +175,13 @@ private fun CommonItem(
       )
       .height(65.dp)
       .clickable(
-        onClick = { onClick.invoke(config) },
+        onClick = {
+          if (config.premium /* && Premium not unlocked */) {
+            premiumSheetState.value = BottomSheetState.Expanded
+          } else {
+            onClick.invoke(config)
+          }
+        },
         /*interactionSource = remember { MutableInteractionSource() },
         indication = rememberRipple(radius = 10.dp)*/
       )
@@ -250,7 +263,8 @@ fun PreviewServerScreen() {
 fun PreviewCommonItem() {
   CommonPreviewTheme {
     CommonItem(
-      config = createTestConfiguration()
+      config = createTestConfiguration(),
+      premiumSheetState = rememberBottomSheetState()
     )
   }
 }
@@ -260,7 +274,8 @@ fun PreviewCommonItem() {
 fun PreviewCommonItemPremium() {
   CommonPreviewTheme {
     CommonItem(
-      config = createTestConfiguration().copy(premium = true)
+      config = createTestConfiguration().copy(premium = true),
+      premiumSheetState = rememberBottomSheetState()
     )
   }
 }

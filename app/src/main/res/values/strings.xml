@@ -43,4 +43,6 @@
     <string name="vpn_local_configurations">Saved profiles</string>
     <string name="invalid_config">Invalid config file</string>
     <string name="import_error_fields">Required fields cannot be empty</string>
+    <string name="premium_pay">PAY</string>
+    <string name="premium_text">Enjoy fast premium servers for lifetime with just one purchase.</string>
 </resources>

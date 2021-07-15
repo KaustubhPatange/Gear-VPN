@@ -9,7 +9,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -31,10 +30,11 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.FlagUtils
-import com.kpstv.vpn.ui.components.CircularBox
-import com.kpstv.vpn.ui.components.ConnectivityStatus
-import com.kpstv.vpn.ui.components.ThemeButton
-import com.kpstv.vpn.ui.theme.*
+import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.theme.CommonPreviewTheme
+import com.kpstv.vpn.ui.theme.cyanDark
+import com.kpstv.vpn.ui.theme.greenColorDark
+import com.kpstv.vpn.ui.theme.purpleColor
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -44,9 +44,10 @@ fun MainScreen(
   connectivityStatus: ConnectivityStatus = ConnectivityStatus.NONE,
   onChangeServer: () -> Unit = {},
   onConnectClick: () -> Unit = {},
-  onDisconnect: () -> Unit = {}
+  onDisconnect: () -> Unit = {},
+  suppressBackPress: (Boolean) -> Unit = {}
 ) {
-//  val connectivityStatus = remember { mutableStateOf(ConnectivityStatus.NONE) }
+  val premiumBottomSheet = rememberBottomSheetState()
 
   val ipTextColor: Color by animateColorAsState(
     if (connectivityStatus == ConnectivityStatus.CONNECTED) greenColorDark else MaterialTheme.colors.error
@@ -66,12 +67,16 @@ fun MainScreen(
     Box(modifier = Modifier.fillMaxWidth()) {
       Text(
         text = stringResource(R.string.app_name),
-        modifier = Modifier.align(Alignment.Center).padding(top = 5.dp),
+        modifier = Modifier
+          .align(Alignment.Center)
+          .padding(top = 5.dp),
         style = MaterialTheme.typography.h4
       )
       IconButton(
-        onClick = { /*TODO*/ },
-        modifier = Modifier.padding(end = 10.dp).align(Alignment.CenterEnd)
+        onClick = { premiumBottomSheet.value = BottomSheetState.Expanded },
+        modifier = Modifier
+          .padding(end = 10.dp)
+          .align(Alignment.CenterEnd)
       ) {
         Image(painter = painterResource(R.drawable.ic_crown), contentDescription = "Get premium")
       }
@@ -205,6 +210,8 @@ fun MainScreen(
 
     Spacer(modifier = Modifier.height(20.dp))
   }
+
+  PremiumBottomSheet(premiumBottomSheet) { suppressBackPress(it) }
 }
 
 @Preview(showBackground = true)

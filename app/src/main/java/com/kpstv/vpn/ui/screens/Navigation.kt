@@ -68,7 +68,8 @@ fun NavigationScreen(
         },
         onDisconnect = {
           viewModel.disconnect()
-        }
+        },
+        suppressBackPress = { navigator.suppressBackPress = it }
       )
       is NavigationRoute.Server -> ServerScreen(
         vpnState = vpnLoadState.value,
@@ -85,6 +86,7 @@ fun NavigationScreen(
             }
           }
         },
+        suppressBackPress = { navigator.suppressBackPress = it },
         onItemClick = { config ->
           viewModel.changeServer(config)
           controller.goBack()
