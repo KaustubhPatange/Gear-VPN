@@ -1,15 +1,20 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.Main" parent="Theme.MaterialComponents">
+
+    <style name="Theme.Main" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/purple_200</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/black</item>
-        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondary">@color/teal_200</item>Ma
         <item name="colorSecondaryVariant">@color/teal_200</item>
         <item name="colorOnSecondary">@color/black</item>
 
-        <item name="android:windowBackground">@color/background</item> <!-- TODO: Change this to implement true splash screen when logo is available. -->
+        <item name="android:windowBackground">@color/background</item>
 
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="Theme.Splash" parent="Theme.Main">
+        <item name="android:windowBackground">@color/background</item>
     </style>
 </resources>

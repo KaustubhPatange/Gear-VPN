@@ -14,18 +14,19 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Main"
+        android:theme="@style/Theme.Splash"
         android:usesCleartextTraffic="true">
-        <activity
-            android:name="com.kpstv.vpn.MainActivity"
-            android:exported="true"
-            android:label="@string/app_name">
+
+        <activity android:name=".ui.activities.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.activities.Main"
+            android:theme="@style/Theme.Main"/>
 
         <receiver android:name="com.kpstv.vpn.recievers.AppBroadcast"/>
 
@@ -33,6 +34,6 @@
             android:name="androidx.work.impl.WorkManagerInitializer"
             android:authorities="${applicationId}.workmanager-init"
             tools:node="remove" />
-    </application>
 
+    </application>
 </manifest>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:targetApi="m">
+    <item android:drawable="@color/background" />
+
+    <item
+        tools:targetApi="m"
+        android:width="150dp"
+        android:height="150dp"
+        android:drawable="@drawable/splash_circle"
+        android:gravity="center" />
+
+</layer-list>
