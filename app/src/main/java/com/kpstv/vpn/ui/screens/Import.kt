@@ -77,13 +77,15 @@ fun ImportScreen(
           Spacer(modifier = Modifier.height(5.dp))
         }
 
-        ProfileItem(
-          item = item,
-          onSwipe = { config ->
-            importViewModel.removeConfig(config)
-          },
-          onItemClick = onItemClick
-        )
+        key(item.id) {
+          ProfileItem(
+            item = item,
+            onSwipe = { config ->
+              importViewModel.removeConfig(config)
+            },
+            onItemClick = onItemClick
+          )
+        }
 
         if (index == localConfigurations.value.count() - 1) {
           Spacer(
@@ -111,7 +113,7 @@ private fun ImportHeader(
   onItemClick: (LocalConfiguration) -> Unit,
 ) {
   Profile(
-    connect = { config, toSave ->
+    changeProfile = { config, toSave ->
       if (toSave) importViewModel.addConfig(config)
       onItemClick.invoke(config)
     }
@@ -119,7 +121,7 @@ private fun ImportHeader(
 }
 
 @Composable
-private fun Profile(connect: (config: LocalConfiguration, save: Boolean) -> Unit) {
+private fun Profile(changeProfile: (config: LocalConfiguration, save: Boolean) -> Unit) {
   val context = LocalContext.current
 
   val fileUri = remember { mutableStateOf<Uri?>(Uri.EMPTY) }
@@ -160,7 +162,7 @@ private fun Profile(connect: (config: LocalConfiguration, save: Boolean) -> Unit
           val config = stream.bufferedReader().readText()
           // TODO: Add more ways to verify if this is a correct configuration file.
           stream.close()
-          connect.invoke(
+          changeProfile.invoke(
             /*config*/ LocalConfiguration(
               profileName = profileName.value,
               userName = userName.value,
