@@ -11,6 +11,7 @@ import com.kpstv.navigation.compose.ComposeNavigator
 import com.kpstv.vpn.extensions.SlideTopTransition
 import com.kpstv.vpn.extensions.utils.AppUtils.setEdgeToEdgeSystemUiFlags
 import com.kpstv.vpn.extensions.utils.Initializer
+import com.kpstv.vpn.ui.helpers.BillingHelper
 import com.kpstv.vpn.ui.helpers.VpnHelper
 import com.kpstv.vpn.ui.screens.NavigationScreen
 import com.kpstv.vpn.ui.theme.ComposeTestTheme
@@ -20,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class Main : ComponentActivity() {
   private lateinit var navigator: ComposeNavigator
   private val vpnHelper by lazy { VpnHelper(this) }
+  private val billingHelper by lazy { BillingHelper(this) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -34,12 +36,13 @@ class Main : ComponentActivity() {
       ComposeTestTheme {
         ProvideWindowInsets {
           Surface(color = MaterialTheme.colors.background) {
-            NavigationScreen(navigator = navigator)
+            NavigationScreen(navigator = navigator, billingHelper = billingHelper)
           }
         }
       }
     }
 
     vpnHelper.initializeAndObserve()
+    billingHelper.init()
   }
 }

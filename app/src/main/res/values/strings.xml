@@ -45,4 +45,10 @@
     <string name="import_error_fields">Required fields cannot be empty</string>
     <string name="premium_pay">PAY</string>
     <string name="premium_text">Enjoy fast premium servers for lifetime with just one purchase.</string>
+    <string name="purchase_ack">Could not acknowledge purchase</string>
+    <string name="purchase_err_client">Billing client is not initialized yet!</string>
+
+    <string name="premium_complete_text">Thank you for supporting. You are awesome!</string>
+    <string name="premium_complete_button">Have a great day!</string>
+    <string name="premium_unlocked">Hooray! Premium unlocked</string>
 </resources>

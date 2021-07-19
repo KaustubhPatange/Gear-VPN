@@ -45,10 +45,8 @@ fun MainScreen(
   onChangeServer: () -> Unit = {},
   onConnectClick: () -> Unit = {},
   onDisconnect: () -> Unit = {},
-  suppressBackPress: (Boolean) -> Unit = {}
+  onPremiumClick: () -> Unit = {},
 ) {
-  val premiumBottomSheet = rememberBottomSheetState()
-
   val ipTextColor: Color by animateColorAsState(
     if (connectivityStatus == ConnectivityStatus.CONNECTED) greenColorDark else MaterialTheme.colors.error
   )
@@ -73,7 +71,7 @@ fun MainScreen(
         style = MaterialTheme.typography.h4
       )
       IconButton(
-        onClick = { premiumBottomSheet.value = BottomSheetState.Expanded },
+        onClick = onPremiumClick,
         modifier = Modifier
           .padding(end = 10.dp)
           .align(Alignment.CenterEnd)
@@ -210,8 +208,6 @@ fun MainScreen(
 
     Spacer(modifier = Modifier.height(20.dp))
   }
-
-  PremiumBottomSheet(premiumBottomSheet) { suppressBackPress(it) }
 }
 
 @Preview(showBackground = true)

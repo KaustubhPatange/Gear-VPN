@@ -10,6 +10,10 @@ import com.kpstv.navigation.compose.ComposeNavigator
 import com.kpstv.navigation.compose.Fade
 import com.kpstv.navigation.compose.Route
 import com.kpstv.navigation.compose.SlideRight
+import com.kpstv.vpn.ui.components.BottomSheetState
+import com.kpstv.vpn.ui.components.PremiumBottomSheet
+import com.kpstv.vpn.ui.components.rememberBottomSheetState
+import com.kpstv.vpn.ui.helpers.BillingHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.parcelize.Parcelize
@@ -37,10 +41,12 @@ private class Load(val refresh: Boolean = false)
 @Composable
 fun NavigationScreen(
   navigator: ComposeNavigator,
+  billingHelper: BillingHelper,
   viewModel: VpnViewModel = viewModel()
 ) {
   val shouldRefresh = remember { mutableStateOf(Load(), policy = referentialEqualityPolicy()) }
   val vpnCollectJob = remember(shouldRefresh.value) { SupervisorJob() }
+  val premiumBottomSheet = rememberBottomSheetState()
 
   val location = viewModel.publicIp.collectAsState()
   val currentConfig = viewModel.currentVpn.collectAsState()
@@ -48,6 +54,20 @@ fun NavigationScreen(
     .collectAsState(initial = VpnLoadState.Loading(), context = vpnCollectJob + Dispatchers.IO)
 
   val connectivityStatus = viewModel.connectivityStatus.collectAsState()
+
+  val isPremiumUnlocked = billingHelper.isPurchased.collectAsState(initial = false)
+
+  val onPurchaseComplete = billingHelper.purchaseComplete.collectAsState()
+  if (onPurchaseComplete.value.sku == BillingHelper.purchase_sku) {
+    premiumBottomSheet.value = BottomSheetState.Expanded
+  }
+
+  val onPurchaseClick: () -> Unit = {
+    billingHelper.launch()
+    premiumBottomSheet.value = BottomSheetState.Collapsed
+  }
+
+  val onPremiumClick: () -> Unit = { premiumBottomSheet.value = BottomSheetState.Expanded }
 
   navigator.Setup(key = NavigationRoute.key, initial = NavigationRoute.Main()) { controller, dest ->
     when (dest) {
@@ -69,7 +89,7 @@ fun NavigationScreen(
         onDisconnect = {
           viewModel.disconnect()
         },
-        suppressBackPress = { navigator.suppressBackPress = it }
+        onPremiumClick = onPremiumClick
       )
       is NavigationRoute.Server -> ServerScreen(
         vpnState = vpnLoadState.value,
@@ -86,7 +106,8 @@ fun NavigationScreen(
             }
           }
         },
-        suppressBackPress = { navigator.suppressBackPress = it },
+        isPremiumUnlocked = isPremiumUnlocked.value,
+        onPremiumClick = onPremiumClick,
         onItemClick = { config ->
           viewModel.changeServer(config)
           controller.goBack()
@@ -107,5 +128,12 @@ fun NavigationScreen(
         goBack = { controller.goBack() }
       )
     }
+
+    PremiumBottomSheet(
+      premiumBottomSheet = premiumBottomSheet,
+      isPremiumUnlocked = isPremiumUnlocked.value,
+      onPremiumClick = onPurchaseClick,
+      suppressBackPress = { navigator.suppressBackPress = it }
+    )
   }
 }

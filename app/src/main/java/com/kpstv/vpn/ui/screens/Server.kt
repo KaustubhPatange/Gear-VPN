@@ -44,10 +44,10 @@ fun ServerScreen(
   onBackButton: () -> Unit = {},
   onRefresh: () -> Unit = {},
   onImportButton: () -> Unit = {},
-  suppressBackPress: (Boolean) -> Unit = {},
+  onPremiumClick: () -> Unit = {},
+  isPremiumUnlocked: Boolean = false,
   onItemClick: (VpnConfiguration) -> Unit
 ) {
-  val premiumBottomSheet = rememberBottomSheetState()
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
 
   SwipeRefresh(
@@ -88,7 +88,12 @@ fun ServerScreen(
             ServerHeader(title = stringResource(R.string.free_server))
             Spacer(modifier = Modifier.height(10.dp))
           }
-          CommonItem(config = item, premiumSheetState = premiumBottomSheet, onClick = onItemClick)
+          CommonItem(
+            config = item,
+            isPremiumUnlocked = isPremiumUnlocked,
+            onPremiumClick = onPremiumClick,
+            onClick = onItemClick
+          )
 
           if (index == vpnState.configs.size - 1) {
             Spacer(
@@ -108,8 +113,6 @@ fun ServerScreen(
       )
     }
   }
-
-  PremiumBottomSheet(premiumBottomSheet) { suppressBackPress(it) }
 }
 
 @Composable
@@ -160,8 +163,9 @@ private fun ServerHeader(title: String, premium: Boolean = false) {
 
 @Composable
 private fun CommonItem(
-  premiumSheetState: MutableState<BottomSheetState>,
   config: VpnConfiguration,
+  isPremiumUnlocked: Boolean,
+  onPremiumClick: () -> Unit = {},
   onClick: (VpnConfiguration) -> Unit = {}
 ) {
   Spacer(modifier = Modifier.height(5.dp))
@@ -176,14 +180,12 @@ private fun CommonItem(
       .height(65.dp)
       .clickable(
         onClick = {
-          if (config.premium /* && Premium not unlocked */) {
-            premiumSheetState.value = BottomSheetState.Expanded
+          if (config.premium && !isPremiumUnlocked) {
+            onPremiumClick()
           } else {
             onClick.invoke(config)
           }
         },
-        /*interactionSource = remember { MutableInteractionSource() },
-        indication = rememberRipple(radius = 10.dp)*/
       )
       .padding(5.dp)
       .fillMaxWidth()
@@ -198,7 +200,6 @@ private fun CommonItem(
           .padding(5.dp)
           .requiredWidthIn(max = 40.dp)
           .fillMaxHeight()
-//          .clip(shape = CircleShape)
           .scale(1f),
         contentDescription = "Country flag",
         contentScale = ContentScale.Fit
@@ -264,7 +265,7 @@ fun PreviewCommonItem() {
   CommonPreviewTheme {
     CommonItem(
       config = createTestConfiguration(),
-      premiumSheetState = rememberBottomSheetState()
+      isPremiumUnlocked = true
     )
   }
 }
@@ -275,7 +276,7 @@ fun PreviewCommonItemPremium() {
   CommonPreviewTheme {
     CommonItem(
       config = createTestConfiguration().copy(premium = true),
-      premiumSheetState = rememberBottomSheetState()
+      isPremiumUnlocked = false
     )
   }
 }
