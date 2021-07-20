@@ -50,5 +50,5 @@
 
     <string name="premium_complete_text">Thank you for supporting. You are awesome!</string>
     <string name="premium_complete_button">Have a great day!</string>
-    <string name="premium_unlocked">Hooray! Premium unlocked</string>
+    <string name="premium_expired">Your premium subscription expired!</string>
 </resources>

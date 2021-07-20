@@ -17,7 +17,9 @@
         android:theme="@style/Theme.Splash"
         android:usesCleartextTraffic="true">
 
-        <activity android:theme="@style/Theme.Splash" android:name=".ui.activities.Splash">
+        <activity
+            android:name=".ui.activities.Splash"
+            android:theme="@style/Theme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -26,14 +28,19 @@
 
         <activity
             android:name=".ui.activities.Main"
-            android:theme="@style/Theme.Main"/>
+            android:theme="@style/Theme.Main" />
 
-        <receiver android:name="com.kpstv.vpn.recievers.AppBroadcast"/>
+        <receiver android:name="com.kpstv.vpn.recievers.AppBroadcast" />
 
         <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove">
+        </provider>
+        <!--<provider
             android:name="androidx.work.impl.WorkManagerInitializer"
             android:authorities="${applicationId}.workmanager-init"
-            tools:node="remove" />
+            tools:node="remove" />-->
 
     </application>
 </manifest>

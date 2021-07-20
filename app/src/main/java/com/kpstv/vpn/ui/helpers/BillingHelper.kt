@@ -27,13 +27,14 @@ data class BillingSku(val sku: String) {
 class BillingHelper(private val activity: ComponentActivity) {
 
   private val dataStoreHelper = BillingDataStoreHelper(activity)
+  private var currentIsPurchase: Boolean = false
 
   val isPurchased: Flow<Boolean> = dataStoreHelper.watcher
   private val purchaseCompleteStateFlow: MutableStateFlow<BillingSku> = MutableStateFlow(BillingSku.createEmpty())
   val purchaseComplete: StateFlow<BillingSku> = purchaseCompleteStateFlow.asStateFlow()
 
   companion object {
-    const val purchase_sku = "gear_premium"
+    const val purchase_sku = "gear_premium_sub"
   }
 
   private var sku: SkuDetails? = null
@@ -65,6 +66,7 @@ class BillingHelper(private val activity: ComponentActivity) {
         if (billingResult.responseCode ==  BillingClient.BillingResponseCode.OK) {
           activity.lifecycleScope.launchWhenStarted {
             querySkuDetails()
+            validatePurchase()
           }
         } else {
           Log.e("BillingHelper", "Invalid Response code: ${billingResult.responseCode}, Message: ${billingResult.debugMessage}")
@@ -74,6 +76,10 @@ class BillingHelper(private val activity: ComponentActivity) {
         Log.e("BillingHelper", "Service disconnected")
       }
     })
+
+    activity.lifecycleScope.launchWhenStarted {
+      isPurchased.collect { currentIsPurchase = it }
+    }
   }
 
   fun launch() {
@@ -91,7 +97,7 @@ class BillingHelper(private val activity: ComponentActivity) {
 
   private suspend fun querySkuDetails() {
     val params = SkuDetailsParams.newBuilder()
-    params.setSkusList(listOf(purchase_sku)).setType(BillingClient.SkuType.INAPP)
+    params.setSkusList(listOf(purchase_sku)).setType(BillingClient.SkuType.SUBS)
 
     val skuDetailsResult = withContext(Dispatchers.IO) {
       billingClient.querySkuDetails(params.build())
@@ -99,6 +105,27 @@ class BillingHelper(private val activity: ComponentActivity) {
 
     skuDetailsResult.skuDetailsList?.let { list ->
       sku = list.find { it.sku == purchase_sku }
+    }
+  }
+
+  private suspend fun validatePurchase() {
+
+    suspend fun removeSubscription() {
+      if (currentIsPurchase) {
+        Toasty.warning(activity, R.string.premium_expired, Toasty.LENGTH_LONG).show()
+      }
+      dataStoreHelper.update(false)
+    }
+
+    val purchaseResult = billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS)
+    if (purchaseResult.purchasesList.isEmpty()) {
+      removeSubscription()
+      return
+    }
+    purchaseResult.purchasesList.firstOrNull { it.skus.contains(purchase_sku) }?.let { purchase ->
+      if (purchase.purchaseState != Purchase.PurchaseState.PURCHASED) {
+        removeSubscription()
+      }
     }
   }
 
