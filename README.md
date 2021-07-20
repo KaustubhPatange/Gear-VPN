@@ -1,11 +1,48 @@
-# Gear VPN
+<div align="center">
+    <img alt="Icon" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" width="200" />
+</div>
 
-A VPN app made with Jetpack Compose
+<h2 align="center">
+    Gear VPN - Free, Secure & Open sourced VPN
+</h2>
+
+<p align="center">
+   <img src="https://github.com/KaustubhPatange/Gear-VPN/workflows/build/badge.svg" alt="build"/>
+   <a href="https://github.com/KaustubhPatange/Gear-VPN/issues"><img src="https://img.shields.io/github/issues/KaustubhPatange/Gear-VPN.svg"/></a>
+</p>
+
+<div align="center">
+<a href='https://play.google.com/store/apps/details?id=com.kpstv.vpn'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width="200"/></a>
+</div>
+
+## Tech Stack
+
+- [Jetpack Compose](https://developer.android.com/jetpack/compose) - Google's new UI toolkit for developing native Android apps.
+- [Navigator-Compose](https://github.com/KaustubhPatange/navigator/tree/master/navigator-compose) - A better navigation library for Jetpack Compose.
+- [Android Architecture Components](https://developer.android.com/topic/libraries/architecture) - Collection of libraries that help you design robust, testable, and maintainable apps.
+  - [StateFlow](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow#stateflow) - notify views when the underlying data changes
+  - [ViewModel-Compose](https://developer.android.com/topic/libraries/architecture/viewmodel) - Stores UI-related data that isn't destroyed on UI changes.
+  - [Room](https://developer.android.com/topic/libraries/architecture/room) - SQLite object mapping library.
+  - [Workmanager](https://developer.android.com/topic/libraries/architecture/workmanager) - An API that makes it easy to schedule deferrable, asynchronous tasks that are expected to run even if the app exits or the device restarts.
+- [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) - Jetpack DataStore is a data storage solution that allows you to store key-value pairs or typed objects with protocol buffers.
+- [Dependency Injection](https://developer.android.com/training/dependency-injection) - 
+  - [Hilt-Dagger](https://dagger.dev/hilt/) - Standard library to incorporate Dagger dependency injection into an Android application.
+  - [Hilt-ViewModel](https://developer.android.com/training/dependency-injection/hilt-jetpack) - DI for injecting `ViewModel`.
+- [Retrofit](https://square.github.io/retrofit/) - A type-safe HTTP client for Android and Java.
+- [Moshi](https://github.com/square/moshi) - A modern JSON library for Kotlin and Java.
+- [Lottie](https://github.com/airbnb/lottie-android) - Render beautiful animations straight from After effects.
 
 ## Contribute
 
+
 If you want to contribute to this project, you're always welcome!
 See [Contributing Guidelines](CONTRIBUTING.md).
+
+## Trademark
+
+- Design inspiration from [Jakub Kittler](https://dribbble.com/shots/7025990-VPN-Concept). 
+- Some images & icons (except logo) are from [Icons8](https://icons8.com/).
+- Rounded country flags are fetched from [countryflags.com](http://countryflags.com/).
 
 ## License
 

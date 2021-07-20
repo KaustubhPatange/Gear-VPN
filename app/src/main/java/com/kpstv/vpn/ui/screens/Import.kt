@@ -314,12 +314,13 @@ private fun ProfileItem(
   onItemClick: (LocalConfiguration) -> Unit,
   onSwipe: (LocalConfiguration) -> Unit = {}
 ) {
-  Spacer(modifier = Modifier.height(10.dp))
+//  Spacer(modifier = Modifier.height(10.dp))
   AnimatedSwipeDismiss(
     item = item,
     background = { isDismissed ->
       Box(
         modifier = Modifier
+          .padding(top = 10.dp)
           .fillMaxSize()
           .background(Color.Red)
           .clip(RoundedCornerShape(10.dp))
@@ -337,6 +338,7 @@ private fun ProfileItem(
     content = {
       Row(
         modifier = Modifier
+          .padding(top = 10.dp)
           .fillMaxWidth()
           .wrapContentHeight()
           .background(MaterialTheme.colors.background)
