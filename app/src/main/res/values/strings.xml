@@ -51,4 +51,5 @@
     <string name="premium_complete_text">Thank you for supporting. You are awesome!</string>
     <string name="premium_complete_button">Have a great day!</string>
     <string name="premium_expired">Your premium subscription has expired</string>
+    <string name="vpn_timeout">VPN connect timeout, try again!</string>
 </resources>

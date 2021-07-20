@@ -22,6 +22,7 @@ import de.blinkt.openvpn.OpenVpnApi
 import de.blinkt.openvpn.core.OpenVPNService
 import de.blinkt.openvpn.core.OpenVPNThread
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 
 // Some implementations are taken from
@@ -34,6 +35,8 @@ class VpnHelper(private val activity: ComponentActivity) {
   private var currentServer: VpnConfiguration? = null
 
   private var openVpnService: OpenVPNService? = null
+
+  private var disposeJob = SupervisorJob()
 
   private val lifecycleObserver = object : DefaultLifecycleObserver {
     override fun onStop(owner: LifecycleOwner) {
@@ -76,6 +79,7 @@ class VpnHelper(private val activity: ComponentActivity) {
         }
         if (state is VpnConnectionStatus.Connected) {
           bindToVPNService()
+          disposeJob.cancel()
         }
       }
     }
@@ -111,6 +115,7 @@ class VpnHelper(private val activity: ComponentActivity) {
       val server = currentServer ?: throw Exception("Error: Server is null")
       OpenVpnApi.startVpn(activity, server.config, server.country, server.username, server.password)
       isVpnStarted = true
+      disposeAfterTimeout()
     } catch (e: Exception) {
       e.printStackTrace()
       Toasty.error(activity, activity.getString(R.string.vpn_error)).show()
@@ -136,6 +141,18 @@ class VpnHelper(private val activity: ComponentActivity) {
         bytesOut = bytesOut
       )
       vpnViewModel.dispatchConnectionDetail(detail)*/
+    }
+  }
+
+  private fun disposeAfterTimeout() {
+    disposeJob.cancel()
+    disposeJob = SupervisorJob()
+    CoroutineScope(activity.lifecycleScope.coroutineContext + disposeJob).launch {
+      delay(60 * 1000)
+      if (vpnViewModel.connectionStatus.value !is VpnConnectionStatus.Connected) {
+        stopVpn()
+        Toasty.error(activity, activity.getString(R.string.vpn_timeout)).show()
+      }
     }
   }
 
