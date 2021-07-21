@@ -25,7 +25,7 @@
   - [Room](https://developer.android.com/topic/libraries/architecture/room) - SQLite object mapping library.
   - [Workmanager](https://developer.android.com/topic/libraries/architecture/workmanager) - An API that makes it easy to schedule deferrable, asynchronous tasks that are expected to run even if the app exits or the device restarts.
 - [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) - Jetpack DataStore is a data storage solution that allows you to store key-value pairs or typed objects with protocol buffers.
-- [Dependency Injection](https://developer.android.com/training/dependency-injection) - 
+- [Dependency Injection](https://developer.android.com/training/dependency-injection) -
   - [Hilt-Dagger](https://dagger.dev/hilt/) - Standard library to incorporate Dagger dependency injection into an Android application.
   - [Hilt-ViewModel](https://developer.android.com/training/dependency-injection/hilt-jetpack) - DI for injecting `ViewModel`.
 - [Retrofit](https://square.github.io/retrofit/) - A type-safe HTTP client for Android and Java.
@@ -34,13 +34,13 @@
 
 ## Contribute
 
-
 If you want to contribute to this project, you're always welcome!
 See [Contributing Guidelines](CONTRIBUTING.md).
 
 ## Trademark
 
-- Design inspiration from [Jakub Kittler](https://dribbble.com/shots/7025990-VPN-Concept). 
+- Design inspiration from [Jakub Kittler](https://dribbble.com/shots/7025990-VPN-Concept).
+- Google Play (screenshots) inspiration from [Yahor Urbanovich](https://proandroiddev.com/how-i-made-beautiful-screenshots-for-google-play-developer-experience-61ce108fa6b4).
 - Some images & icons (except logo) are from [Icons8](https://icons8.com/).
 - Rounded country flags are fetched from [countryflags.com](http://countryflags.com/).
 

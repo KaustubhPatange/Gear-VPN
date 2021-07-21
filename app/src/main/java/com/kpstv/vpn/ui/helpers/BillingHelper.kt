@@ -29,6 +29,8 @@ class BillingHelper(private val activity: ComponentActivity) {
   private val dataStoreHelper = BillingDataStoreHelper(activity)
   private var currentIsPurchase: Boolean = false
 
+  private var billingErrorMessage: String? = null
+
   val isPurchased: Flow<Boolean> = dataStoreHelper.watcher
   private val purchaseCompleteStateFlow: MutableStateFlow<BillingSku> = MutableStateFlow(BillingSku.createEmpty())
   val purchaseComplete: StateFlow<BillingSku> = purchaseCompleteStateFlow.asStateFlow()
@@ -69,6 +71,7 @@ class BillingHelper(private val activity: ComponentActivity) {
             validatePurchase()
           }
         } else {
+          billingErrorMessage = billingResult.debugMessage
           Log.e("BillingHelper", "Invalid Response code: ${billingResult.responseCode}, Message: ${billingResult.debugMessage}")
         }
       }
@@ -84,7 +87,7 @@ class BillingHelper(private val activity: ComponentActivity) {
 
   fun launch() {
     val sku = sku ?: run {
-      Toasty.error(activity, activity.getString(R.string.purchase_err_client)).show()
+      Toasty.error(activity, billingErrorMessage ?: activity.getString(R.string.purchase_err_client)).show()
       return
     }
 
