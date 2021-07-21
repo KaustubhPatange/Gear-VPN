@@ -12,6 +12,7 @@ import com.kpstv.vpn.extensions.SlideTopTransition
 import com.kpstv.vpn.extensions.utils.AppUtils.setEdgeToEdgeSystemUiFlags
 import com.kpstv.vpn.extensions.utils.Initializer
 import com.kpstv.vpn.ui.helpers.BillingHelper
+import com.kpstv.vpn.ui.helpers.InAppUpdates
 import com.kpstv.vpn.ui.helpers.VpnHelper
 import com.kpstv.vpn.ui.screens.NavigationScreen
 import com.kpstv.vpn.ui.theme.ComposeTestTheme
@@ -22,6 +23,7 @@ class Main : ComponentActivity() {
   private lateinit var navigator: ComposeNavigator
   private val vpnHelper by lazy { VpnHelper(this) }
   private val billingHelper by lazy { BillingHelper(this) }
+  private val updateHelper by lazy { InAppUpdates(this) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -44,5 +46,6 @@ class Main : ComponentActivity() {
 
     vpnHelper.initializeAndObserve()
     billingHelper.init()
+    updateHelper.init()
   }
 }

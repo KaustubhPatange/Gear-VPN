@@ -16,11 +16,11 @@ object Notifications {
     if (Build.VERSION.SDK_INT >= 28) {
       val notificationManager = getSystemService<NotificationManager>()!!
       notificationManager.createNotificationChannel(
-        NotificationChannel(
-          REFRESH_CHANNEL,
-          getString(R.string.channel_refresh),
-          NotificationManager.IMPORTANCE_LOW
-        )
+        NotificationChannel(REFRESH_CHANNEL, getString(R.string.channel_refresh), NotificationManager.IMPORTANCE_LOW)
+      )
+
+      notificationManager.createNotificationChannel(
+        NotificationChannel(UPDATE_CHANNEL, getString(R.string.channel_update), NotificationManager.IMPORTANCE_LOW)
       )
     }
   }
@@ -41,7 +41,24 @@ object Notifications {
     NotificationManagerCompat.from(context).cancel(id)
   }
 
+  fun createDownloadingNotification(context: Context, progress: Int = -1): Unit = with(context) {
+    val builder = NotificationCompat.Builder(this, UPDATE_CHANNEL).apply {
+      setContentTitle(getString(R.string.vpn_update_download))
+      setSmallIcon(android.R.drawable.stat_sys_download)
+      if (progress == -1) setProgress(100, 0, true) else
+        setProgress(100, progress, false)
+    }
+
+    NotificationManagerCompat.from(this).notify(NOTIFICATION_UPDATE, builder.build())
+  }
+
+  fun cancelDownloadingNotification(context: Context) {
+    cancel(context, NOTIFICATION_UPDATE)
+  }
+
   private const val REFRESH_CHANNEL = "refresh_channel"
+  private const val UPDATE_CHANNEL = "refresh_update"
 
   private const val NOTIFICATION_REFRESH = 132
+  private const val NOTIFICATION_UPDATE = 133
 }

@@ -7,8 +7,10 @@
     <string name="status_connected">CONNECTED</string>
 
     <string name="channel_refresh">Refresh Vpn</string>
+    <string name="channel_update">Update</string>
     <string name="vpn_refresh">Refreshing VPN lists</string>
-    
+    <string name="vpn_update_download">Gear VPN - Downloading updates</string>
+
     <string name="vpn_status">⚠ %1$s</string>
     <string name="vpn_status_hidden">✓ HIDDEN</string>
     <string name="vpn_public_ip">YOUR PUBLIC IP:</string>
