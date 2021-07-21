@@ -98,8 +98,8 @@ fun ServerScreen(
           if (index == vpnState.configs.size - 1) {
             Spacer(
               modifier = Modifier
-                .height(100.dp)
                 .navigationBarsPadding()
+                .height(80.dp)
             )
           }
         }

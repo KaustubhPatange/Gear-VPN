@@ -184,7 +184,7 @@ fun CircularBox(
           style = Stroke(
             width = dashSizePx,
             pathEffect = PathEffect.dashPathEffect(
-              floatArrayOf(5f, 23f)
+              floatArrayOf(5f, 26f)
             )
           )
         )

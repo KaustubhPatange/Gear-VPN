@@ -18,18 +18,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.parcelize.Parcelize
 
-sealed class NavigationRoute : Route {
+sealed interface NavigationRoute : Route {
   @Parcelize
   @Immutable
-  data class Main(private val noArg: String = "") : NavigationRoute()
+  data class Main(private val noArg: String = "") : NavigationRoute
 
   @Parcelize
   @Immutable
-  data class Server(private val noArg: String = "") : NavigationRoute()
+  data class Server(private val noArg: String = "") : NavigationRoute
 
   @Parcelize
   @Immutable
-  data class Import(private val noArg: String = "") : NavigationRoute()
+  data class Import(private val noArg: String = "") : NavigationRoute
 
   companion object {
     val key = NavigationRoute::class

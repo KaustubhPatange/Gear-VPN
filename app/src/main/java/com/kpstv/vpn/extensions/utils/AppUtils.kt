@@ -3,6 +3,7 @@ package com.kpstv.vpn.extensions.utils
 import android.R
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -36,5 +37,12 @@ object AppUtils {
 
   fun Activity.setEdgeToEdgeSystemUiFlags() {
     WindowCompat.setDecorFitsSystemWindows(window, false)
+  }
+
+  fun Context.launchUrl(url: String) {
+    Intent(Intent.ACTION_VIEW).apply {
+      data = Uri.parse(url)
+      startActivity(this)
+    }
   }
 }

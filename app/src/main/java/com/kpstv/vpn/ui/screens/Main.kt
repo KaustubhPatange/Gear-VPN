@@ -7,6 +7,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
@@ -19,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,6 +32,7 @@ import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.models.VpnConfiguration
+import com.kpstv.vpn.extensions.utils.AppUtils.launchUrl
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
@@ -47,6 +51,8 @@ fun MainScreen(
   onDisconnect: () -> Unit = {},
   onPremiumClick: () -> Unit = {},
 ) {
+  val context = LocalContext.current
+
   val ipTextColor: Color by animateColorAsState(
     if (connectivityStatus == ConnectivityStatus.CONNECTED) greenColorDark else MaterialTheme.colors.error
   )
@@ -67,7 +73,12 @@ fun MainScreen(
         text = stringResource(R.string.app_name),
         modifier = Modifier
           .align(Alignment.Center)
-          .padding(top = 5.dp),
+          .padding(top = 5.dp)
+          .pointerInput(Unit) {
+            detectTapGestures(
+              onLongPress = { context.launchUrl(context.getString(R.string.google_play_page)) }
+            )
+          },
         style = MaterialTheme.typography.h4
       )
       IconButton(

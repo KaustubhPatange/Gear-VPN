@@ -20,7 +20,7 @@
 - [Jetpack Compose](https://developer.android.com/jetpack/compose) - Google's new UI toolkit for developing native Android apps.
 - [Navigator-Compose](https://github.com/KaustubhPatange/navigator/tree/master/navigator-compose) - A better navigation library for Jetpack Compose.
 - [Android Architecture Components](https://developer.android.com/topic/libraries/architecture) - Collection of libraries that help you design robust, testable, and maintainable apps.
-  - [StateFlow](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow#stateflow) - notify views when the underlying data changes
+  - [StateFlow](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow#stateflow) - To optimally emit states that should consume by multiple consumers.
   - [ViewModel-Compose](https://developer.android.com/topic/libraries/architecture/viewmodel) - Stores UI-related data that isn't destroyed on UI changes.
   - [Room](https://developer.android.com/topic/libraries/architecture/room) - SQLite object mapping library.
   - [Workmanager](https://developer.android.com/topic/libraries/architecture/workmanager) - An API that makes it easy to schedule deferrable, asynchronous tasks that are expected to run even if the app exits or the device restarts.

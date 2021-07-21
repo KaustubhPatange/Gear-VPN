@@ -1,14 +1,21 @@
 package com.kpstv.vpn.extensions.utils
 
+import com.kpstv.vpn.BuildConfig
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.IOException
+import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import javax.net.ssl.X509TrustManager
+import java.security.cert.X509Certificate
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -33,14 +40,14 @@ class NetworkUtils @Inject constructor() {
   /**
    * @param addLoggingInterceptor If true logcat will display all the Http request messages
    */
-  fun getHttpClient(addLoggingInterceptor: Boolean = false): OkHttpClient {
+  fun getHttpClient(addLoggingInterceptor: Boolean = BuildConfig.DEBUG): OkHttpClient {
     val client = getHttpBuilder()
     if (addLoggingInterceptor) {
       val loggingInterceptor = HttpLoggingInterceptor()
-      loggingInterceptor.level =
-        HttpLoggingInterceptor.Level.BODY
+      loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
       client.addInterceptor(loggingInterceptor)
     }
+    client.ignoreAllSSLErrors()
     return client.build()
   }
 
@@ -67,5 +74,24 @@ class NetworkUtils @Inject constructor() {
         }
       }
     }
+  }
+
+  private fun OkHttpClient.Builder.ignoreAllSSLErrors(): OkHttpClient.Builder {
+    val naiveTrustManager = object : X509TrustManager {
+      override fun getAcceptedIssuers(): Array<out X509Certificate> = arrayOf()
+      override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
+      override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
+    }
+
+    val insecureSocketFactory = SSLContext.getInstance("TLSv1.2").apply {
+      val trustAllCerts = arrayOf<TrustManager>(naiveTrustManager)
+      init(null, trustAllCerts, SecureRandom())
+    }.socketFactory
+
+    sslSocketFactory(insecureSocketFactory, naiveTrustManager)
+    hostnameVerifier { hostname, _ ->
+      return@hostnameVerifier (hostname.equals("www.vpngate.net"))
+    }
+    return this
   }
 }
