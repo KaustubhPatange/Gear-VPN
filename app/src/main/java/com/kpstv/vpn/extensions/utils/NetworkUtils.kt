@@ -40,7 +40,7 @@ class NetworkUtils @Inject constructor() {
   /**
    * @param addLoggingInterceptor If true logcat will display all the Http request messages
    */
-  fun getHttpClient(addLoggingInterceptor: Boolean = BuildConfig.DEBUG): OkHttpClient {
+  fun getHttpClient(addLoggingInterceptor: Boolean = false): OkHttpClient {
     val client = getHttpBuilder()
     if (addLoggingInterceptor) {
       val loggingInterceptor = HttpLoggingInterceptor()

@@ -44,6 +44,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion versions.compose
     }
+
+    // disable abi split
+    bundle {
+        abi { enableSplit = false }
+    }
 }
 
 dependencies {
