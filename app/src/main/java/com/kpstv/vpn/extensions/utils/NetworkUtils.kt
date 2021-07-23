@@ -13,7 +13,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import javax.net.ssl.X509TrustManager
 import java.security.cert.X509Certificate
-import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import kotlin.coroutines.resume

@@ -6,9 +6,9 @@ import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
+import java.io.IOException
 import java.util.*
 import kotlin.coroutines.resume
-import kotlin.math.min
 
 class OpenApiParser(private val networkUtils: NetworkUtils) {
 
@@ -17,86 +17,102 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
   }
 
   // Suspend in a way to work like a callback. This should make bridge between `emit`ion & direct snapshot seamless.
-  suspend fun parse(onNewConfigurationAdded: suspend (snapshot: List<VpnConfiguration>) -> Unit = {}, onComplete: suspend (snapshot: List<VpnConfiguration>) -> Unit) {
-    val vpnConfigurations = arrayListOf<VpnConfiguration>()
+  suspend fun parse(
+    onNewConfigurationAdded: suspend (snapshot: List<VpnConfiguration>) -> Unit = {},
+    onComplete: suspend (snapshot: List<VpnConfiguration>) -> Unit
+  ) {
 
-    val vpnResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/en")
-    if (vpnResponse.isSuccessful) {
+    try {
+      val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
-      val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time
-      val expiredTime = DateUtils.format(offsetDateTime).toLong()
+      val vpnResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/en")
+      if (vpnResponse.isSuccessful) {
 
-      val body = vpnResponse.body?.string()
-      vpnResponse.close() // close Stream
+        val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time
+        val expiredTime = DateUtils.format(offsetDateTime).toLong()
 
-      val doc = Jsoup.parse(body)
+        val body = vpnResponse.body?.string()
+        vpnResponse.close() // close Stream
 
-      val table = doc.getElementById("vpngate_inner_contents_td").children().findLast { it.id() == "vg_hosts_table_id" }?.child(0)
-        ?: run {
-          onComplete.invoke(formatConfigurations(vpnConfigurations))
-          return
-        }
-      vpnConfigurations.clear()
+        val doc = Jsoup.parse(body)
 
-      for (i in 1 until table.childrenSize()) {
+        val table = doc.getElementById("vpngate_inner_contents_td").children()
+          .findLast { it.id() == "vg_hosts_table_id" }?.child(0)
+          ?: run {
+            onComplete.invoke(formatConfigurations(vpnConfigurations))
+            return
+          }
+        vpnConfigurations.clear()
 
-        val tr = table.child(i)
+        for (i in 1 until table.childrenSize()) {
 
-        if (tr.getElementsByClass("vg_table_header").size == 0) {
-          val imageUrl = tr.child(0).child(0).attr("src").replace("../", "https://www.vpngate.net/")
-          val country = tr.child(0).text()
+          val tr = table.child(i)
 
-          if (country == "Reserved") continue
+          if (tr.getElementsByClass("vg_table_header").size == 0) {
+            val imageUrl =
+              tr.child(0).child(0).attr("src").replace("../", "https://www.vpngate.net/")
+            val country = tr.child(0).text()
 
-          // no more than 3 countries....
-          if (vpnConfigurations.count { it.country == formatCountry(country) } == 3) continue
+            if (country == "Reserved") continue
 
-          val ip = ipRegex.find(tr.child(1).html())?.value ?: ""
+            // no more than 3 countries....
+            if (vpnConfigurations.count { it.country == formatCountry(country) } == 3) continue
 
-          val sessions = tr.child(2).child(0).child(0).text()
-          val uptime = tr.child(2).child(2).text()
+            val ip = ipRegex.find(tr.child(1).html())?.value ?: ""
 
-          val speed = tr.child(3).child(0).child(0).text()
+            val sessions = tr.child(2).child(0).child(0).text()
+            val uptime = tr.child(2).child(2).text()
 
-          if (speed == "0.00 Mbps") continue
+            val speed = tr.child(3).child(0).child(0).text()
 
-          val ovpnConfigElement = tr.child(6)
-          if (ovpnConfigElement.childrenSize() == 0) continue
+            if (speed == "0.00 Mbps") continue
 
-          val score = tr.child(tr.childrenSize() - 1).child(0).child(0).text()
-            .replace(",","").toLong()
+            val ovpnConfigElement = tr.child(6)
+            if (ovpnConfigElement.childrenSize() == 0) continue
 
-          val configUrl = "https://www.vpngate.net/en/" + ovpnConfigElement.child(0).attr("href")
+            val score = tr.child(tr.childrenSize() - 1).child(0).child(0).text()
+              .replace(",", "").toLong()
 
-          val configResponse = networkUtils.simpleGetRequest(configUrl)
-          if (configResponse.isSuccessful) {
-            val configBody = configResponse.body?.string()
-            configResponse.close() // Always close stream
+            val configUrl = "https://www.vpngate.net/en/" + ovpnConfigElement.child(0).attr("href")
 
-            val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
-            val ovpnConfig =
-              hrefElements.find { it.attr("href").contains(".ovpn") }?.attr("href") ?: continue
+            val configResponse = networkUtils.simpleGetRequest(configUrl)
+            if (configResponse.isSuccessful) {
+              val configBody = configResponse.body?.string()
+              configResponse.close() // Always close stream
 
-            val configDataResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/$ovpnConfig")
-            if (configDataResponse.isSuccessful) {
-              val data = configDataResponse.body?.string() ?: continue
-              configDataResponse.close() // Always close stream
-              val vpnConfig = VpnConfiguration(
-                formatCountry(country), imageUrl, ip, sessions, uptime, speed.replace("Mbps", "").trim(),
-                data, score,
-                expiredTime,
-                "vpn", "vpn"
-              )
-              vpnConfigurations.add(vpnConfig)
-              onNewConfigurationAdded.invoke(formatConfigurations(vpnConfigurations))
-            } else continue
-          } else {
-            continue
+              val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
+              val ovpnConfig =
+                hrefElements.find { it.attr("href").contains(".ovpn") }?.attr("href") ?: continue
+
+              val configDataResponse =
+                networkUtils.simpleGetRequest("https://www.vpngate.net/$ovpnConfig")
+              if (configDataResponse.isSuccessful) {
+                val data = configDataResponse.body?.string() ?: continue
+                configDataResponse.close() // Always close stream
+                val vpnConfig = VpnConfiguration(
+                  formatCountry(country),
+                  imageUrl,
+                  ip,
+                  sessions,
+                  uptime,
+                  speed.replace("Mbps", "").trim(),
+                  data,
+                  score,
+                  expiredTime,
+                  "vpn",
+                  "vpn"
+                )
+                vpnConfigurations.add(vpnConfig)
+                onNewConfigurationAdded.invoke(formatConfigurations(vpnConfigurations))
+              } else continue
+            } else {
+              continue
+            }
           }
         }
       }
-    }
-    onComplete.invoke(formatConfigurations(vpnConfigurations))
+      onComplete.invoke(formatConfigurations(vpnConfigurations))
+    } catch (e: IOException) { /*no-op*/ }
   }
 
   // Implementation of direct snapshot for getting all configurations.

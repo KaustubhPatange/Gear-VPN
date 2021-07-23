@@ -13,6 +13,7 @@ import com.kpstv.vpn.ui.helpers.VpnConnectionStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,7 +37,9 @@ class VpnViewModel @Inject constructor(
 
   init {
     viewModelScope.launch {
-      publicIpStateFlow.emit(ipApi.fetch())
+      try {
+        publicIpStateFlow.emit(ipApi.fetch())
+      } catch (e: IOException) { /*no-op*/ }
     }
 
     viewModelScope.launch {
