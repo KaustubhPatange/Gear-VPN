@@ -23,9 +23,22 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            def props = new Properties()
+            file("${rootProject.projectDir}/local.properties").withInputStream { props.load(it) }
+
+            storeFile file(props.getProperty("signing.keyFile"))
+            storePassword props.getProperty("signing.storePassword")
+            keyAlias props.getProperty("signing.alias")
+            keyPassword props.getProperty("signing.keyPassword")
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false // TODO: Test on release build
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

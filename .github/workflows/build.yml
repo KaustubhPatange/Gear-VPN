@@ -26,6 +26,29 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-${{ github.job }}-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
+      - name: Creating required files
+        run: /
+          echo ${{secrets.SIGNING_KEY}} > key.jks.base64
+          echo ${{secrets.PLAY_CONFIG}} > play_config.json.base64
+
+          base64 -d -i key.jks.base64 > key.jks
+          base64 -d -i play_config.json.base64 > play_config.json
+
+          echo signing.alias=${{secrets.ALIAS} >> local.properties
+          echo signing.storePassword=${{secrets.STORE_PASSWORD} >> local.properties
+          echo signing.keyPassword=${{secrets.KEY_PASSWORD} >> local.properties
+          echo signing.keyFile=key.jks >> local.properties
+
+      - name: Install bundle
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+
       - name: Assemble & Sign
         run: |
           ./gradlew app:assembleRelease --stacktrace
+
+      - name: Release Production (can fail)
+        if: always()
+        run: /
+          bundle exec fastlane production

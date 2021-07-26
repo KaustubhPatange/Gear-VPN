@@ -1,0 +1,2 @@
+Fixed: Type when showing purchase dialog.
+Fixed: Crash when network connection becomes inactive.

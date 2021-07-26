@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+play_config.json
+fastlane/report.xml

@@ -1,0 +1,1 @@
+Improved: Automatic refreshing of servers when Network change happens.
