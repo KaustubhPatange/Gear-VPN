@@ -34,9 +34,9 @@ jobs:
           base64 -d -i key.jks.base64 > key.jks
           base64 -d -i play_config.json.base64 > play_config.json
 
-          echo signing.alias=${{secrets.ALIAS} >> local.properties
-          echo signing.storePassword=${{secrets.STORE_PASSWORD} >> local.properties
-          echo signing.keyPassword=${{secrets.KEY_PASSWORD} >> local.properties
+          echo signing.alias=${{secrets.ALIAS}} >> local.properties
+          echo signing.storePassword=${{secrets.STORE_PASSWORD}} >> local.properties
+          echo signing.keyPassword=${{secrets.KEY_PASSWORD}} >> local.properties
           echo signing.keyFile=key.jks >> local.properties
 
       - name: Install bundle
