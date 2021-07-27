@@ -28,16 +28,22 @@ jobs:
 
       - name: Creating required files
         run: |
-          echo ${{secrets.SIGNING_KEY}} > key.jks.base64
-          echo ${{secrets.PLAY_CONFIG}} > play_config.json.base64
+           echo "$SIGNING_KEY" > key.jks.base64
+           echo "$PLAY_CONFIG" > play_config.json.base64
 
-          base64 -d -i key.jks.base64 > key.jks
-          base64 -d -i play_config.json.base64 > play_config.json
+           base64 -d -i key.jks.base64 > key.jks
+           base64 -d -i play_config.json.base64 > play_config.json
 
-          echo signing.alias=${{secrets.ALIAS}} >> local.properties
-          echo signing.storePassword=${{secrets.STORE_PASSWORD}} >> local.properties
-          echo signing.keyPassword=${{secrets.KEY_PASSWORD}} >> local.properties
-          echo signing.keyFile=key.jks >> local.properties
+           echo "signing.alias=$ALIAS" >> local.properties
+           echo "signing.storePassword=$STORE_PASSWORD" >> local.properties
+           echo "signing.keyPassword=$KEY_PASSWORD" >> local.properties
+           echo "signing.keyFile=${{github.workspace}}/key.jks" >> local.properties
+        env:
+           SIGNING_KEY: ${{secrets.SIGNING_KEY}}
+           PLAY_CONFIG: ${{secrets.PLAY_CONFIG}}
+           ALIAS: ${{secrets.ALIAS}}
+           STORE_PASSWORD: ${{secrets.STORE_PASSWORD}}
+           KEY_PASSWORD: ${{secrets.KEY_PASSWORD}}
 
       - name: Assemble & Sign
         run: |
