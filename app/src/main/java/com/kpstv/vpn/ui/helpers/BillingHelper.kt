@@ -55,8 +55,10 @@ class BillingHelper(private val activity: ComponentActivity) {
     .build()
 
   private val activityObserver = object: DefaultLifecycleObserver {
-    override fun onDestroy(owner: LifecycleOwner) {
+    override fun onStop(owner: LifecycleOwner) {
       dataStoreHelper.cancel()
+    }
+    override fun onDestroy(owner: LifecycleOwner) {
       activity.lifecycle.removeObserver(this)
     }
   }

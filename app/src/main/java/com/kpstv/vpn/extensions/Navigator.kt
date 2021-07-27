@@ -16,7 +16,7 @@ val SlideTopTransition = object : NavigatorTransition() {
       }
     )
   }
-  override val backwardTransition: ComposeTransition = ComposeTransition { modifier, width, height, progress ->
+  override val backwardTransition: ComposeTransition = ComposeTransition { modifier, _, height, progress ->
     modifier.then(
       Modifier.graphicsLayer {
         translationY = height * progress

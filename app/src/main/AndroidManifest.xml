@@ -29,6 +29,7 @@
             </intent-filter>
         </activity>
 
+        <!-- If you changed this class name make sure to update the reflective access for it in OpenVPNService. -->
         <activity
             android:name=".ui.activities.Main"
             android:theme="@style/Theme.Main" />
@@ -38,7 +39,7 @@
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove"></provider>
+            tools:node="remove"/>
 
     </application>
 </manifest>

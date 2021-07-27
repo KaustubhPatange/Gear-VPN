@@ -16,7 +16,7 @@ object FlagUtils {
 
   private const val FlagJson: String = """
     {
-      "Korea": "https://www.iconfinder.com/icons/3253497/download/png/128",
+      "Korea": "https://cdn.countryflags.com/thumbs/south-korea/flag-round-250.png",
       "United States": "https://cdn1.iconfinder.com/data/icons/flags-of-the-world-2/128/united-states-circle-256.png",
       "United Kingdom": "https://image.flaticon.com/icons/png/512/197/197374.png",
       "Japan": "https://image.flaticon.com/icons/png/512/197/197604.png",
@@ -76,7 +76,9 @@ object FlagUtils {
       "Iran": "https://cdn.countryflags.com/thumbs/iran/flag-round-250.png",
       "Qatar": "https://cdn.countryflags.com/thumbs/qatar/flag-round-250.png",
       "Venezuela": "https://cdn.countryflags.com/thumbs/venezuela/flag-round-250.png",
-      "Cambodia": "https://cdn.countryflags.com/thumbs/cambodia/flag-round-250.png"
+      "Cambodia": "https://cdn.countryflags.com/thumbs/cambodia/flag-round-250.png",
+      "Slovakia": "https://cdn.countryflags.com/thumbs/slovakia/flag-round-250.png",
+      "Slovenia": "https://cdn.countryflags.com/thumbs/slovenia/flag-round-250.png"
     }
   """
   private val flagObject = JSONObject(FlagJson)

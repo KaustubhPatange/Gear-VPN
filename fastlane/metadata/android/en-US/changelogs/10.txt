@@ -1,0 +1,2 @@
+Fixed: Some country flags image not loading.
+Fixed: Notification not launching the app on tap.
