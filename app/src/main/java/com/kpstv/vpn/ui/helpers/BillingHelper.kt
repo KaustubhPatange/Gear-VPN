@@ -3,11 +3,14 @@ package com.kpstv.vpn.ui.helpers
 import android.content.Context
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.monotonicFrameClock
 import androidx.datastore.core.DataStore
+import androidx.datastore.dataStoreFile
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -17,6 +20,7 @@ import com.kpstv.vpn.R
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlin.coroutines.coroutineContext
 
 data class BillingSku(val sku: String) {
   companion object {
@@ -44,7 +48,7 @@ class BillingHelper(private val activity: ComponentActivity) {
   private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
       purchases.forEach {
-        activity.lifecycleScope.launchWhenStarted { handlePurchase(it) }
+        activity.lifecycleScope.launch { handlePurchase(it) }
       }
     }
   }
@@ -97,7 +101,7 @@ class BillingHelper(private val activity: ComponentActivity) {
       .setSkuDetails(sku)
       .build()
 
-    billingClient.launchBillingFlow(activity, flowParams).responseCode
+   billingClient.launchBillingFlow(activity, flowParams).responseCode
   }
 
   private suspend fun querySkuDetails() {
@@ -130,8 +134,11 @@ class BillingHelper(private val activity: ComponentActivity) {
     purchaseResult.purchasesList.firstOrNull { it.skus.contains(purchase_sku) }?.let { purchase ->
       if (purchase.purchaseState != Purchase.PurchaseState.PURCHASED) {
         removeSubscription()
+        return
       }
     }
+
+    dataStoreHelper.update(true)
   }
 
   private suspend fun handlePurchase(purchase: Purchase) {
@@ -149,6 +156,7 @@ class BillingHelper(private val activity: ComponentActivity) {
       }
 
       if (purchase.skus.contains(purchase_sku)) {
+        Toasty.info(activity, activity.getString(R.string.restart_maybe), Toasty.LENGTH_LONG).show()
         dataStoreHelper.update(true)
         purchaseCompleteStateFlow.emit(BillingSku(purchase_sku))
       }

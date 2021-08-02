@@ -125,6 +125,8 @@ fun NavigationScreen(
             }
           }
         },
+        isPremiumUnlocked = isPremiumUnlocked.value,
+        onPremiumClick = onPremiumClick,
         goBack = { controller.goBack() }
       )
     }

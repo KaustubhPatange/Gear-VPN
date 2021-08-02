@@ -18,10 +18,12 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -37,6 +39,7 @@ import com.kpstv.vpn.R
 import com.kpstv.vpn.data.models.LocalConfiguration
 import com.kpstv.vpn.extensions.utils.AppUtils.asPassword
 import com.kpstv.vpn.extensions.utils.AppUtils.getFileName
+import com.kpstv.vpn.extensions.utils.VpnConfigUtil
 import com.kpstv.vpn.ui.components.AnimatedSwipeDismiss
 import com.kpstv.vpn.ui.components.Header
 import com.kpstv.vpn.ui.components.ThemeButton
@@ -46,14 +49,34 @@ import com.kpstv.vpn.ui.viewmodels.ImportViewModel
 import es.dmoral.toasty.Toasty
 import java.io.FileNotFoundException
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ImportScreen(
   importViewModel: ImportViewModel = viewModel(),
   onItemClick: (LocalConfiguration) -> Unit,
+  onPremiumClick: () -> Unit,
+  isPremiumUnlocked: Boolean,
   goBack: () -> Unit
 ) {
+  val context = LocalContext.current
+  val keyboardController = LocalSoftwareKeyboardController.current
+
   val localConfigurations = importViewModel.getConfigs.collectAsState(initial = emptyList())
+
+  val onChangeProfile: (LocalConfiguration) -> Boolean =
+    remember(isPremiumUnlocked, localConfigurations.value) {
+      changeProfile@{ config ->
+        return@changeProfile if (!isPremiumUnlocked && localConfigurations.value.size >= 3) {
+          keyboardController?.hide()
+          Toasty.warning(context, context.getString(R.string.max_premium), Toasty.LENGTH_LONG).show()
+          onPremiumClick() // TODO: When premium is purchased from this screen, it doesn't unlock (problem lies with Datastore).
+          false
+        } else {
+          onItemClick(config)
+          true
+        }
+      }
+    }
 
   BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
     LazyColumn {
@@ -64,7 +87,7 @@ fun ImportScreen(
               .statusBarsPadding()
               .height(80.dp)
           )
-          ImportHeader(onItemClick = onItemClick)
+          ImportHeader(onItemClick = onChangeProfile)
           Spacer(modifier = Modifier.height(20.dp))
           Divider(color = MaterialTheme.colors.primaryVariant, thickness = 1.dp)
           Spacer(modifier = Modifier.height(15.dp))
@@ -101,7 +124,7 @@ fun ImportScreen(
       Header(title = stringResource(R.string.import_config), goBack)
       if (localConfigurations.value.isEmpty()) {
         Spacer(modifier = Modifier.height(10.dp))
-        ImportHeader(onItemClick = onItemClick)
+        ImportHeader(onItemClick = onChangeProfile)
       }
     }
   }
@@ -110,12 +133,13 @@ fun ImportScreen(
 @Composable
 private fun ImportHeader(
   importViewModel: ImportViewModel = viewModel(),
-  onItemClick: (LocalConfiguration) -> Unit,
+  onItemClick: (LocalConfiguration) -> Boolean,
 ) {
   Profile(
     changeProfile = { config, toSave ->
-      if (toSave) importViewModel.addConfig(config)
-      onItemClick.invoke(config)
+      if (onItemClick(config)) {
+        if (toSave) importViewModel.addConfig(config)
+      }
     }
   )
 }
@@ -137,7 +161,12 @@ private fun Profile(changeProfile: (config: LocalConfiguration, save: Boolean) -
 
   val openDocumentResult =
     rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
-      fileUri.value = uri
+      if (VpnConfigUtil.verifyConfigData(context, uri)) {
+        fileUri.value = uri
+      } else {
+        fileUri.value = null
+        Toasty.error(context, context.getString(R.string.invalid_config)).show()
+      }
     }
 
   ProfileColumn(
@@ -158,9 +187,9 @@ private fun Profile(changeProfile: (config: LocalConfiguration, save: Boolean) -
       }
       try {
         val uri = fileUri.value ?: return@ProfileColumn
+
         context.contentResolver.openInputStream(uri)?.let { stream ->
           val config = stream.bufferedReader().readText()
-          // TODO: Add more ways to verify if this is a correct configuration file.
           stream.close()
           changeProfile.invoke(
             /*config*/ LocalConfiguration(
@@ -172,7 +201,7 @@ private fun Profile(changeProfile: (config: LocalConfiguration, save: Boolean) -
             /*toSave*/ saveProfile.value
           )
         }
-      } catch (e: FileNotFoundException) {
+      } catch (e: Exception) {
         Toasty.error(context, context.getString(R.string.invalid_config)).show()
       }
     }

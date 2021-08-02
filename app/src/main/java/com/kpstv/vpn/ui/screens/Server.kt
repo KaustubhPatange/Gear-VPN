@@ -10,24 +10,25 @@ import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.coil.rememberCoilPainter
+import coil.compose.rememberImagePainter
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.kpstv.navigation.compose.findController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
@@ -192,9 +193,11 @@ private fun CommonItem(
   ) {
     if (config.countryFlagUrl.isNotEmpty()) {
       Image(
-        painter = rememberCoilPainter(
+        painter = rememberImagePainter(
           FlagUtils.getOrNull(config.country) ?: config.countryFlagUrl,
-          fadeIn = true
+          builder = {
+            crossfade(true)
+          }
         ),
         modifier = Modifier
           .padding(5.dp)

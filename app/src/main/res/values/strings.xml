@@ -56,4 +56,6 @@
     <string name="vpn_timeout">VPN connect timeout, try again!</string>
 
     <string name="google_play_page">https://play.google.com/store/apps/details?id=com.kpstv.vpn</string>
+    <string name="max_premium">Maximum limit reached! Buy premium to unlock.</string>
+    <string name="restart_maybe">If premium didn\'t unlock, try restarting app.</string>
 </resources>

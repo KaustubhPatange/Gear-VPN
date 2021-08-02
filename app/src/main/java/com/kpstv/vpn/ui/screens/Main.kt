@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.coil.rememberCoilPainter
+import coil.compose.rememberImagePainter
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.vpn.R
@@ -134,7 +134,7 @@ fun MainScreen(
     ) {
       AnimatedVisibility(visible = configuration.countryFlagUrl.isNotEmpty()) {
         Image(
-          painter = rememberCoilPainter(
+          painter = rememberImagePainter(
             FlagUtils.getOrNull(configuration.country) ?: configuration.countryFlagUrl
           ),
           modifier = Modifier
