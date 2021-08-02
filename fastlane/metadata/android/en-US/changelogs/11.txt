@@ -1,0 +1,2 @@
+Added: Checks to detect for valid OpenVPN config file.
+Fixed: Some issues with IAP.
