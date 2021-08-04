@@ -21,6 +21,11 @@ or alternatively using `brew install fastlane`
 fastlane android production
 ```
 Deploy a new version to the Google Play
+### android internal_test
+```
+fastlane android internal_test
+```
+
 
 ----
 
