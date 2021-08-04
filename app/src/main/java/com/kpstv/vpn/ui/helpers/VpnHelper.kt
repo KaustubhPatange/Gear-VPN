@@ -20,7 +20,6 @@ import com.kpstv.vpn.ui.viewmodels.VpnViewModel
 import de.blinkt.openvpn.DisconnectVPNActivity
 import de.blinkt.openvpn.OpenVpnApi
 import de.blinkt.openvpn.core.OpenVPNService
-import de.blinkt.openvpn.core.OpenVPNThread
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -67,7 +66,7 @@ class VpnHelper(private val activity: ComponentActivity) {
           activity.startActivity(Intent(activity, DisconnectVPNActivity::class.java))
         }
         if (state is VpnConnectionStatus.Disconnected) {
-          OpenVPNService.setDefaultStatus()
+          openVpnService?.setDefaultStatus()
         }
         if (state is VpnConnectionStatus.NewConnection) {
           // new server
@@ -89,7 +88,8 @@ class VpnHelper(private val activity: ComponentActivity) {
 
   private fun stopVpn(): Boolean {
     try {
-      OpenVPNThread.stop()
+      openVpnService?.stopVPN(true)
+//      OpenVPNThread.stopProcess()
       isVpnStarted = false
       return true
     } catch (e: Exception) {
@@ -132,7 +132,7 @@ class VpnHelper(private val activity: ComponentActivity) {
       val bytesIn = intent.getStringExtra("byteIn") ?: " "
       val bytesOut = intent.getStringExtra("byteOut") ?: " "
 
-//      android.util.Log.e("VpnHelper", "Status: ${intent.getStringExtra("state")}")
+      android.util.Log.e("VpnHelper", "Status: ${intent.getStringExtra("state")}")
 
       /*val detail = VPNViewModel.ConnectionDetail(
         duration = duration,

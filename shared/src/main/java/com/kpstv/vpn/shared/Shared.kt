@@ -1,5 +1,9 @@
 package com.kpstv.vpn.shared
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class SharedVpnConfiguration(
   val country: String,
   val countryFlagUrl: String,
@@ -12,4 +16,4 @@ data class SharedVpnConfiguration(
   val expireTime: Long,
   val username: String,
   val password: String,
-)
+) : Parcelable

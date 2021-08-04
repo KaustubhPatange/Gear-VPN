@@ -2,8 +2,6 @@ package de.blinkt.openvpn;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
-import android.net.VpnService;
 import android.os.Build;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -33,7 +31,7 @@ public class OpenVpnApi {
             Log.d(TAG, "startVpnInternal: =============="+cp+"\n" +
                     vp);
             vp.mName = sCountry;
-            if (vp.checkProfile(context) != de.blinkt.openvpn.R.string.no_error_found){
+            if (vp.checkProfile(context) != R.string.no_error_found){
                 throw new RemoteException(context.getString(vp.checkProfile(context)));
             }
             vp.mProfileCreator = context.getPackageName();

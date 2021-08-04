@@ -2,7 +2,9 @@
 package de.blinkt.openvpn.api;
 
 import de.blinkt.openvpn.api.APIVpnProfile;
-import de.blinkt.openvpn.api.IOpenVPNStatusCallback; 
+import de.blinkt.openvpn.api.IOpenVPNStatusCallback;
+//import com.kpstv.vpn.shared.SharedVpnConfiguration;
+//import com.kpstv.vpn.shared.SharedVpnConfiguration;
 
 import android.content.Intent;
 import android.os.ParcelFileDescriptor;
@@ -63,4 +65,10 @@ interface IOpenVPNAPIService {
 
     /** Use a profile with all certificates etc. embedded */
     APIVpnProfile addNewVPNProfile (String name, boolean userEditable, String config);
+
+    /** Same as startVPN(String), but also takes a Bundle with extra parameters,
+    * which will be applied to the created VPNProfile (e.g. allow vpn bypass). */
+    void startVPNwithExtras(in String inlineconfig, in Bundle extras);
+
+//    void setCurrentServer(in SharedVpnConfiguration config);
 }
