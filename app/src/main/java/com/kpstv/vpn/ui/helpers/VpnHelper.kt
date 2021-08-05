@@ -127,20 +127,12 @@ class VpnHelper(private val activity: ComponentActivity) {
       if (context == null || intent == null) return
       vpnViewModel.dispatchConnectionState(intent.getStringExtra("state") ?: "")
 
-      val duration = intent.getStringExtra("duration") ?: "00:00:00"
+      /*val duration = intent.getStringExtra("duration") ?: "00:00:00"
       val lastPacketReceive = intent.getStringExtra("lastPacketReceive") ?: "0"
       val bytesIn = intent.getStringExtra("byteIn") ?: " "
-      val bytesOut = intent.getStringExtra("byteOut") ?: " "
+      val bytesOut = intent.getStringExtra("byteOut") ?: " "*/
 
       android.util.Log.e("VpnHelper", "Status: ${intent.getStringExtra("state")}")
-
-      /*val detail = VPNViewModel.ConnectionDetail(
-        duration = duration,
-        lastPacketReceive = lastPacketReceive,
-        bytesIn = bytesIn,
-        bytesOut = bytesOut
-      )
-      vpnViewModel.dispatchConnectionDetail(detail)*/
     }
   }
 

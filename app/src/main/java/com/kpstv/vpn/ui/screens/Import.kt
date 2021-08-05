@@ -47,7 +47,6 @@ import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.viewmodels.ImportViewModel
 import es.dmoral.toasty.Toasty
-import java.io.FileNotFoundException
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -160,9 +159,10 @@ private fun Profile(changeProfile: (config: LocalConfiguration, save: Boolean) -
   val saveProfile = remember { mutableStateOf(true) }
 
   val openDocumentResult =
-    rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
-      if (VpnConfigUtil.verifyConfigData(context, uri)) {
-        fileUri.value = uri
+    rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) result@{ uri ->
+      val file = uri ?: return@result
+      if (VpnConfigUtil.verifyConfigData(context, file)) {
+        fileUri.value = file
       } else {
         fileUri.value = null
         Toasty.error(context, context.getString(R.string.invalid_config)).show()
