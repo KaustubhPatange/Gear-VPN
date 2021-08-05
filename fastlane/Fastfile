@@ -3,10 +3,12 @@ default_platform(:android)
 platform :android do
    desc "Deploy a new version to the Google Play"
   lane :production do
+    gradle(task: "app:checkForChangelog")
     gradle(task: "clean bundleRelease")
     upload_to_play_store
   end
   lane :internal_test do
+    gradle(task: "app:checkForChangelog")
     gradle(task: "clean bundleRelease")
     upload_to_play_store(track: 'internal')
   end

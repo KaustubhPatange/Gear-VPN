@@ -59,6 +59,16 @@ android {
     }
 }
 
+tasks.register('checkForChangelog') {
+    doFirst {
+        def versionCode = project.android.defaultConfig.versionCode
+        def file = new File("$rootDir\\fastlane\\metadata\\android\\en-US\\changelogs\\${versionCode}.txt")
+        if (!file.exists()) {
+            throw new BuildCancelledException("Error: Please define a changelog for the versionCode $versionCode at \"fastlane\\metadata\\android\\en-US\\changelogs\"")
+        }
+    }
+}
+
 dependencies {
     implementation "androidx.core:core-ktx:1.5.0"
     implementation 'androidx.appcompat:appcompat:1.3.0'
