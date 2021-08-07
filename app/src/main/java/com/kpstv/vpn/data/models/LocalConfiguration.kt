@@ -2,6 +2,7 @@ package com.kpstv.vpn.data.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.kpstv.vpn.ui.helpers.VpnConfig
 
 @Entity(tableName = "table_local_config")
 data class LocalConfiguration(
@@ -14,11 +15,11 @@ data class LocalConfiguration(
   var id: Int = 0
 }
 
-fun LocalConfiguration.asVpnConfiguration() : VpnConfiguration {
-  return VpnConfiguration.createEmpty().copy(
+fun LocalConfiguration.asVpnConfiguration() : VpnConfig {
+  return VpnConfig.createEmpty().copy(
     country = "Custom ($profileName)",
     username = userName,
     password = password,
-    config = config
+    config = config,
   )
 }

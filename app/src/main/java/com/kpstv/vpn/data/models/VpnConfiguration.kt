@@ -11,7 +11,8 @@ data class VpnConfiguration(
   val sessions: String,
   val upTime: String,
   val speed: String,
-  val config: String,
+  val configTCP: String?,
+  val configUDP: String?,
   val score: Long,
   val expireTime: Long,
   val username: String,
@@ -21,10 +22,6 @@ data class VpnConfiguration(
   @PrimaryKey(autoGenerate = true)
   var id: Int = 0
 
-  fun isNotEmpty(): Boolean {
-    return config.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()
-  }
-
   companion object {
     fun createEmpty(): VpnConfiguration = VpnConfiguration(
       country = "Unknown",
@@ -33,7 +30,8 @@ data class VpnConfiguration(
       sessions = "",
       upTime = "",
       speed = "",
-      config = "",
+      configTCP = null,
+      configUDP = null,
       username = "vpn",
       password = "vpn",
       score = 0,

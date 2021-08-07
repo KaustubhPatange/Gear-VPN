@@ -9,6 +9,7 @@ import com.kpstv.vpn.data.db.repository.VpnRepository
 import com.kpstv.vpn.data.models.Location
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.ui.components.ConnectivityStatus
+import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.helpers.VpnConnectionStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -25,8 +26,8 @@ class VpnViewModel @Inject constructor(
   private val publicIpStateFlow = MutableStateFlow<Location?>(null)
   val publicIp: StateFlow<Location?> = publicIpStateFlow.asStateFlow()
 
-  private val currentVpnStateFlow = MutableStateFlow(VpnConfiguration.createEmpty())
-  val currentVpn: StateFlow<VpnConfiguration> = currentVpnStateFlow.asStateFlow()
+  private val currentVpnStateFlow = MutableStateFlow(VpnConfig.createEmpty())
+  val currentVpn: StateFlow<VpnConfig> = currentVpnStateFlow.asStateFlow()
 
   private val connectionStatusStateFlow: MutableStateFlow<VpnConnectionStatus> =
     MutableStateFlow(VpnConnectionStatus.Unknown())
@@ -74,7 +75,7 @@ class VpnViewModel @Inject constructor(
     }
   }
 
-  fun changeServer(config: VpnConfiguration) {
+  fun changeServer(config: VpnConfig) {
     viewModelScope.launch {
       currentVpnStateFlow.emit(config)
     }

@@ -6,7 +6,6 @@ import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
-import java.io.IOException
 import java.util.*
 import kotlin.coroutines.resume
 
@@ -79,30 +78,34 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
             configResponse.close() // Always close stream
 
             val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
-            val ovpnConfig =
-              hrefElements.find { it.attr("href").contains(".ovpn") }?.attr("href") ?: continue
+            val ovpnConfigs = hrefElements.filter { it.attr("href").contains(".ovpn") }
+              .map { "https://www.vpngate.net" + it.attr("href") }
 
-            val configDataResponse =
-              networkUtils.simpleGetRequest("https://www.vpngate.net/$ovpnConfig")
-            if (configDataResponse.isSuccessful) {
-              val data = configDataResponse.body?.string() ?: continue
-              configDataResponse.close() // Always close stream
-              val vpnConfig = VpnConfiguration(
-                formatCountry(country),
-                imageUrl,
-                ip,
-                sessions,
-                uptime,
-                speed.replace("Mbps", "").trim(),
-                data,
-                score,
-                expiredTime,
-                "vpn",
-                "vpn"
-              )
-              vpnConfigurations.add(vpnConfig)
-              onNewConfigurationAdded.invoke(formatConfigurations(vpnConfigurations))
-            } else continue
+            val configTCPUrl = ovpnConfigs.firstOrNull { it.contains("tcp=1") }
+            val configUDPUrl = ovpnConfigs.firstOrNull { it.contains("udp=1") }
+
+            val configTCP = safeFetchConfig(configTCPUrl)
+            val configUDP = safeFetchConfig(configUDPUrl)
+
+            if (configTCP == null && configUDP == null) continue
+
+            val vpnConfig = VpnConfiguration(
+              country = formatCountry(country),
+              countryFlagUrl = imageUrl,
+              ip = ip,
+              sessions = sessions,
+              upTime = uptime,
+              speed = speed.replace("Mbps", "").trim(),
+              configTCP = configTCP,
+              configUDP = configUDP,
+              score = score,
+              expireTime = expiredTime,
+              username = "vpn",
+              password = "vpn"
+            )
+
+            vpnConfigurations.add(vpnConfig)
+            onNewConfigurationAdded.invoke(formatConfigurations(vpnConfigurations))
           } else {
             continue
           }
@@ -110,6 +113,18 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
       }
     }
     onComplete.invoke(formatConfigurations(vpnConfigurations))
+  }
+
+  private suspend fun safeFetchConfig(configUrl: String?): String? {
+    configUrl?.let { url ->
+      val response = networkUtils.simpleGetRequest(url)
+      if (response.isSuccessful) {
+        val body = response.body?.string()
+        response.close()
+        return body
+      }
+    }
+    return null
   }
 
   // Implementation of direct snapshot for getting all configurations.
