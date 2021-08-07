@@ -31,10 +31,10 @@ import coil.compose.rememberImagePainter
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.vpn.R
-import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrl
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.cyanDark
 import com.kpstv.vpn.ui.theme.greenColorDark
@@ -44,7 +44,7 @@ import com.kpstv.vpn.ui.theme.purpleColor
 @Composable
 fun MainScreen(
   publicIp: String?,
-  configuration: VpnConfiguration = VpnConfiguration.createEmpty(),
+  configuration: VpnConfig = VpnConfig.createEmpty(),
   connectivityStatus: ConnectivityStatus = ConnectivityStatus.NONE,
   onChangeServer: () -> Unit = {},
   onConnectClick: () -> Unit = {},
@@ -132,18 +132,20 @@ fun MainScreen(
         )
         .padding(10.dp)
     ) {
-      AnimatedVisibility(visible = configuration.countryFlagUrl.isNotEmpty()) {
-        Image(
-          painter = rememberImagePainter(
-            FlagUtils.getOrNull(configuration.country) ?: configuration.countryFlagUrl
-          ),
-          modifier = Modifier
-            .padding(10.dp)
-            .requiredWidthIn(max = 50.dp)
-            .fillMaxHeight(),
-          contentDescription = "country",
-        )
-      }
+      Image(
+        painter = rememberImagePainter(
+          FlagUtils.getOrNull(configuration.country) ?: "",
+          builder = {
+            placeholder(R.drawable.unknown)
+            crossfade(true)
+          }
+        ),
+        modifier = Modifier
+          .padding(10.dp)
+          .requiredWidthIn(max = 50.dp)
+          .fillMaxHeight(),
+        contentDescription = "country",
+      )
 
       Spacer(modifier = Modifier.width(10.dp))
 
@@ -159,7 +161,7 @@ fun MainScreen(
           maxLines = 1
         )
         Text(
-          text = configuration.ip,
+          text = stringResource(id = R.string.main_ip, configuration.ip, configuration.connectionType.name),
           style = MaterialTheme.typography.subtitle2,
           color = MaterialTheme.colors.onSecondary
         )

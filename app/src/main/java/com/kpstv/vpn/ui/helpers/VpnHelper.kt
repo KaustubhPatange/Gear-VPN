@@ -13,7 +13,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.kpstv.vpn.R
-import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.asShared
 import com.kpstv.vpn.extensions.asVpnConfig
 import com.kpstv.vpn.ui.viewmodels.VpnViewModel
@@ -31,7 +30,7 @@ class VpnHelper(private val activity: ComponentActivity) {
   private val vpnViewModel by activity.viewModels<VpnViewModel>()
 
   private var isVpnStarted: Boolean = false
-  private var currentServer: VpnConfiguration? = null
+  private var currentServer: VpnConfig? = null
 
   private var openVpnService: OpenVPNService? = null
 
@@ -98,7 +97,7 @@ class VpnHelper(private val activity: ComponentActivity) {
     return false
   }
 
-  private fun prepareVpn(server: VpnConfiguration) {
+  private fun prepareVpn(server: VpnConfig) {
     this.currentServer = server
     if (!isVpnStarted) {
       val intent = VpnService.prepare(activity)
@@ -112,13 +111,14 @@ class VpnHelper(private val activity: ComponentActivity) {
 
   private fun startVpn() {
     try {
-      val server = currentServer ?: throw Exception("Error: Server is null")
+      val server = currentServer ?: throw Exception("Server is null")
+      if (server.config.isEmpty()) throw Exception("Config is empty")
       OpenVpnApi.startVpn(activity, server.config, server.country, server.username, server.password)
       isVpnStarted = true
       disposeAfterTimeout()
     } catch (e: Exception) {
       e.printStackTrace()
-      Toasty.error(activity, activity.getString(R.string.vpn_error)).show()
+      Toasty.error(activity, activity.getString(R.string.vpn_error, e.message)).show()
     }
   }
 
@@ -181,8 +181,34 @@ class VpnHelper(private val activity: ComponentActivity) {
   }
 }
 
+data class VpnConfig(
+  val username: String,
+  val password: String,
+  val config: String,
+  val country: String,
+  val ip: String,
+  val connectionType: ConnectionType
+) {
+  enum class ConnectionType { Unknown, TCP, UDP }
+
+  fun isNotEmpty(): Boolean {
+    return config.isNotEmpty() && country.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()
+  }
+
+  companion object {
+    fun createEmpty() : VpnConfig = VpnConfig(
+      username = "",
+      password = "",
+      config = "",
+      country = "Unknown",
+      ip = "Unknown",
+      connectionType = ConnectionType.Unknown
+    )
+  }
+}
+
 sealed class VpnConnectionStatus(open val color: Int) {
-  data class NewConnection(override val color: Int = Color.YELLOW, val server: VpnConfiguration) : VpnConnectionStatus(color)
+  data class NewConnection(override val color: Int = Color.YELLOW, val server: VpnConfig) : VpnConnectionStatus(color)
   data class Unknown(override val color: Int = Color.RED) : VpnConnectionStatus(color)
   data class Disconnected(override val color: Int = Color.RED) : VpnConnectionStatus(color)
   data class Connected(override val color: Int = Color.GREEN) : VpnConnectionStatus(color)

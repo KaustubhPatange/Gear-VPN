@@ -4,11 +4,11 @@ buildscript {
                 "compose": "1.0.0",
                 "compose_tool": "1.0.0",
                 "kotlin": "1.5.10",
-                "gradlePlugin": "7.1.0-alpha03",
+                "gradlePlugin": "7.1.0-alpha06",
         ]
         app = [
-                "versionCode": 12,
-                "versionName": "1.0 (12)"
+                "versionCode": 13,
+                "versionName": "1.0 (13)"
         ]
     }
     repositories {

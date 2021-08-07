@@ -10,12 +10,13 @@ import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,12 +29,13 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.kpstv.navigation.compose.findController
+import com.kpstv.navigation.compose.findComposeNavigator
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.theme.goldenYellow
@@ -47,13 +49,17 @@ fun ServerScreen(
   onImportButton: () -> Unit = {},
   onPremiumClick: () -> Unit = {},
   isPremiumUnlocked: Boolean = false,
-  onItemClick: (VpnConfiguration) -> Unit
+  onItemClick: (VpnConfiguration, VpnConfig.ConnectionType) -> Unit
 ) {
+  val navigator = findComposeNavigator()
+
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
+  val protocolBottomSheet = rememberBottomSheetState()
+
+  val vpnConfig = remember { mutableStateOf(VpnConfiguration.createEmpty()) }
 
   SwipeRefresh(
-    modifier = Modifier
-      .fillMaxSize(),
+    modifier = Modifier.fillMaxSize(),
     state = swipeRefreshState,
     onRefresh = onRefresh,
     swipeEnabled = (vpnState is VpnLoadState.Completed),
@@ -93,7 +99,10 @@ fun ServerScreen(
             config = item,
             isPremiumUnlocked = isPremiumUnlocked,
             onPremiumClick = onPremiumClick,
-            onClick = onItemClick
+            onClick = { config ->
+              vpnConfig.value = config
+              protocolBottomSheet.value = BottomSheetState.Expanded
+            }
           )
 
           if (index == vpnState.configs.size - 1) {
@@ -114,6 +123,19 @@ fun ServerScreen(
       )
     }
   }
+
+  ProtocolSheet(
+    protocolSheetState = protocolBottomSheet,
+    enableTCP = vpnConfig.value.configTCP != null,
+    enableUDP = vpnConfig.value.configUDP != null,
+    onItemClick = { type ->
+      when(type) {
+        ProtocolConnectionType.TCP -> onItemClick.invoke(vpnConfig.value, VpnConfig.ConnectionType.TCP)
+        ProtocolConnectionType.UDP -> onItemClick.invoke(vpnConfig.value, VpnConfig.ConnectionType.UDP)
+      }
+    },
+    suppressBackPress = { navigator.suppressBackPress = it }
+  )
 }
 
 @Composable
@@ -167,7 +189,7 @@ private fun CommonItem(
   config: VpnConfiguration,
   isPremiumUnlocked: Boolean,
   onPremiumClick: () -> Unit = {},
-  onClick: (VpnConfiguration) -> Unit = {}
+  onClick: (VpnConfiguration) -> Unit
 ) {
   Spacer(modifier = Modifier.height(5.dp))
 
@@ -258,7 +280,7 @@ private fun CommonItem(
 @Composable
 fun PreviewServerScreen() {
   CommonPreviewTheme {
-    ServerScreen(vpnState = VpnLoadState.Loading(), onItemClick = {})
+    ServerScreen(vpnState = VpnLoadState.Loading(), onItemClick = { _, _ -> })
   }
 }
 
@@ -268,7 +290,8 @@ fun PreviewCommonItem() {
   CommonPreviewTheme {
     CommonItem(
       config = createTestConfiguration(),
-      isPremiumUnlocked = true
+      isPremiumUnlocked = true,
+      onClick = {}
     )
   }
 }
@@ -279,7 +302,8 @@ fun PreviewCommonItemPremium() {
   CommonPreviewTheme {
     CommonItem(
       config = createTestConfiguration().copy(premium = true),
-      isPremiumUnlocked = false
+      isPremiumUnlocked = false,
+      onClick = {}
     )
   }
 }

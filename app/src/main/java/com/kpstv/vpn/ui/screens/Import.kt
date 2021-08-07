@@ -171,7 +171,7 @@ private fun Profile(changeProfile: (config: LocalConfiguration, save: Boolean) -
 
   ProfileColumn(
     fileLocation = fileLocation.value,
-    onFileChoose = { openDocumentResult.launch(arrayOf("application/octet-stream")) },
+    onFileChoose = { openDocumentResult.launch(arrayOf("application/*")) },
     userName = userName.value,
     onUserNameChanged = { userName.value = it },
     password = password.value,

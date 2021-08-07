@@ -10,8 +10,10 @@ import com.kpstv.navigation.compose.ComposeNavigator
 import com.kpstv.navigation.compose.Fade
 import com.kpstv.navigation.compose.Route
 import com.kpstv.navigation.compose.SlideRight
+import com.kpstv.vpn.extensions.asVpnConfig
 import com.kpstv.vpn.ui.components.BottomSheetState
 import com.kpstv.vpn.ui.components.PremiumBottomSheet
+import com.kpstv.vpn.ui.components.ProtocolSheet
 import com.kpstv.vpn.ui.components.rememberBottomSheetState
 import com.kpstv.vpn.ui.helpers.BillingHelper
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +48,7 @@ fun NavigationScreen(
 ) {
   val shouldRefresh = remember { mutableStateOf(Load(), policy = referentialEqualityPolicy()) }
   val vpnCollectJob = remember(shouldRefresh.value) { SupervisorJob() }
+
   val premiumBottomSheet = rememberBottomSheetState()
 
   val location = viewModel.publicIp.collectAsState()
@@ -108,8 +111,8 @@ fun NavigationScreen(
         },
         isPremiumUnlocked = isPremiumUnlocked.value,
         onPremiumClick = onPremiumClick,
-        onItemClick = { config ->
-          viewModel.changeServer(config)
+        onItemClick = { config, type ->
+          viewModel.changeServer(config.asVpnConfig(type))
           controller.goBack()
         }
       )

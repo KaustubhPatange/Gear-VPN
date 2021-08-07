@@ -25,11 +25,12 @@
     <string name="free_server">Free servers</string>
     <string name="server_ip">● %1$s</string>
     <string name="server_subtitle">%1$s ● %2$s ● %3$s Mbps</string>
+    <string name="main_ip">%1$s ● %2$s</string>
 
     <string name="import_open_vpn">IMPORT OPEN-VPN CONFIGURATION</string>
 
     <string name="vpn_disconnect">Disconnected successfully</string>
-    <string name="vpn_error">Could not connect to the server</string>
+    <string name="vpn_error">Could not connect to the server: %1$s</string>
     <string name="vpn_auth_failed">Authentication failed: Incorrect username or password</string>
     <string name="save_profile">Save profile</string>
     <string name="profile_path">Location: %1$s</string>
@@ -58,4 +59,8 @@
     <string name="google_play_page">https://play.google.com/store/apps/details?id=com.kpstv.vpn</string>
     <string name="max_premium">Maximum limit reached! Buy premium to unlock.</string>
     <string name="restart_maybe">If premium didn\'t unlock, try restarting app.</string>
+
+    <string name="optimal_tcp">Optimal for connection over HTTP(S), SMTP, FTP, etc.</string>
+    <string name="optimal_udp">Optimal for video conferencing, streaming, DNS, VoIP, etc.</string>
+    <string name="choose_protocol">Choose a protocol</string>
 </resources>

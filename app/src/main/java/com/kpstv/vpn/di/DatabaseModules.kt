@@ -3,6 +3,7 @@ package com.kpstv.vpn.di
 import android.content.Context
 import androidx.room.Room
 import com.kpstv.vpn.data.db.database.VpnDatabase
+import com.kpstv.vpn.data.db.database.VpnDatabaseMigrations
 import com.kpstv.vpn.data.db.localized.LocalDao
 import com.kpstv.vpn.data.db.localized.VpnDao
 import dagger.Module
@@ -25,6 +26,7 @@ object VpnModule {
       VpnDatabase::class.java,
       "vpn.db"
     )
+      .addMigrations(VpnDatabaseMigrations.MIGRATION_1_2)
       .fallbackToDestructiveMigration()
       .fallbackToDestructiveMigrationOnDowngrade()
       .build()

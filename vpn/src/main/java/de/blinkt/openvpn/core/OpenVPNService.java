@@ -69,7 +69,7 @@ import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
 
-import com.kpstv.vpn.shared.SharedVpnConfiguration;
+import com.kpstv.vpn.shared.SharedVpnConfig;
 
 public class OpenVPNService extends VpnService implements StateListener, Callback, ByteCountListener, IOpenVPNServiceInternal {
     public static final String START_SERVICE = "de.blinkt.openvpn.START_SERVICE";
@@ -1482,12 +1482,12 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     // Methods specific to Gear VPN
 
-    private SharedVpnConfiguration shared;
-    public void setCurrentServer(SharedVpnConfiguration value) {
+    private SharedVpnConfig shared;
+    public void setCurrentServer(SharedVpnConfig value) {
         this.shared = value;
     }
 
-    public SharedVpnConfiguration getCurrentServer() {
+    public SharedVpnConfig getCurrentServer() {
         return shared;
     }
 }
