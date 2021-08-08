@@ -1,6 +1,7 @@
 package com.kpstv.vpn.extensions.utils
 
 import com.kpstv.vpn.BuildConfig
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -59,7 +60,8 @@ class NetworkUtils @Inject constructor() {
       enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
           if (continuation.isCancelled) return
-          continuation.resumeWithException(e)
+          throw e // TODO: We are throwing exception let's see!
+//          continuation.tryResumeWithException(e)
         }
 
         override fun onResponse(call: Call, response: Response) {
@@ -70,6 +72,7 @@ class NetworkUtils @Inject constructor() {
         try {
           cancel()
         } catch (ex: Throwable) {
+          ex.printStackTrace()
         }
       }
     }
@@ -89,7 +92,7 @@ class NetworkUtils @Inject constructor() {
 
     sslSocketFactory(insecureSocketFactory, naiveTrustManager)
     hostnameVerifier { hostname, _ ->
-      return@hostnameVerifier (hostname.equals("www.vpngate.net"))
+      return@hostnameVerifier (hostname.equals("www.vpngate.net") || hostname.equals("www.vpnbook.com"))
     }
     return this
   }

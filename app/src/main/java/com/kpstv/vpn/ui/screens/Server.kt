@@ -1,5 +1,6 @@
 package com.kpstv.vpn.ui.screens
 
+import android.content.Context
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -129,9 +131,15 @@ fun ServerScreen(
     enableTCP = vpnConfig.value.configTCP != null,
     enableUDP = vpnConfig.value.configUDP != null,
     onItemClick = { type ->
-      when(type) {
-        ProtocolConnectionType.TCP -> onItemClick.invoke(vpnConfig.value, VpnConfig.ConnectionType.TCP)
-        ProtocolConnectionType.UDP -> onItemClick.invoke(vpnConfig.value, VpnConfig.ConnectionType.UDP)
+      when (type) {
+        ProtocolConnectionType.TCP -> onItemClick.invoke(
+          vpnConfig.value,
+          VpnConfig.ConnectionType.TCP
+        )
+        ProtocolConnectionType.UDP -> onItemClick.invoke(
+          vpnConfig.value,
+          VpnConfig.ConnectionType.UDP
+        )
       }
     },
     suppressBackPress = { navigator.suppressBackPress = it }
@@ -213,25 +221,22 @@ private fun CommonItem(
       .padding(5.dp)
       .fillMaxWidth()
   ) {
-    if (config.countryFlagUrl.isNotEmpty()) {
-      Image(
-        painter = rememberImagePainter(
-          FlagUtils.getOrNull(config.country) ?: config.countryFlagUrl,
-          builder = {
-            crossfade(true)
-          }
-        ),
-        modifier = Modifier
-          .padding(5.dp)
-          .requiredWidthIn(max = 40.dp)
-          .fillMaxHeight()
-          .scale(1f),
-        contentDescription = "Country flag",
-        contentScale = ContentScale.Fit
-      )
-    } else {
-      Spacer(modifier = Modifier.width(50.dp))
-    }
+    Image(
+      painter = rememberImagePainter(
+        FlagUtils.getOrNull(config.country) ?: "",
+        builder = {
+          placeholder(R.drawable.unknown)
+          crossfade(true)
+        }
+      ),
+      modifier = Modifier
+        .padding(5.dp)
+        .requiredWidthIn(max = 40.dp)
+        .fillMaxHeight()
+        .scale(1f),
+      contentDescription = "Country flag",
+      contentScale = ContentScale.Fit
+    )
 
     Spacer(modifier = Modifier.width(10.dp))
 
@@ -259,12 +264,7 @@ private fun CommonItem(
       }
       Spacer(modifier = Modifier.height(1.dp))
       Text(
-        text = stringResource(
-          R.string.server_subtitle,
-          config.sessions,
-          config.upTime,
-          config.speed
-        ),
+        text = getCommonItemSubtext(config),
         style = MaterialTheme.typography.subtitle2,
         color = MaterialTheme.colors.onSurface,
         overflow = TextOverflow.Ellipsis,
@@ -274,6 +274,15 @@ private fun CommonItem(
   }
 
   Spacer(modifier = Modifier.height(5.dp))
+}
+
+@Composable
+private fun getCommonItemSubtext(config: VpnConfiguration): String {
+  return if (config.sessions.isEmpty() && config.upTime.isEmpty() && config.speed.isEmpty()) {
+    stringResource(R.string.server_subtitle2)
+  } else {
+    stringResource(R.string.server_subtitle, config.sessions, config.upTime, config.speed)
+  }
 }
 
 @Preview(showBackground = true)

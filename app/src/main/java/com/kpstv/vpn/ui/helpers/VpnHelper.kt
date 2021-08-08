@@ -132,7 +132,7 @@ class VpnHelper(private val activity: ComponentActivity) {
       val bytesIn = intent.getStringExtra("byteIn") ?: " "
       val bytesOut = intent.getStringExtra("byteOut") ?: " "*/
 
-      android.util.Log.e("VpnHelper", "Status: ${intent.getStringExtra("state")}")
+//      android.util.Log.d("VpnHelper", "Status: ${intent.getStringExtra("state")}")
     }
   }
 

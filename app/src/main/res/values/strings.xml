@@ -25,6 +25,7 @@
     <string name="free_server">Free servers</string>
     <string name="server_ip">● %1$s</string>
     <string name="server_subtitle">%1$s ● %2$s ● %3$s Mbps</string>
+    <string name="server_subtitle2">Unknown</string>
     <string name="main_ip">%1$s ● %2$s</string>
 
     <string name="import_open_vpn">IMPORT OPEN-VPN CONFIGURATION</string>
