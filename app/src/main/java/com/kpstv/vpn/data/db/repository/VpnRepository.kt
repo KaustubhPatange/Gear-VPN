@@ -8,12 +8,10 @@ import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.safeNetworkAccessor
 import kotlinx.coroutines.flow.*
-import java.io.IOException
+import okhttp3.internal.toImmutableList
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.util.*
-import kotlin.Comparator
-import kotlin.collections.ArrayList
 
 sealed class VpnLoadState(open val configs: List<VpnConfiguration>) {
   data class Loading(override val configs: List<VpnConfiguration> = emptyList()) :
@@ -42,26 +40,26 @@ class VpnRepository @Inject constructor(
         emit(VpnLoadState.Completed(local))
       } else {
         // Parse from network
-        val vpnConfigs = arrayListOf<VpnConfiguration>()
+        var vpnConfigs = listOf<VpnConfiguration>()
 
         openApiParser.parse(
           onNewConfigurationAdded = { configs ->
-            mergeConfigs(configs, vpnConfigs)
-            emit(VpnLoadState.Loading(vpnConfigs.toMutableList()))
+            vpnConfigs = vpnConfigs + configs
+            emit(VpnLoadState.Loading(vpnConfigs))
           },
           onComplete = { configs ->
-            mergeConfigs(configs, vpnConfigs)
+            vpnConfigs = vpnConfigs + configs
           }
         )
 
         vpnBookParser.parse(
           onNewConfigurationAdded = { configs ->
-            mergeConfigs(configs, vpnConfigs)
-            emit(VpnLoadState.Loading(vpnConfigs.toMutableList()))
+            vpnConfigs = vpnConfigs + configs
+            emit(VpnLoadState.Loading(vpnConfigs))
           },
           onComplete = { configs ->
-            mergeConfigs(configs, vpnConfigs)
-            emit(VpnLoadState.Completed(vpnConfigs.toMutableList()))
+            vpnConfigs = vpnConfigs + configs
+            emit(VpnLoadState.Completed(vpnConfigs))
             vpnDao.insertAll(vpnConfigs)
           }
         )
@@ -74,13 +72,13 @@ class VpnRepository @Inject constructor(
     return vpnDao.getAll()
   }
 
-  private fun mergeConfigs(configs: List<VpnConfiguration>, into: ArrayList<VpnConfiguration>) {
+  private operator fun List<VpnConfiguration>.plus(configs: List<VpnConfiguration>): List<VpnConfiguration> {
+    val into = toMutableList()
     for (c in configs) {
       into.removeAll { it.ip == c.ip }
       into.add(c)
     }
-    into.sortWith(compareBy { it.country })
-    into.sortWith(compareByDescending { it.premium })
-//    android.util.Log.e("mergeConfigs", "${into.map { "${it.country}-${it.ip}" }}")
+    return into.sortedBy { it.country }.sortedByDescending { it.premium }.toImmutableList()
   }
+
 }

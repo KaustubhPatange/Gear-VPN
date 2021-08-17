@@ -5,8 +5,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SharedVpnConfig(
-  val username: String,
-  val password: String,
+  val username: String?,
+  val password: String?,
   val config: String,
   val country: String,
   val ip: String,

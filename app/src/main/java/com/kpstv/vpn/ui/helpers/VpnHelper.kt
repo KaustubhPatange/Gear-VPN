@@ -182,8 +182,8 @@ class VpnHelper(private val activity: ComponentActivity) {
 }
 
 data class VpnConfig(
-  val username: String,
-  val password: String,
+  val username: String?,
+  val password: String?,
   val config: String,
   val country: String,
   val ip: String,
@@ -192,7 +192,7 @@ data class VpnConfig(
   enum class ConnectionType { Unknown, TCP, UDP }
 
   fun isNotEmpty(): Boolean {
-    return config.isNotEmpty() && country.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()
+    return config.isNotEmpty() && country.isNotEmpty()
   }
 
   companion object {

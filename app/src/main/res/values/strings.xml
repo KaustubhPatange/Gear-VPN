@@ -46,7 +46,7 @@
     <string name="profile_item_subtitle">Username: %1$s, Password: %2$s</string>
     <string name="vpn_local_configurations">Saved profiles</string>
     <string name="invalid_config">Invalid config file</string>
-    <string name="import_error_fields">Required fields cannot be empty</string>
+    <string name="import_error_field_profile">Profile name cannot be empty</string>
     <string name="premium_pay">PAY</string>
     <string name="premium_text">Enjoy fast premium servers for lifetime with one subscription.</string>
     <string name="purchase_ack">Could not acknowledge purchase</string>

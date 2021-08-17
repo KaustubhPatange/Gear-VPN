@@ -42,6 +42,17 @@ object VpnDatabaseMigrations {
             username TEXT NOT NULL
         )
       """.trimIndent())
+
+      database.execSQL("DROP TABLE table_local_config")
+      database.execSQL("""
+        CREATE TABLE table_local_config (
+            profileName TEXT NOT NULL,
+            userName TEXT,
+            password TEXT,
+            config TEXT NOT NULL,
+            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
+        )
+      """.trimIndent())
     }
   }
 }
