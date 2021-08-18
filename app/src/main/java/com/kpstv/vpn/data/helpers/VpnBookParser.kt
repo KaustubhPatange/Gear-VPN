@@ -4,6 +4,7 @@ import androidx.annotation.WorkerThread
 import com.kpstv.vpn.data.models.AppSettingsConverter
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.DateUtils
+import com.kpstv.vpn.extensions.utils.Logger
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
 import kotlinx.coroutines.*
@@ -25,6 +26,7 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
     var username = "vpnbook"
     var password = "2mxt8wz"
 
+    Logger.d("Fetching credentials for vpnbook.com")
     val appSettingResponse = networkUtils.simpleGetRequest(SettingsUrl).getOrNull()
     if (appSettingResponse?.isSuccessful == true) {
       val content = appSettingResponse.getBodyAndClose()
@@ -34,6 +36,7 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
       }
     }
 
+    Logger.d("Fetching from network: vpnbook.com")
     val vpnBookResponse = networkUtils.simpleGetRequest("https://www.vpnbook.com/").getOrNull()
     if (vpnBookResponse?.isSuccessful == true) {
 

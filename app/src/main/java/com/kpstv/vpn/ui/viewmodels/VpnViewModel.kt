@@ -8,6 +8,7 @@ import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.db.repository.VpnRepository
 import com.kpstv.vpn.data.models.Location
 import com.kpstv.vpn.data.models.VpnConfiguration
+import com.kpstv.vpn.extensions.utils.Logger
 import com.kpstv.vpn.ui.components.ConnectivityStatus
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.helpers.VpnConnectionStatus
@@ -40,7 +41,9 @@ class VpnViewModel @Inject constructor(
     viewModelScope.launch {
       try {
         publicIpStateFlow.emit(ipApi.fetch())
-      } catch (e: IOException) { /*no-op*/ }
+      } catch (e: Exception) {
+        Logger.w(e, "Error fetching IP: (No crash)")
+      }
     }
 
     viewModelScope.launch {

@@ -3,6 +3,7 @@ package com.kpstv.vpn.data.helpers
 import androidx.annotation.WorkerThread
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.DateUtils
+import com.kpstv.vpn.extensions.utils.Logger
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
 import kotlinx.coroutines.*
@@ -24,6 +25,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
 
     val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
+    Logger.d("Fetching from network: vpngate.net")
     val vpnResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/en").getOrNull()
     if (vpnResponse?.isSuccessful == true) {
 
@@ -104,6 +106,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
         if (vpnConfigurations.count { it.country == formatCountry(item.country) } == 3) continue
 
         // fetch TCP & UDP configs
+        Logger.d("Fetching configs for ${item.country} - ${item.ip}")
         val configResponse = networkUtils.simpleGetRequest(item.configTCP!!).getOrNull() // configTCP here serves as URL in previous iteration.
           if (configResponse?.isSuccessful == true) {
             val configBody = configResponse.getBodyAndClose()
@@ -140,6 +143,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
 
   private suspend fun safeFetchConfig(configUrl: String?): String? {
     configUrl?.let { url ->
+      Logger.d("Fetching $configUrl")
       val response = networkUtils.simpleGetRequest(url).getOrNull()
       if (response?.isSuccessful == true) {
         return response.getBodyAndClose()
@@ -165,16 +169,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
   }
 
   private fun formatConfigurations(list: List<VpnConfiguration>): List<VpnConfiguration> {
-
     return list.sortedBy { it.country }.sortedByDescending { it.premium }
-//    return list.groupBy { it.country }.filter { it.value.size > 1 }.flatMap { it.value }
-//      .sortedByDescending { it.speed }.distinctBy { it.country }.map { it.copy(premium = true) }
-//      .union(list).distinctBy { it.ip }
-
-
-    /*return list.sortedByDescending { it.speed.toFloat() }.distinctBy { it.country }
-      .take(5).distinctBy { it.country }.map { it.copy(premium = true) }
-      .union(list).distinctBy { it.ip }*/
   }
 
   private fun formatCountry(country: String): String {

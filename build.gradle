@@ -1,9 +1,9 @@
 buildscript {
     ext {
         versions = [
-                "compose": "1.0.0",
-                "compose_tool": "1.0.0",
-                "kotlin": "1.5.10",
+                "compose": "1.0.1",
+                "compose_tool": "1.0.1",
+                "kotlin": "1.5.21",
                 "gradlePlugin": "7.1.0-alpha06",
         ]
         app = [
@@ -19,6 +19,7 @@ buildscript {
         classpath "com.android.tools.build:gradle:$versions.gradlePlugin"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         classpath 'com.google.dagger:hilt-android-gradle-plugin:2.28-alpha'
+        classpath 'com.google.gms:google-services:4.3.10'
     }
 }
 
