@@ -160,7 +160,7 @@ fun MainScreen(
           overflow = TextOverflow.Ellipsis,
           maxLines = 1
         )
-        Text(
+        AutoSizeSingleLineText(
           text = stringResource(id = R.string.main_ip, configuration.ip, configuration.connectionType.name),
           style = MaterialTheme.typography.subtitle2,
           color = MaterialTheme.colors.onSecondary

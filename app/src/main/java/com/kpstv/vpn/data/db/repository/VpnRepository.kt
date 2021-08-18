@@ -1,7 +1,7 @@
 package com.kpstv.vpn.data.db.repository
 
 import com.kpstv.vpn.data.db.localized.VpnDao
-import com.kpstv.vpn.data.helpers.OpenApiParser
+import com.kpstv.vpn.data.helpers.VpnGateParser
 import com.kpstv.vpn.data.helpers.VpnBookParser
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.DateUtils
@@ -25,7 +25,7 @@ class VpnRepository @Inject constructor(
   private val vpnDao: VpnDao,
   networkUtils: NetworkUtils
 ) {
-  private val openApiParser: OpenApiParser = OpenApiParser(networkUtils)
+  private val vpnGateParser: VpnGateParser = VpnGateParser(networkUtils)
   private val vpnBookParser: VpnBookParser = VpnBookParser(networkUtils)
 
   fun fetch(forceNetwork: Boolean = false): Flow<VpnLoadState> = flow {
@@ -42,23 +42,23 @@ class VpnRepository @Inject constructor(
         // Parse from network
         var vpnConfigs = listOf<VpnConfiguration>()
 
-        openApiParser.parse(
+        vpnGateParser.parse(
           onNewConfigurationAdded = { configs ->
-            vpnConfigs = vpnConfigs + configs
+            vpnConfigs = merge(configs, vpnConfigs)
             emit(VpnLoadState.Loading(vpnConfigs))
           },
           onComplete = { configs ->
-            vpnConfigs = vpnConfigs + configs
+            vpnConfigs = merge(configs, vpnConfigs)
           }
         )
 
         vpnBookParser.parse(
           onNewConfigurationAdded = { configs ->
-            vpnConfigs = vpnConfigs + configs
+            vpnConfigs = merge(configs, vpnConfigs)
             emit(VpnLoadState.Loading(vpnConfigs))
           },
           onComplete = { configs ->
-            vpnConfigs = vpnConfigs + configs
+            vpnConfigs = merge(configs, vpnConfigs)
             emit(VpnLoadState.Completed(vpnConfigs))
             vpnDao.insertAll(vpnConfigs)
           }
@@ -72,13 +72,15 @@ class VpnRepository @Inject constructor(
     return vpnDao.getAll()
   }
 
-  private operator fun List<VpnConfiguration>.plus(configs: List<VpnConfiguration>): List<VpnConfiguration> {
-    val into = toMutableList()
-    for (c in configs) {
-      into.removeAll { it.ip == c.ip }
-      into.add(c)
+  companion object {
+    fun merge(from: List<VpnConfiguration>, to: List<VpnConfiguration>): List<VpnConfiguration> {
+      val into = to.toMutableList()
+      // does from.union(to).distinctBy { it.ip } but respects the order
+      for (c in from) {
+        into.removeAll { it.ip == c.ip }
+        into.add(c)
+      }
+      return into.sortedBy { it.country }.sortedByDescending { it.premium }.toImmutableList()
     }
-    return into.sortedBy { it.country }.sortedByDescending { it.premium }.toImmutableList()
   }
-
 }

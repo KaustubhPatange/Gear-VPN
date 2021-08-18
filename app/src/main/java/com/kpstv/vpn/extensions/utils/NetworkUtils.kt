@@ -23,6 +23,17 @@ import kotlin.coroutines.resumeWithException
 @Singleton
 class NetworkUtils @Inject constructor() {
 
+  companion object {
+    /**
+     * Returns the body of the response & closes the response
+     */
+    fun Response.getBodyAndClose(): String? {
+      val data = body?.string()
+      body?.close()
+      return data
+    }
+  }
+
   fun getRetrofitBuilder(): Retrofit.Builder {
     return Retrofit.Builder().apply {
       addConverterFactory(MoshiConverterFactory.create())
@@ -51,21 +62,19 @@ class NetworkUtils @Inject constructor() {
     return client.build()
   }
 
-  suspend fun simpleGetRequest(url: String) =
+  suspend fun simpleGetRequest(url: String): Result<Response> =
     getHttpClient().newCall(Request.Builder().url(url).build()).await()
 
-
-  private suspend fun Call.await(): Response {
+  private suspend fun Call.await(): Result<Response> {
     return suspendCancellableCoroutine { continuation ->
       enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
           if (continuation.isCancelled) return
-          throw e // TODO: We are throwing exception let's see!
-//          continuation.tryResumeWithException(e)
+          continuation.resume(Result.failure(e))
         }
 
         override fun onResponse(call: Call, response: Response) {
-          continuation.resume(response)
+          continuation.resume(Result.success(response))
         }
       })
       continuation.invokeOnCancellation {

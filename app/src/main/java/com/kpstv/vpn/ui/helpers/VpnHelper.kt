@@ -88,7 +88,6 @@ class VpnHelper(private val activity: ComponentActivity) {
   private fun stopVpn(): Boolean {
     try {
       openVpnService?.stopVPN(true)
-//      OpenVPNThread.stopProcess()
       isVpnStarted = false
       return true
     } catch (e: Exception) {

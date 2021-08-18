@@ -1,9 +1,11 @@
 package com.kpstv.vpn.data.helpers
 
 import androidx.annotation.WorkerThread
+import com.kpstv.vpn.data.models.AppSettingsConverter
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils
+import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import java.io.*
@@ -13,24 +15,32 @@ import java.util.zip.ZipInputStream
 import kotlin.coroutines.resume
 
 class VpnBookParser(private val networkUtils: NetworkUtils) {
-// TODO: Refactor a bit & allow fetching username & password from url & add this to WorkManager
+
   suspend fun parse(
     onNewConfigurationAdded: suspend (snapshot: List<VpnConfiguration>) -> Unit = {},
     onComplete: suspend (snapshot: List<VpnConfiguration>) -> Unit
   ) {
     val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
-    val username = "vpnbook"
-    val password = "2mxt8wz"
+    var username = "vpnbook"
+    var password = "2mxt8wz"
 
-    val vpnBookResponse = networkUtils.simpleGetRequest("https://www.vpnbook.com/")
-    if (vpnBookResponse.isSuccessful) {
+    val appSettingResponse = networkUtils.simpleGetRequest(SettingsUrl).getOrNull()
+    if (appSettingResponse?.isSuccessful == true) {
+      val content = appSettingResponse.getBodyAndClose()
+      AppSettingsConverter.fromStringToAppSettings(content)?.let { converter ->
+        username = converter.vpnbook.username
+        password = converter.vpnbook.password
+      }
+    }
+
+    val vpnBookResponse = networkUtils.simpleGetRequest("https://www.vpnbook.com/").getOrNull()
+    if (vpnBookResponse?.isSuccessful == true) {
 
       val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time
       val expiredTime = DateUtils.format(offsetDateTime).toLong()
 
-      val body = vpnBookResponse.body?.string()
-      vpnBookResponse.close() // Always close stream
+      val body = vpnBookResponse.getBodyAndClose()
 
       val doc = Jsoup.parse(body)
 
@@ -49,14 +59,11 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
 
         var entry = zipStream.nextEntry
         while(entry != null) {
-//          android.util.Log.e(entry.name, "Parsing")
           if (configUDP == null && entry.name.contains("udp")) {
             configUDP = readZipFromStream(zipStream, buffer)
-//            android.util.Log.e(entry.name, "ConfigUDP Set")
           }
           if (configTCP == null && entry.name.contains("tcp")) {
             configTCP = readZipFromStream(zipStream, buffer)
-//            android.util.Log.e(entry.name, "ConfigTCP Set")
           }
           if (configTCP != null && configUDP != null) break
           entry = zipStream.nextEntry
@@ -72,8 +79,6 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
         zipStream.close()
 
         val name = nameRegex.find(url)?.groups?.get(1)?.value ?: "-1"
-//        android.util.Log.e(url,"Check For IP: ${ip}, Country: $name")
-//        android.util.Log.e(url,"Check if same: ${configUDP == configTCP}")
 
         val configuration = VpnConfiguration.createEmpty().copy(
           country = countryMap.getOrElse(name) { "Unknown" },
@@ -128,6 +133,8 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
   }
 
   private companion object {
+    private const val SettingsUrl = "https://pastebin.com/raw/Txd7v6y6" // TODO: Change this to with the one from github
+
     val ipRegex = "remote\\s?([\\d.]+)\\s?\\d+".toRegex()
     private val nameRegex = "VPNBook\\.com-OpenVPN-([\\w]{2})".toRegex()
     private val countryMap: Map<String, String> = mapOf(
