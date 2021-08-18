@@ -181,8 +181,8 @@ private fun Profile(changeProfile: (config: LocalConfiguration, save: Boolean) -
     saveProfile = saveProfile.value,
     onSaveProfileChanged = { saveProfile.value = it },
     onConnectToProfile = {
-      if (userName.value.isEmpty() || password.value.isEmpty() || profileName.value.isEmpty()) {
-        Toasty.error(context, context.getString(R.string.import_error_fields)).show()
+      if (/*userName.value.isEmpty() || password.value.isEmpty() || */profileName.value.isEmpty()) {
+        Toasty.error(context, context.getString(R.string.import_error_field_profile)).show()
         return@ProfileColumn
       }
       try {
@@ -194,8 +194,8 @@ private fun Profile(changeProfile: (config: LocalConfiguration, save: Boolean) -
           changeProfile.invoke(
             /*config*/ LocalConfiguration(
               profileName = profileName.value,
-              userName = userName.value,
-              password = password.value,
+              userName = userName.value.ifEmpty { null },
+              password = password.value.ifEmpty { null },
               config = config
             ),
             /*toSave*/ saveProfile.value
@@ -297,7 +297,7 @@ private fun ProfileColumn(
       onValueChange = onProfileNameChanged,
       singleLine = true,
       placeholder = {
-        Text(text = stringResource(R.string.profile_name))
+        Text(text = "${stringResource(R.string.profile_name)} *")
       },
       colors = TextFieldDefaults.textFieldColors(
         backgroundColor = Color.Transparent
@@ -395,8 +395,8 @@ private fun ProfileItem(
           Text(
             text = stringResource(
               R.string.profile_item_subtitle,
-              item.userName,
-              item.password.asPassword()
+              item.userName ?: "-",
+              item.password?.asPassword() ?: "-"
             ),
             style = MaterialTheme.typography.subtitle2,
             color = MaterialTheme.colors.onSurface,

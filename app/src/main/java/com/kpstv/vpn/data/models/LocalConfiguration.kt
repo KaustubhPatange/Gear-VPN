@@ -7,8 +7,8 @@ import com.kpstv.vpn.ui.helpers.VpnConfig
 @Entity(tableName = "table_local_config")
 data class LocalConfiguration(
   val profileName: String,
-  val userName: String,
-  val password: String,
+  val userName: String?,
+  val password: String?,
   val config: String
 ) {
   @PrimaryKey(autoGenerate = true)

@@ -1,6 +1,7 @@
 package com.kpstv.vpn.extensions.utils
 
 import com.kpstv.vpn.BuildConfig
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -22,6 +23,17 @@ import kotlin.coroutines.resumeWithException
 @Singleton
 class NetworkUtils @Inject constructor() {
 
+  companion object {
+    /**
+     * Returns the body of the response & closes the response
+     */
+    fun Response.getBodyAndClose(): String? {
+      val data = body?.string()
+      body?.close()
+      return data
+    }
+  }
+
   fun getRetrofitBuilder(): Retrofit.Builder {
     return Retrofit.Builder().apply {
       addConverterFactory(MoshiConverterFactory.create())
@@ -32,8 +44,8 @@ class NetworkUtils @Inject constructor() {
   fun getHttpBuilder(): OkHttpClient.Builder {
     return OkHttpClient.Builder()
 //      .addInterceptor(interceptor)
-      .connectTimeout(30, TimeUnit.SECONDS)
-      .readTimeout(30, TimeUnit.SECONDS)
+      .connectTimeout(1, TimeUnit.MINUTES)
+      .readTimeout(1, TimeUnit.MINUTES)
   }
 
   /**
@@ -50,26 +62,26 @@ class NetworkUtils @Inject constructor() {
     return client.build()
   }
 
-  suspend fun simpleGetRequest(url: String) =
+  suspend fun simpleGetRequest(url: String): Result<Response> =
     getHttpClient().newCall(Request.Builder().url(url).build()).await()
 
-
-  private suspend fun Call.await(): Response {
+  private suspend fun Call.await(): Result<Response> {
     return suspendCancellableCoroutine { continuation ->
       enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
           if (continuation.isCancelled) return
-          continuation.resumeWithException(e)
+          continuation.resume(Result.failure(e))
         }
 
         override fun onResponse(call: Call, response: Response) {
-          continuation.resume(response)
+          continuation.resume(Result.success(response))
         }
       })
       continuation.invokeOnCancellation {
         try {
           cancel()
         } catch (ex: Throwable) {
+          ex.printStackTrace()
         }
       }
     }
@@ -89,7 +101,7 @@ class NetworkUtils @Inject constructor() {
 
     sslSocketFactory(insecureSocketFactory, naiveTrustManager)
     hostnameVerifier { hostname, _ ->
-      return@hostnameVerifier (hostname.equals("www.vpngate.net"))
+      return@hostnameVerifier (hostname.equals("www.vpngate.net") || hostname.equals("www.vpnbook.com"))
     }
     return this
   }

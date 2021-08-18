@@ -4,12 +4,13 @@ import androidx.annotation.WorkerThread
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils
+import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import java.util.*
 import kotlin.coroutines.resume
 
-class OpenApiParser(private val networkUtils: NetworkUtils) {
+class VpnGateParser(private val networkUtils: NetworkUtils) {
 
   companion object {
     private val ipRegex = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}".toRegex()
@@ -23,14 +24,13 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
 
     val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
-    val vpnResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/en")
-    if (vpnResponse.isSuccessful) {
+    val vpnResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/en").getOrNull()
+    if (vpnResponse?.isSuccessful == true) {
 
       val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time
       val expiredTime = DateUtils.format(offsetDateTime).toLong()
 
-      val body = vpnResponse.body?.string()
-      vpnResponse.close() // close Stream
+      val body = vpnResponse.getBodyAndClose()
 
       val doc = Jsoup.parse(body)
 
@@ -42,6 +42,8 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
         }
       vpnConfigurations.clear()
 
+      // First iteration: Capture all data needed
+      val intermediateList = arrayListOf<VpnConfiguration>()
       for (i in 1 until table.childrenSize()) {
 
         val tr = table.child(i)
@@ -53,7 +55,7 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
           if (country == "Reserved") continue
 
           // no more than 3 countries....
-          if (vpnConfigurations.count { it.country == formatCountry(country) } == 3) continue
+//          if (vpnConfigurations.count { it.country == formatCountry(country) } == 3) continue
 
           val ip = ipRegex.find(tr.child(1).html())?.value ?: ""
 
@@ -72,11 +74,39 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
 
           val configUrl = "https://www.vpngate.net/en/" + ovpnConfigElement.child(0).attr("href")
 
-          val configResponse = networkUtils.simpleGetRequest(configUrl)
-          if (configResponse.isSuccessful) {
-            val configBody = configResponse.body?.string()
-            configResponse.close() // Always close stream
+          val vpnConfig = VpnConfiguration(
+            country = formatCountry(country),
+            countryFlagUrl = imageUrl,
+            ip = ip,
+            sessions = sessions,
+            upTime = uptime,
+            speed = speed.replace("Mbps", "").trim(),
+            configTCP = configUrl, // this will be considered
+            configUDP = null,
+//            configTCP = configTCP,
+//            configUDP = configUDP,
+            score = score,
+            expireTime = expiredTime,
+            username = "vpn",
+            password = "vpn",
+          )
 
+          intermediateList.add(vpnConfig)
+        }
+      }
+
+      // Second iteration: Format & capture the configs
+      intermediateList.sortByDescending { it.speed }
+      val premiumCountries = intermediateList.asSequence().groupBy { it.country }.filter { it.value.size > 1 }.map { it.key }.distinct().toMutableList()
+
+      for(item in intermediateList) {
+        // no more than 3 countries
+        if (vpnConfigurations.count { it.country == formatCountry(item.country) } == 3) continue
+
+        // fetch TCP & UDP configs
+        val configResponse = networkUtils.simpleGetRequest(item.configTCP!!).getOrNull() // configTCP here serves as URL in previous iteration.
+          if (configResponse?.isSuccessful == true) {
+            val configBody = configResponse.getBodyAndClose()
             val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
             val ovpnConfigs = hrefElements.filter { it.attr("href").contains(".ovpn") }
               .map { "https://www.vpngate.net" + it.attr("href") }
@@ -89,27 +119,20 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
 
             if (configTCP == null && configUDP == null) continue
 
-            val vpnConfig = VpnConfiguration(
-              country = formatCountry(country),
-              countryFlagUrl = imageUrl,
-              ip = ip,
-              sessions = sessions,
-              upTime = uptime,
-              speed = speed.replace("Mbps", "").trim(),
-              configTCP = configTCP,
-              configUDP = configUDP,
-              score = score,
-              expireTime = expiredTime,
-              username = "vpn",
-              password = "vpn"
-            )
+            val premium = if (premiumCountries.contains(item.country)) {
+              premiumCountries.remove(item.country) // remove item after first use
+              true
+            } else false
 
-            vpnConfigurations.add(vpnConfig)
+            vpnConfigurations.add(
+              item.copy(
+                configTCP = configTCP,
+                configUDP = configUDP,
+                premium = premium
+              )
+            )
             onNewConfigurationAdded.invoke(formatConfigurations(vpnConfigurations))
-          } else {
-            continue
           }
-        }
       }
     }
     onComplete.invoke(formatConfigurations(vpnConfigurations))
@@ -117,11 +140,9 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
 
   private suspend fun safeFetchConfig(configUrl: String?): String? {
     configUrl?.let { url ->
-      val response = networkUtils.simpleGetRequest(url)
-      if (response.isSuccessful) {
-        val body = response.body?.string()
-        response.close()
-        return body
+      val response = networkUtils.simpleGetRequest(url).getOrNull()
+      if (response?.isSuccessful == true) {
+        return response.getBodyAndClose()
       }
     }
     return null
@@ -144,9 +165,16 @@ class OpenApiParser(private val networkUtils: NetworkUtils) {
   }
 
   private fun formatConfigurations(list: List<VpnConfiguration>): List<VpnConfiguration> {
-    return list.sortedByDescending { it.speed.toFloat() }.distinctBy { it.country }
-      .take(3).map { it.copy(premium = true) }
-      .union(list).distinctBy { it.ip }
+
+    return list.sortedBy { it.country }.sortedByDescending { it.premium }
+//    return list.groupBy { it.country }.filter { it.value.size > 1 }.flatMap { it.value }
+//      .sortedByDescending { it.speed }.distinctBy { it.country }.map { it.copy(premium = true) }
+//      .union(list).distinctBy { it.ip }
+
+
+    /*return list.sortedByDescending { it.speed.toFloat() }.distinctBy { it.country }
+      .take(5).distinctBy { it.country }.map { it.copy(premium = true) }
+      .union(list).distinctBy { it.ip }*/
   }
 
   private fun formatCountry(country: String): String {

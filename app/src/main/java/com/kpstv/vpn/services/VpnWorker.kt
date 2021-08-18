@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.kpstv.vpn.data.db.localized.VpnDao
-import com.kpstv.vpn.data.helpers.OpenApiParser
+import com.kpstv.vpn.data.db.repository.VpnRepository
+import com.kpstv.vpn.data.helpers.VpnGateParser
+import com.kpstv.vpn.data.helpers.VpnBookParser
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.Notifications
 import dagger.assisted.Assisted
@@ -18,17 +20,21 @@ class VpnWorker @AssistedInject constructor(
   @Assisted workerParams: WorkerParameters,
   private val dao: VpnDao,
   networkUtils: NetworkUtils,
-): CoroutineWorker(appContext, workerParams) {
+) : CoroutineWorker(appContext, workerParams) {
 
-  private val parser = OpenApiParser(networkUtils)
+  private val openApiParser = VpnGateParser(networkUtils)
+  private val vpnBookParser = VpnBookParser(networkUtils)
 
   override suspend fun doWork(): Result {
     setForeground(Notifications.createRefreshNotification(appContext))
 
-    val list = parser.parse()
+    val openList = openApiParser.parse()
+    val vpnList = vpnBookParser.parse()
 
-    return if (list.isNotEmpty()) {
-      dao.insertAll(list)
+    val final = VpnRepository.merge(vpnList, openList)
+
+    return if (final.isNotEmpty()) {
+      dao.insertAll(final)
       Result.success()
     } else {
       Result.failure()
@@ -48,7 +54,8 @@ class VpnWorker @AssistedInject constructor(
         .setConstraints(constraints)
         .build()
 
-      WorkManager.getInstance(context).enqueueUniquePeriodicWork(ID, ExistingPeriodicWorkPolicy.REPLACE, request)
+      WorkManager.getInstance(context)
+        .enqueueUniquePeriodicWork(ID, ExistingPeriodicWorkPolicy.REPLACE, request)
     }
 
     fun stop(context: Context) {

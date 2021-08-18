@@ -88,7 +88,6 @@ class VpnHelper(private val activity: ComponentActivity) {
   private fun stopVpn(): Boolean {
     try {
       openVpnService?.stopVPN(true)
-//      OpenVPNThread.stopProcess()
       isVpnStarted = false
       return true
     } catch (e: Exception) {
@@ -132,7 +131,7 @@ class VpnHelper(private val activity: ComponentActivity) {
       val bytesIn = intent.getStringExtra("byteIn") ?: " "
       val bytesOut = intent.getStringExtra("byteOut") ?: " "*/
 
-      android.util.Log.e("VpnHelper", "Status: ${intent.getStringExtra("state")}")
+//      android.util.Log.d("VpnHelper", "Status: ${intent.getStringExtra("state")}")
     }
   }
 
@@ -182,8 +181,8 @@ class VpnHelper(private val activity: ComponentActivity) {
 }
 
 data class VpnConfig(
-  val username: String,
-  val password: String,
+  val username: String?,
+  val password: String?,
   val config: String,
   val country: String,
   val ip: String,
@@ -192,7 +191,7 @@ data class VpnConfig(
   enum class ConnectionType { Unknown, TCP, UDP }
 
   fun isNotEmpty(): Boolean {
-    return config.isNotEmpty() && country.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()
+    return config.isNotEmpty() && country.isNotEmpty()
   }
 
   companion object {
