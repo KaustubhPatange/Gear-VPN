@@ -44,8 +44,8 @@ class NetworkUtils @Inject constructor() {
   fun getHttpBuilder(): OkHttpClient.Builder {
     return OkHttpClient.Builder()
 //      .addInterceptor(interceptor)
-      .connectTimeout(30, TimeUnit.SECONDS)
-      .readTimeout(30, TimeUnit.SECONDS)
+      .connectTimeout(1, TimeUnit.MINUTES)
+      .readTimeout(1, TimeUnit.MINUTES)
   }
 
   /**

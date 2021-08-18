@@ -134,45 +134,6 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
             onNewConfigurationAdded.invoke(formatConfigurations(vpnConfigurations))
           }
       }
-
-
-//          val configResponse = networkUtils.simpleGetRequest(configUrl).getOrNull()
-//          if (configResponse?.isSuccessful == true) {
-//            val configBody = configResponse.getBodyAndClose()
-//
-//            val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
-//            val ovpnConfigs = hrefElements.filter { it.attr("href").contains(".ovpn") }
-//              .map { "https://www.vpngate.net" + it.attr("href") }
-//
-//            val configTCPUrl = ovpnConfigs.firstOrNull { it.contains("tcp=1") }
-//            val configUDPUrl = ovpnConfigs.firstOrNull { it.contains("udp=1") }
-//
-//            val configTCP = safeFetchConfig(configTCPUrl)
-//            val configUDP = safeFetchConfig(configUDPUrl)
-//
-//            if (configTCP == null && configUDP == null) continue
-//
-//            val vpnConfig = VpnConfiguration(
-//              country = formatCountry(country),
-//              countryFlagUrl = imageUrl,
-//              ip = ip,
-//              sessions = sessions,
-//              upTime = uptime,
-//              speed = speed.replace("Mbps", "").trim(),
-//              configTCP = configTCP,
-//              configUDP = configUDP,
-//              score = score,
-//              expireTime = expiredTime,
-//              username = "vpn",
-//              password = "vpn",
-//            )
-//
-//            vpnConfigurations.add(vpnConfig)
-//            onNewConfigurationAdded.invoke(formatConfigurations(vpnConfigurations))
-//          } else {
-//            continue
-//          }
-//
     }
     onComplete.invoke(formatConfigurations(vpnConfigurations))
   }
