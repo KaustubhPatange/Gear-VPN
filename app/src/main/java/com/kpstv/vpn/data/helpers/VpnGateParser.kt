@@ -2,6 +2,7 @@ package com.kpstv.vpn.data.helpers
 
 import androidx.annotation.WorkerThread
 import com.kpstv.vpn.data.models.VpnConfiguration
+import com.kpstv.vpn.extensions.clearAndAdd
 import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.extensions.utils.Logger
 import com.kpstv.vpn.extensions.utils.NetworkUtils
@@ -12,10 +13,6 @@ import java.util.*
 import kotlin.coroutines.resume
 
 class VpnGateParser(private val networkUtils: NetworkUtils) {
-
-  companion object {
-    private val ipRegex = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}".toRegex()
-  }
 
   // Suspend in a way to work like a callback. This should make bridge between `emit`ion & direct snapshot seamless.
   suspend fun parse(
@@ -56,9 +53,6 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
 
           if (country == "Reserved") continue
 
-          // no more than 3 countries....
-//          if (vpnConfigurations.count { it.country == formatCountry(country) } == 3) continue
-
           val ip = ipRegex.find(tr.child(1).html())?.value ?: ""
 
           val sessions = tr.child(2).child(0).child(0).text()
@@ -83,10 +77,8 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
             sessions = sessions,
             upTime = uptime,
             speed = speed.replace("Mbps", "").trim(),
-            configTCP = configUrl, // this will be considered
+            configTCP = configUrl, // this will be used as configUrl for next iteration.
             configUDP = null,
-//            configTCP = configTCP,
-//            configUDP = configUDP,
             score = score,
             expireTime = expiredTime,
             username = "vpn",
@@ -98,17 +90,16 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
       }
 
       // Second iteration: Format & capture the configs
-      val list = intermediateList.sortedWith(compareBy({ it.speed }, { it.upTime })).reversed()
-      intermediateList.clear()
-      intermediateList.addAll(list)
+
+      val list = intermediateList.groupBy { it.country }
+        .flatMap { c ->
+          c.value.take(3) // no more than 3 countries (keep the original order since vpn gate ranking is better)
+            .sortedByDescending { it.speed.toFloatOrNull() ?: 0f }
+        }
+      intermediateList.clearAndAdd(list)
       val premiumCountries = intermediateList.asSequence().groupBy { it.country }.filter { it.value.size > 1 }.map { it.key }.distinct().toMutableList()
 
       for(item in intermediateList) {
-        // no more than 3 countries
-        if (vpnConfigurations.count { it.country == formatCountry(item.country) } == 3) continue
-        if (item.sessions.toInt() == 0) continue
-        if (item.upTime.toInt() == 0) continue
-
         // fetch TCP & UDP configs
         Logger.d("Fetching configs for ${item.country} - ${item.ip}")
         val configResponse = networkUtils.simpleGetRequest(item.configTCP!!).getOrNull() // configTCP here serves as URL in previous iteration.
@@ -183,4 +174,13 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
   }
 
   private val list = listOf("Federation", "Republic of")
+
+  companion object {
+    private val ipRegex = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}".toRegex()
+    private val numberRegex = "\\d+".toRegex()
+
+    private fun String.parseNumber(): Int {
+      return numberRegex.find(this)?.value?.toInt() ?: 0
+    }
+  }
 }

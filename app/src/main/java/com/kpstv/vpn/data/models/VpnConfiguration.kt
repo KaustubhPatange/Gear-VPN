@@ -8,7 +8,13 @@ data class VpnConfiguration(
   val country: String,
   val countryFlagUrl: String,
   val ip: String,
+  /**
+   * as "x sessions" for VPN Gate
+   */
   val sessions: String,
+  /**
+   * as "x days/hours/mins" for VPN Gate
+   */
   val upTime: String,
   val speed: String,
   val configTCP: String?,
