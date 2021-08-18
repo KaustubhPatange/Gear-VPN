@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -94,7 +93,7 @@ private fun CommonSheet(
           iterations = LottieConstants.IterateForever
         )
         LottieAnimation(
-          modifier = Modifier.width(100.dp),
+          modifier = Modifier.width(100.dp).height(100.dp), // it needs fixed width and height otherwise it fills the entire screen, [cc](github.com/airbnb/lottie-android/issues/1866)
           composition = composition,
           progress = progress
         )

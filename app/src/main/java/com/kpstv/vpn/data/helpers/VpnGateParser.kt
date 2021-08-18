@@ -98,12 +98,16 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
       }
 
       // Second iteration: Format & capture the configs
-      intermediateList.sortByDescending { it.speed }
+      val list = intermediateList.sortedWith(compareBy({ it.speed }, { it.upTime })).reversed()
+      intermediateList.clear()
+      intermediateList.addAll(list)
       val premiumCountries = intermediateList.asSequence().groupBy { it.country }.filter { it.value.size > 1 }.map { it.key }.distinct().toMutableList()
 
       for(item in intermediateList) {
         // no more than 3 countries
         if (vpnConfigurations.count { it.country == formatCountry(item.country) } == 3) continue
+        if (item.sessions.toInt() == 0) continue
+        if (item.upTime.toInt() == 0) continue
 
         // fetch TCP & UDP configs
         Logger.d("Fetching configs for ${item.country} - ${item.ip}")
