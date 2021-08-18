@@ -36,7 +36,7 @@ jobs:
 
           base64 -d -i key.jks.base64 > key.jks
           base64 -d -i play_config.json.base64 > play_config.json
-          base64 -d -i play.json.base64 > "${{github.workspace}}\app\google-services.json"
+          base64 -d -i play.json.base64 > "${{github.workspace}}/app/google-services.json"
 
           echo "signing.alias=$ALIAS" >> local.properties
           echo "signing.storePassword=$STORE_PASSWORD" >> local.properties
