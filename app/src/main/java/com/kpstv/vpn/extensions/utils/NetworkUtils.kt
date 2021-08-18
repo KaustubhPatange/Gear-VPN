@@ -1,7 +1,5 @@
 package com.kpstv.vpn.extensions.utils
 
-import com.kpstv.vpn.BuildConfig
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -17,7 +15,6 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 // https://github.com/KaustubhPatange/Moviesy/blob/master/app/src/main/java/com/kpstv/yts/extensions/utils/RetrofitUtils.kt
 @Singleton
@@ -43,9 +40,8 @@ class NetworkUtils @Inject constructor() {
 
   fun getHttpBuilder(): OkHttpClient.Builder {
     return OkHttpClient.Builder()
-//      .addInterceptor(interceptor)
-      .connectTimeout(1, TimeUnit.MINUTES)
-      .readTimeout(1, TimeUnit.MINUTES)
+      .connectTimeout(0, TimeUnit.MINUTES)
+      .readTimeout(0, TimeUnit.MINUTES)
   }
 
   /**
