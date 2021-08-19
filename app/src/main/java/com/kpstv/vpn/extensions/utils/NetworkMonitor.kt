@@ -5,10 +5,6 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
 import android.net.NetworkRequest
-import androidx.activity.ComponentActivity
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +22,8 @@ suspend inline fun safeNetworkAccessor(crossinline onConnectionRestored: suspend
         if (status) {
           try {
             onConnectionRestored()
-          } catch (e: IOException) {}
+          } catch (e: IOException) {
+          }
         }
       }
     }
@@ -39,14 +36,6 @@ object NetworkMonitor {
   private lateinit var connectivityManager: ConnectivityManager
   private var job = SupervisorJob()
 
-  /*private val LifecycleObserver = object : DefaultLifecycleObserver {
-    override fun onStop(owner: LifecycleOwner) {
-      job.cancel()
-      connectivityManager.unregisterNetworkCallback(networkCallback)
-      super.onStop(owner)
-    }
-  }
-*/
   private val connectionStateFlow = MutableStateFlow(false)
   val connection = connectionStateFlow.asStateFlow()
 
@@ -60,7 +49,7 @@ object NetworkMonitor {
 
   private fun fireNetworkChanges() {
     connectionStateFlow.tryEmit(networks.size > 0)
-    android.util.Log.d("NetworkMonitor", "Status: ${connection.value}")
+    Logger.d("NetworkMonitor Status: ${connection.value}")
   }
 
   private val networkCallback = object : ConnectivityManager.NetworkCallback() {

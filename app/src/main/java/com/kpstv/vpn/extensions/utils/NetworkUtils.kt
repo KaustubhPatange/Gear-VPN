@@ -6,6 +6,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.IOException
+import java.net.SocketException
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -15,6 +16,7 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 // https://github.com/KaustubhPatange/Moviesy/blob/master/app/src/main/java/com/kpstv/yts/extensions/utils/RetrofitUtils.kt
 @Singleton
@@ -58,19 +60,19 @@ class NetworkUtils @Inject constructor() {
     return client.build()
   }
 
-  suspend fun simpleGetRequest(url: String): Result<Response> =
+  suspend fun simpleGetRequest(url: String): Response =
     getHttpClient().newCall(Request.Builder().url(url).build()).await()
 
-  private suspend fun Call.await(): Result<Response> {
+  private suspend fun Call.await(): Response {
     return suspendCancellableCoroutine { continuation ->
       enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
           if (continuation.isCancelled) return
-          continuation.resume(Result.failure(e))
+          continuation.resumeWithException(e) // re-throw exception at the last suspension point
         }
 
         override fun onResponse(call: Call, response: Response) {
-          continuation.resume(Result.success(response))
+          continuation.resume(response)
         }
       })
       continuation.invokeOnCancellation {
@@ -97,7 +99,8 @@ class NetworkUtils @Inject constructor() {
 
     sslSocketFactory(insecureSocketFactory, naiveTrustManager)
     hostnameVerifier { hostname, _ ->
-      return@hostnameVerifier (hostname.equals("www.vpngate.net") || hostname.equals("www.vpnbook.com"))
+      return@hostnameVerifier (hostname.equals("www.vpngate.net") || hostname.equals("www.vpnbook.com")
+          || hostname.equals("raw.githubusercontent.com"))
     }
     return this
   }

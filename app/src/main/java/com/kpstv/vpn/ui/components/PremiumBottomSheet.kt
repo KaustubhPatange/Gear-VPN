@@ -93,7 +93,7 @@ private fun CommonSheet(
           iterations = LottieConstants.IterateForever
         )
         LottieAnimation(
-          modifier = Modifier.width(100.dp).height(100.dp), // it needs fixed width and height otherwise it fills the entire screen, [cc](github.com/airbnb/lottie-android/issues/1866)
+          modifier = Modifier.size(100.dp), // it needs fixed size otherwise it fills the entire screen, [cc](github.com/airbnb/lottie-android/issues/1866)
           composition = composition,
           progress = progress
         )

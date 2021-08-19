@@ -27,8 +27,8 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
     var password = "2mxt8wz"
 
     Logger.d("Fetching credentials for vpnbook.com")
-    val appSettingResponse = networkUtils.simpleGetRequest(SettingsUrl).getOrNull()
-    if (appSettingResponse?.isSuccessful == true) {
+    val appSettingResponse = networkUtils.simpleGetRequest(SettingsUrl)
+    if (appSettingResponse.isSuccessful) {
       val content = appSettingResponse.getBodyAndClose()
       AppSettingsConverter.fromStringToAppSettings(content)?.let { converter ->
         username = converter.vpnbook.username
@@ -37,8 +37,8 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
     }
 
     Logger.d("Fetching from network: vpnbook.com")
-    val vpnBookResponse = networkUtils.simpleGetRequest("https://www.vpnbook.com/").getOrNull()
-    if (vpnBookResponse?.isSuccessful == true) {
+    val vpnBookResponse = networkUtils.simpleGetRequest("https://www.vpnbook.com/")
+    if (vpnBookResponse.isSuccessful) {
 
       val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time
       val expiredTime = DateUtils.format(offsetDateTime).toLong()
@@ -136,7 +136,7 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
   }
 
   private companion object {
-    private const val SettingsUrl = "https://pastebin.com/raw/Txd7v6y6" // TODO: Change this to with the one from github
+    private const val SettingsUrl = "https://raw.githubusercontent.com/KaustubhPatange/Gear-VPN/master/settings.json"
 
     val ipRegex = "remote\\s?([\\d.]+)\\s?\\d+".toRegex()
     private val nameRegex = "VPNBook\\.com-OpenVPN-([\\w]{2})".toRegex()

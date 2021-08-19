@@ -23,8 +23,8 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
     val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
     Logger.d("Fetching from network: vpngate.net")
-    val vpnResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/en").getOrNull()
-    if (vpnResponse?.isSuccessful == true) {
+    val vpnResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/en")
+    if (vpnResponse.isSuccessful) {
 
       val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time
       val expiredTime = DateUtils.format(offsetDateTime).toLong()
@@ -102,8 +102,8 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
       for(item in intermediateList) {
         // fetch TCP & UDP configs
         Logger.d("Fetching configs for ${item.country} - ${item.ip}")
-        val configResponse = networkUtils.simpleGetRequest(item.configTCP!!).getOrNull() // configTCP here serves as URL in previous iteration.
-          if (configResponse?.isSuccessful == true) {
+        val configResponse = networkUtils.simpleGetRequest(item.configTCP!!) // configTCP here serves as URL in previous iteration.
+          if (configResponse.isSuccessful) {
             val configBody = configResponse.getBodyAndClose()
             val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
             val ovpnConfigs = hrefElements.filter { it.attr("href").contains(".ovpn") }
@@ -139,8 +139,8 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
   private suspend fun safeFetchConfig(configUrl: String?): String? {
     configUrl?.let { url ->
       Logger.d("Fetching $configUrl")
-      val response = networkUtils.simpleGetRequest(url).getOrNull()
-      if (response?.isSuccessful == true) {
+      val response = networkUtils.simpleGetRequest(url)
+      if (response.isSuccessful) {
         return response.getBodyAndClose()
       }
     }

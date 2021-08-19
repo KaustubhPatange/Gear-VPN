@@ -343,7 +343,6 @@ private fun ProfileItem(
   onItemClick: (LocalConfiguration) -> Unit,
   onSwipe: (LocalConfiguration) -> Unit = {}
 ) {
-//  Spacer(modifier = Modifier.height(10.dp))
   AnimatedSwipeDismiss(
     item = item,
     background = { isDismissed ->

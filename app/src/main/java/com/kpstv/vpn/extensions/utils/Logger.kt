@@ -7,6 +7,7 @@ import timber.log.Timber
 object Logger {
 
   fun init() {
+    Timber.plant(Timber.DebugTree())
     Timber.plant(CrashlyticsTree())
   }
 
