@@ -117,6 +117,8 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
 
             if (configTCP == null && configUDP == null) continue
 
+            Logger.d("Has TCP: ${configTCP != null}, Has UDP: ${configUDP != null}")
+
             val premium = if (premiumCountries.contains(item.country)) {
               premiumCountries.remove(item.country) // remove item after first use
               true
@@ -138,7 +140,6 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
 
   private suspend fun safeFetchConfig(configUrl: String?): String? {
     configUrl?.let { url ->
-      Logger.d("Fetching $configUrl")
       val response = networkUtils.simpleGetRequest(url)
       if (response.isSuccessful) {
         return response.getBodyAndClose()

@@ -263,12 +263,11 @@ private fun CommonItem(
         )
       }
       Spacer(modifier = Modifier.height(1.dp))
-      Text(
+      AutoSizeSingleLineText(
         text = getCommonItemSubtext(config),
         style = MaterialTheme.typography.subtitle2,
         color = MaterialTheme.colors.onSurface,
         overflow = TextOverflow.Ellipsis,
-        maxLines = 1,
       )
     }
   }

@@ -1,5 +1,6 @@
 package com.kpstv.vpn.extensions.utils
 
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -63,6 +64,7 @@ class NetworkUtils @Inject constructor() {
   suspend fun simpleGetRequest(url: String): Response =
     getHttpClient().newCall(Request.Builder().url(url).build()).await()
 
+  @OptIn(InternalCoroutinesApi::class)
   private suspend fun Call.await(): Response {
     return suspendCancellableCoroutine { continuation ->
       enqueue(object : Callback {

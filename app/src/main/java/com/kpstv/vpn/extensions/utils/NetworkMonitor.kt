@@ -17,12 +17,16 @@ suspend inline fun safeNetworkAccessor(crossinline onConnectionRestored: suspend
   try {
     onConnectionRestored()
   } catch (e: IOException) {
+    delay(1000) // delay for network manager to update it's internal status.
+    Logger.d("Crash: Network status: ${NetworkMonitor.connection.value}")
     if (!NetworkMonitor.connection.value) {
       NetworkMonitor.connection.collect { status ->
         if (status) {
           try {
+            Logger.d("Restoring")
             onConnectionRestored()
           } catch (e: IOException) {
+            Logger.d("Failed again")
           }
         }
       }

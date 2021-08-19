@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun AutoSizeSingleLineText(
@@ -14,6 +15,7 @@ fun AutoSizeSingleLineText(
   modifier: Modifier = Modifier,
   style: TextStyle = LocalTextStyle.current,
   color: Color = Color.Unspecified,
+  overflow: TextOverflow = TextOverflow.Clip,
   // Add more parameters according to need
 ) {
   var textStyle by remember { mutableStateOf(style) }
@@ -24,6 +26,7 @@ fun AutoSizeSingleLineText(
     style = textStyle,
     maxLines = 1,
     softWrap = false,
+    overflow = overflow,
     modifier = modifier.drawWithContent {
       if (readyToDraw) drawContent()
     },
