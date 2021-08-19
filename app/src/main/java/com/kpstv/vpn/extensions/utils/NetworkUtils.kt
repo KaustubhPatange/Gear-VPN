@@ -64,7 +64,6 @@ class NetworkUtils @Inject constructor() {
   suspend fun simpleGetRequest(url: String): Response =
     getHttpClient().newCall(Request.Builder().url(url).build()).await()
 
-  @OptIn(InternalCoroutinesApi::class)
   private suspend fun Call.await(): Response {
     return suspendCancellableCoroutine { continuation ->
       enqueue(object : Callback {
