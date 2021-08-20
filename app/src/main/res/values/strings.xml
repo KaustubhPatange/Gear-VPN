@@ -64,4 +64,8 @@
     <string name="optimal_tcp">Optimal for connection over HTTP(S), SMTP, FTP, etc.</string>
     <string name="optimal_udp">Optimal for video conferencing, streaming, DNS, VoIP, etc.</string>
     <string name="choose_protocol">Choose a protocol</string>
+    <string name="filter_server">Filter server</string>
+    <string name="server_filter_all">All</string>
+    <string name="server_filter_premium">Premium</string>
+    <string name="server_filter_free">Free</string>
 </resources>

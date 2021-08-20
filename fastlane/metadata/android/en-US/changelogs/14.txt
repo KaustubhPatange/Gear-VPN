@@ -1,0 +1,6 @@
+Added: Support for choosing UDP servers.
+Added: Options for filtering servers (eg: Premium, Free or All).
+Added: More VPN servers from VPN Book website.
+Updated: Better logic for fetching VPN servers.
+Fixed: Refresh of servers not happening on network change.
+Fixed: Issue with socket timeout for devices with slow network connection.

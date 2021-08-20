@@ -7,6 +7,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kpstv.vpn.extensions.utils.Logger
 import com.kpstv.vpn.extensions.utils.Notifications
+import com.kpstv.vpn.ui.helpers.Settings
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -31,5 +32,6 @@ class App : Application(), Configuration.Provider {
     }
 
     Logger.init()
+    Settings.init(this)
   }
 }

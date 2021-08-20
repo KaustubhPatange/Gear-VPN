@@ -1,26 +1,22 @@
 package com.kpstv.vpn.ui.helpers
 
 import android.content.Context
-import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.monotonicFrameClock
 import androidx.datastore.core.DataStore
-import androidx.datastore.dataStoreFile
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.*
 import com.kpstv.vpn.R
+import com.kpstv.vpn.extensions.utils.Logger
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlin.coroutines.coroutineContext
 
 data class BillingSku(val sku: String) {
   companion object {
@@ -78,11 +74,11 @@ class BillingHelper(private val activity: ComponentActivity) {
           }
         } else {
           billingErrorMessage = billingResult.debugMessage
-          Log.e("BillingHelper", "Invalid Response code: ${billingResult.responseCode}, Message: ${billingResult.debugMessage}")
+          Logger.d("Invalid Response code: ${billingResult.responseCode}, Message: ${billingResult.debugMessage}")
         }
       }
       override fun onBillingServiceDisconnected() {
-        Log.e("BillingHelper", "Service disconnected")
+        Logger.d("Service disconnected")
       }
     })
 

@@ -1,24 +1,18 @@
 package com.kpstv.vpn.ui.screens
 
-import android.content.Context
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,6 +31,8 @@ import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.components.BottomSheetState
+import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
@@ -60,6 +56,9 @@ fun ServerScreen(
 
   val vpnConfig = remember { mutableStateOf(VpnConfiguration.createEmpty()) }
 
+  val filterServer by Settings.getFilterServer()
+    .collectAsState(initial = Settings.DefaultFilterServer)
+
   SwipeRefresh(
     modifier = Modifier.fillMaxSize(),
     state = swipeRefreshState,
@@ -76,6 +75,10 @@ fun ServerScreen(
     }
   ) {
     val freeServerIndex = vpnState.configs.indexOfFirst { !it.premium }
+
+    val isPremiumServerExpanded = filterServer != Settings.ServerFilter.Free
+    val isFreeServerExpanded = filterServer != Settings.ServerFilter.Premium
+
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
 
       LazyColumn(
@@ -89,23 +92,35 @@ fun ServerScreen(
                 .statusBarsPadding()
                 .height(80.dp)
             )
-            ServerHeader(title = stringResource(R.string.premium_server), premium = true)
+            ServerHeader(
+              title = stringResource(R.string.premium_server),
+              premium = true,
+              expanded = isPremiumServerExpanded,
+              changeToExpandedState = { Settings.setFilterServer(Settings.ServerFilter.All) }
+            )
             Spacer(modifier = Modifier.height(15.dp))
           }
           if (index == freeServerIndex) {
             Spacer(modifier = Modifier.height(15.dp))
-            ServerHeader(title = stringResource(R.string.free_server))
+            ServerHeader(
+              title = stringResource(R.string.free_server),
+              expanded = isFreeServerExpanded,
+              changeToExpandedState = { Settings.setFilterServer(Settings.ServerFilter.All) }
+            )
             Spacer(modifier = Modifier.height(10.dp))
           }
-          CommonItem(
-            config = item,
-            isPremiumUnlocked = isPremiumUnlocked,
-            onPremiumClick = onPremiumClick,
-            onClick = { config ->
-              vpnConfig.value = config
-              protocolBottomSheet.value = BottomSheetState.Expanded
-            }
-          )
+
+          if ((isPremiumServerExpanded && item.premium) || (isFreeServerExpanded && !item.premium)) {
+            CommonItem(
+              config = item,
+              isPremiumUnlocked = isPremiumUnlocked,
+              onPremiumClick = onPremiumClick,
+              onClick = { config ->
+                vpnConfig.value = config
+                protocolBottomSheet.value = BottomSheetState.Expanded
+              }
+            )
+          }
 
           if (index == vpnState.configs.size - 1) {
             Spacer(
@@ -117,7 +132,11 @@ fun ServerScreen(
         }
       }
 
-      Header(title = stringResource(R.string.choose_server), onBackButton = onBackButton)
+      Header(
+        title = stringResource(R.string.choose_server),
+        onBackButton = onBackButton,
+        actionRow = { HeaderDropdownMenu() }
+      )
 
       Footer(
         modifier = Modifier.align(Alignment.BottomCenter),
@@ -147,6 +166,69 @@ fun ServerScreen(
 }
 
 @Composable
+private fun HeaderDropdownMenu(expanded: Boolean = false) {
+  val expandedState = remember { mutableStateOf(expanded) }
+
+  val filterServerState = Settings.getFilterServer()
+    .collectAsState(initial = Settings.DefaultFilterServer)
+
+  @Composable
+  fun DropdownCheckBoxItem(text: String, checked: Boolean, onClick: () -> Unit) {
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .clickable(onClick = {
+          onClick()
+          expandedState.value = false
+        })
+        .padding(vertical = 10.dp, horizontal = 10.dp)
+    ) {
+      RadioButton(selected = checked, onClick = onClick)
+      Text(text = text, modifier = Modifier.padding(horizontal = 10.dp))
+    }
+  }
+
+  HeaderButton(
+    icon = R.drawable.ic_baseline_filter_list_24,
+    contentDescription = "filter server",
+    onClick = { expandedState.value = true }
+  )
+  DropdownMenu(
+    expanded = expandedState.value,
+    modifier = Modifier
+      .background(MaterialTheme.colors.primaryVariant)
+      .width(150.dp),
+    onDismissRequest = { expandedState.value = false },
+    content = {
+
+      Text(
+        text = stringResource(R.string.filter_server),
+        modifier = Modifier.padding(horizontal = 10.dp),
+        style = MaterialTheme.typography.subtitle2
+      )
+      Spacer(modifier = Modifier.height(10.dp))
+      Divider()
+
+      DropdownCheckBoxItem(
+        text = stringResource(R.string.server_filter_all),
+        checked = filterServerState.value == Settings.ServerFilter.All,
+        onClick = { Settings.setFilterServer(Settings.ServerFilter.All) }
+      )
+      DropdownCheckBoxItem(
+        text = stringResource(R.string.server_filter_premium),
+        checked = filterServerState.value == Settings.ServerFilter.Premium,
+        onClick = { Settings.setFilterServer(Settings.ServerFilter.Premium) }
+      )
+      DropdownCheckBoxItem(
+        text = stringResource(R.string.server_filter_free),
+        checked = filterServerState.value == Settings.ServerFilter.Free,
+        onClick = { Settings.setFilterServer(Settings.ServerFilter.Free) }
+      )
+    }
+  )
+}
+
+@Composable
 private fun Footer(modifier: Modifier = Modifier, onImportButton: () -> Unit) {
   Column(
     modifier = modifier.then(
@@ -155,7 +237,7 @@ private fun Footer(modifier: Modifier = Modifier, onImportButton: () -> Unit) {
         .navigationBarsPadding()
     )
   ) {
-    Divider(color = MaterialTheme.colors.primaryVariant, thickness = 1.dp)
+    Divider(color = MaterialTheme.colors.primaryVariant)
 
     Spacer(modifier = Modifier.height(10.dp))
 
@@ -174,8 +256,23 @@ private fun Footer(modifier: Modifier = Modifier, onImportButton: () -> Unit) {
 }
 
 @Composable
-private fun ServerHeader(title: String, premium: Boolean = false) {
-  Row {
+private fun ServerHeader(
+  title: String,
+  premium: Boolean = false,
+  expanded: Boolean = true,
+  changeToExpandedState: () -> Unit = {}
+) {
+  Row(
+    modifier = Modifier.fillMaxWidth().clickable(enabled = !expanded, onClick = changeToExpandedState)
+  ) {
+    if (!expanded) {
+      Icon(
+        painter = painterResource(R.drawable.ic_baseline_play_arrow_24),
+        modifier = Modifier.align(Alignment.CenterVertically),
+        contentDescription = null
+      )
+    }
+    Spacer(modifier = Modifier.width(7.dp))
     Text(
       text = title,
       style = MaterialTheme.typography.h4.copy(fontSize = 20.sp),
@@ -203,6 +300,7 @@ private fun CommonItem(
 
   Row(
     modifier = Modifier
+      .clip(RoundedCornerShape(10.dp))
       .border(
         width = 1.5.dp,
         color = if (config.premium) goldenYellow else dotColor.copy(alpha = 0.7f),
@@ -286,9 +384,9 @@ private fun getCommonItemSubtext(config: VpnConfiguration): String {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewServerScreen() {
+fun PreviewFooter() {
   CommonPreviewTheme {
-    ServerScreen(vpnState = VpnLoadState.Loading(), onItemClick = { _, _ -> })
+    Footer {}
   }
 }
 
@@ -313,6 +411,26 @@ fun PreviewCommonItemPremium() {
       isPremiumUnlocked = false,
       onClick = {}
     )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewServerHeaders() {
+  CommonPreviewTheme {
+    Column(modifier = Modifier.padding(20.dp)) {
+      ServerHeader(
+        title = "Premium Servers", premium = true
+      )
+      Spacer(modifier = Modifier.height(10.dp))
+      ServerHeader(
+        title = "Free Servers"
+      )
+      Spacer(modifier = Modifier.height(10.dp))
+      ServerHeader(
+        title = "Hidden Servers", expanded = false
+      )
+    }
   }
 }
 
