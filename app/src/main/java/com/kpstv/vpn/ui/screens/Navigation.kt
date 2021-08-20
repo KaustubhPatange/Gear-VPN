@@ -11,10 +11,7 @@ import com.kpstv.navigation.compose.Fade
 import com.kpstv.navigation.compose.Route
 import com.kpstv.navigation.compose.SlideRight
 import com.kpstv.vpn.extensions.asVpnConfig
-import com.kpstv.vpn.ui.components.BottomSheetState
-import com.kpstv.vpn.ui.components.PremiumBottomSheet
-import com.kpstv.vpn.ui.components.ProtocolSheet
-import com.kpstv.vpn.ui.components.rememberBottomSheetState
+import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.helpers.BillingHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -133,6 +130,8 @@ fun NavigationScreen(
         goBack = { controller.goBack() }
       )
     }
+
+    ConnectionStatusBox()
 
     PremiumBottomSheet(
       premiumBottomSheet = premiumBottomSheet,
