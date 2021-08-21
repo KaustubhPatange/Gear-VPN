@@ -184,7 +184,14 @@ private fun HeaderDropdownMenu(expanded: Boolean = false) {
         .padding(vertical = 10.dp, horizontal = 10.dp)
     ) {
       RadioButton(selected = checked, onClick = onClick)
-      Text(text = text, modifier = Modifier.padding(horizontal = 10.dp))
+      Text(
+        text = text,
+        modifier = Modifier
+          .align(Alignment.CenterVertically)
+          .padding(horizontal = 10.dp),
+        color = MaterialTheme.colors.onSecondary,
+        style = MaterialTheme.typography.button.copy(fontSize = 15.sp)
+      )
     }
   }
 
@@ -263,7 +270,9 @@ private fun ServerHeader(
   changeToExpandedState: () -> Unit = {}
 ) {
   Row(
-    modifier = Modifier.fillMaxWidth().clickable(enabled = !expanded, onClick = changeToExpandedState)
+    modifier = Modifier
+      .fillMaxWidth()
+      .clickable(enabled = !expanded, onClick = changeToExpandedState)
   ) {
     if (!expanded) {
       Icon(

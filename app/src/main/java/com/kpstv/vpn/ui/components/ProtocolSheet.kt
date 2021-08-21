@@ -153,7 +153,7 @@ private fun CommonRow(
       .padding(10.dp),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-    CompositionLocalProvider(LocalContentAlpha provides if (enable) 1f else 0.4f) {
+    CompositionLocalProvider(LocalContentAlpha provides if (enable) 1f else 0.3f) {
       Text(
         text = title,
         style = MaterialTheme.typography.h4.copy(fontSize = 26.sp)
@@ -162,7 +162,7 @@ private fun CommonRow(
       Text(
         text = description,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.onSecondary,
+        color = MaterialTheme.colors.onSecondary.copy(alpha = LocalContentAlpha.current),
         style = MaterialTheme.typography.h4.copy(fontSize = 15.sp)
       )
     }
