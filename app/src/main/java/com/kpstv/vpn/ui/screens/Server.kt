@@ -87,47 +87,55 @@ fun ServerScreen(
       ) {
         itemsIndexed(vpnState.configs) { index, item ->
           if (index == 0) {
-            Spacer(
-              modifier = Modifier
-                .statusBarsPadding()
-                .height(80.dp)
-            )
-            ServerHeader(
-              title = stringResource(R.string.premium_server),
-              premium = true,
-              expanded = isPremiumServerExpanded,
-              changeToExpandedState = { Settings.setFilterServer(Settings.ServerFilter.All) }
-            )
-            Spacer(modifier = Modifier.height(15.dp))
+            key(index) {
+              Spacer(
+                modifier = Modifier
+                  .statusBarsPadding()
+                  .height(80.dp)
+              )
+              ServerHeader(
+                title = stringResource(R.string.premium_server),
+                premium = true,
+                expanded = isPremiumServerExpanded,
+                changeToExpandedState = { Settings.setFilterServer(Settings.ServerFilter.All) }
+              )
+              Spacer(modifier = Modifier.height(15.dp))
+            }
           }
           if (index == freeServerIndex) {
-            Spacer(modifier = Modifier.height(15.dp))
-            ServerHeader(
-              title = stringResource(R.string.free_server),
-              expanded = isFreeServerExpanded,
-              changeToExpandedState = { Settings.setFilterServer(Settings.ServerFilter.All) }
-            )
-            Spacer(modifier = Modifier.height(10.dp))
+            key(freeServerIndex) {
+              Spacer(modifier = Modifier.height(15.dp))
+              ServerHeader(
+                title = stringResource(R.string.free_server),
+                expanded = isFreeServerExpanded,
+                changeToExpandedState = { Settings.setFilterServer(Settings.ServerFilter.All) }
+              )
+              Spacer(modifier = Modifier.height(10.dp))
+            }
           }
 
           if ((isPremiumServerExpanded && item.premium) || (isFreeServerExpanded && !item.premium)) {
-            CommonItem(
-              config = item,
-              isPremiumUnlocked = isPremiumUnlocked,
-              onPremiumClick = onPremiumClick,
-              onClick = { config ->
-                vpnConfig.value = config
-                protocolBottomSheet.value = BottomSheetState.Expanded
-              }
-            )
+            key(item.ip) {
+              CommonItem(
+                config = item,
+                isPremiumUnlocked = isPremiumUnlocked,
+                onPremiumClick = onPremiumClick,
+                onClick = { config ->
+                  vpnConfig.value = config
+                  protocolBottomSheet.value = BottomSheetState.Expanded
+                }
+              )
+            }
           }
 
           if (index == vpnState.configs.size - 1) {
-            Spacer(
-              modifier = Modifier
-                .navigationBarsPadding()
-                .height(80.dp)
-            )
+            key(index) {
+              Spacer(
+                modifier = Modifier
+                  .navigationBarsPadding()
+                  .height(80.dp)
+              )
+            }
           }
         }
       }
