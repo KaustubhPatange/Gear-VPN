@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "836434703030",
+    "project_id": "gear-vpn",
+    "storage_bucket": "gear-vpn.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:836434703030:android:2dd5283b49575e933eec17",
+        "android_client_info": {
+          "package_name": "com.kpstv.vpn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "836434703030-rspudqbqkck4o2ofc5nhlv1gs259u8ij.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClQMQWvTqdpRLhURxGlqPKv6EgL15ALVU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "836434703030-rspudqbqkck4o2ofc5nhlv1gs259u8ij.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

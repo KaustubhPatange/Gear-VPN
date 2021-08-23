@@ -13,7 +13,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.*
 import com.kpstv.vpn.R
-import com.kpstv.vpn.extensions.utils.Logger
+import com.kpstv.vpn.logging.Logger
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*

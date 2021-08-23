@@ -1,23 +1,33 @@
-package com.kpstv.vpn.extensions.utils
+package com.kpstv.vpn.logging
 
+import android.content.Context
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.kpstv.vpn.BuildConfig
 import org.jetbrains.annotations.NonNls
 import timber.log.Timber
 
 object Logger {
 
-  fun init() {
-    if (BuildConfig.DEBUG) {
+  @JvmSynthetic
+  fun init(debug: Boolean) {
+    if (debug) {
       Timber.plant(ExtendedDebugTree())
     }
     Timber.plant(CrashlyticsTree())
   }
 
+  @JvmSynthetic
+  fun disable(context: Context) {
+    FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+    FirebaseAnalytics.getInstance(context).setAnalyticsCollectionEnabled(false)
+  }
+
+  @JvmStatic
   fun d(message: String, vararg args: Any?) {
     Timber.d(message, args)
   }
 
+  @JvmStatic
   fun w(t: Throwable?, @NonNls message: String?, vararg args: Any?) {
     Timber.w(t, message, args)
   }

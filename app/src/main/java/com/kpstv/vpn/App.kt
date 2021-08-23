@@ -3,9 +3,7 @@ package com.kpstv.vpn
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.kpstv.vpn.extensions.utils.Logger
+import com.kpstv.vpn.logging.Logger
 import com.kpstv.vpn.extensions.utils.Notifications
 import com.kpstv.vpn.ui.helpers.Settings
 import dagger.hilt.android.HiltAndroidApp
@@ -25,13 +23,13 @@ class App : Application(), Configuration.Provider {
     super.onCreate()
     Notifications.init(this)
 
+    Logger.init(BuildConfig.DEBUG)
+    Settings.init(this)
+
     if (BuildConfig.DEBUG) {
       // disable crashlytics & analytics for debug builds
-      FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
-      FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(false)
+      Logger.disable(this)
     }
 
-    Logger.init()
-    Settings.init(this)
   }
 }

@@ -4,7 +4,7 @@ import androidx.annotation.WorkerThread
 import com.kpstv.vpn.data.models.AppSettingsConverter
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.DateUtils
-import com.kpstv.vpn.extensions.utils.Logger
+import com.kpstv.vpn.logging.Logger
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
 import kotlinx.coroutines.*

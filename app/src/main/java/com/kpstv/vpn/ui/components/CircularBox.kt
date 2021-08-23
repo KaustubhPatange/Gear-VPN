@@ -440,9 +440,9 @@ fun CircularBox(
         rotateArcYellow.snapTo(508f)
         rotateArcCyan.snapTo(511f)
       }*/
-      else -> {
+     /* else -> {
 
-      }
+      }*/
     }
   }
 }

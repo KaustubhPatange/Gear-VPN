@@ -4,9 +4,9 @@ import androidx.annotation.WorkerThread
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.clearAndAdd
 import com.kpstv.vpn.extensions.utils.DateUtils
-import com.kpstv.vpn.extensions.utils.Logger
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
+import com.kpstv.vpn.logging.Logger
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import java.util.*

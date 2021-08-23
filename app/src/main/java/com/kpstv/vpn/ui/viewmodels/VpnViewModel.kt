@@ -7,15 +7,13 @@ import com.kpstv.vpn.data.api.IpApi
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.db.repository.VpnRepository
 import com.kpstv.vpn.data.models.Location
-import com.kpstv.vpn.data.models.VpnConfiguration
-import com.kpstv.vpn.extensions.utils.Logger
+import com.kpstv.vpn.logging.Logger
 import com.kpstv.vpn.ui.components.ConnectivityStatus
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.helpers.VpnConnectionStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel

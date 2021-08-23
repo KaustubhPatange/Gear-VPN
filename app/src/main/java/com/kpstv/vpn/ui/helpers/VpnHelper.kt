@@ -139,7 +139,7 @@ class VpnHelper(private val activity: ComponentActivity) {
     disposeJob.cancel()
     disposeJob = SupervisorJob()
     CoroutineScope(activity.lifecycleScope.coroutineContext + disposeJob).launch {
-      delay(60 * 1000)
+      delay(60 * 1000L)
       if (vpnViewModel.connectionStatus.value !is VpnConnectionStatus.Connected) {
         stopVpn()
         Toasty.error(activity, activity.getString(R.string.vpn_timeout)).show()

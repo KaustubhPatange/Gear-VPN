@@ -10,6 +10,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
+import com.kpstv.vpn.logging.Logger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,7 +28,7 @@ public class VPNLaunchHelper {
     private static final String OVPNCONFIGFILE = "android.conf";
 
 
-    private static String writeMiniVPN(Context context) {
+    private static String writeMiniVPN(Context context)  {
         String nativeAPI = NativeUtils.getNativeAPI();
         /* Q does not allow executing binaries written in temp directory anymore */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
@@ -50,8 +52,14 @@ public class VPNLaunchHelper {
                 return vpnExecutable.getPath();
             }
         }
+        Logger.d("Unsupported ABI: " + Arrays.toString(abis));
+        throw new UnsupportedABIException("Cannot find any execute for this device's ABIs " + Arrays.toString(abis));
+    }
 
-        throw new RuntimeException("Cannot find any execulte for this device's ABIs " + Arrays.toString(abis));
+    public static class UnsupportedABIException extends RuntimeException {
+        public UnsupportedABIException(String message) {
+            super(message);
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
