@@ -25,7 +25,9 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.kpstv.navigation.compose.DialogRoute
 import com.kpstv.navigation.compose.findComposeNavigator
+import com.kpstv.navigation.compose.findController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
@@ -37,6 +39,7 @@ import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.theme.goldenYellow
+import kotlinx.parcelize.Parcelize
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -171,6 +174,8 @@ fun ServerScreen(
     },
     suppressBackPress = { navigator.suppressBackPress = it }
   )
+
+  EmptyVpnDialog(show = vpnState is VpnLoadState.Empty)
 }
 
 @Composable
@@ -215,7 +220,6 @@ private fun HeaderDropdownMenu(expanded: Boolean = false) {
       .width(150.dp),
     onDismissRequest = { expandedState.value = false },
     content = {
-
       Text(
         text = stringResource(R.string.filter_server),
         modifier = Modifier.padding(horizontal = 10.dp),
@@ -382,7 +386,6 @@ private fun CommonItem(
         text = getCommonItemSubtext(config),
         style = MaterialTheme.typography.subtitle2,
         color = MaterialTheme.colors.onSurface,
-        overflow = TextOverflow.Ellipsis,
       )
     }
   }

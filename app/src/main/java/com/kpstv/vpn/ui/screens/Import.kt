@@ -67,7 +67,8 @@ fun ImportScreen(
       changeProfile@{ config ->
         return@changeProfile if (!isPremiumUnlocked && localConfigurations.value.size >= 3) {
           keyboardController?.hide()
-          Toasty.warning(context, context.getString(R.string.max_premium), Toasty.LENGTH_LONG).show()
+          Toasty.warning(context, context.getString(R.string.max_premium), Toasty.LENGTH_LONG)
+            .show()
           onPremiumClick() // TODO: When premium is purchased from this screen, it doesn't unlock (problem lies with Datastore).
           false
         } else {
@@ -171,7 +172,13 @@ private fun Profile(changeProfile: (config: LocalConfiguration, save: Boolean) -
 
   ProfileColumn(
     fileLocation = fileLocation.value,
-    onFileChoose = { openDocumentResult.launch(arrayOf("application/*")) },
+    onFileChoose = {
+      try {
+        openDocumentResult.launch(arrayOf("application/*"))
+      } catch (e: Exception) {
+        Toasty.error(context, context.getString(R.string.unsupported_op)).show()
+      }
+    },
     userName = userName.value,
     onUserNameChanged = { userName.value = it },
     password = password.value,

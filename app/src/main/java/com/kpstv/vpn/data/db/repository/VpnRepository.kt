@@ -18,6 +18,9 @@ sealed class VpnLoadState(open val configs: List<VpnConfiguration>) {
     VpnLoadState(configs)
 
   data class Completed(override val configs: List<VpnConfiguration>) : VpnLoadState(configs)
+
+  data class Empty(override val configs: List<VpnConfiguration> = emptyList()) :
+    VpnLoadState(configs)
 }
 
 @Singleton
@@ -59,10 +62,15 @@ class VpnRepository @Inject constructor(
           },
           onComplete = { configs ->
             vpnConfigs = merge(configs, vpnConfigs)
-            emit(VpnLoadState.Completed(vpnConfigs))
-            vpnDao.insertAll(vpnConfigs)
           }
         )
+
+        if (vpnConfigs.isNotEmpty()) {
+          emit(VpnLoadState.Completed(vpnConfigs))
+          vpnDao.insertAll(vpnConfigs)
+        } else {
+          emit(VpnLoadState.Completed(vpnConfigs))
+        }
 
       }
     }

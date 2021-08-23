@@ -68,4 +68,7 @@
     <string name="server_filter_all">All</string>
     <string name="server_filter_premium">Premium</string>
     <string name="server_filter_free">Free</string>
+    <string name="unsupported_op">This operation is not supported by your device.</string>
+    <string name="dialog_empty_vpn_text"><![CDATA[There were some errors fetching VPN servers from VPN Gate & VPN Book.\n\nMake sure these websites correctly open on your device.]]></string>
+    <string name="alright">Alright</string>
 </resources>

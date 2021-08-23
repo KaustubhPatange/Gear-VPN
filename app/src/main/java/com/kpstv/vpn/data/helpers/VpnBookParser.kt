@@ -47,7 +47,10 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
 
       val doc = Jsoup.parse(body)
 
-      val root = doc.getElementById("openvpn")
+      val root = doc.getElementById("openvpn") ?: run {  // platform types beware!!!
+        onComplete(vpnConfigurations)
+        return
+      }
       val elements = root.allElements.filter { it.hasAttr("href") }.filter { it.attr("href").endsWith(".zip") }//.children().filter { it.children().any { it.hasAttr("href") } }
       val buffer = ByteArray(2048)
 
