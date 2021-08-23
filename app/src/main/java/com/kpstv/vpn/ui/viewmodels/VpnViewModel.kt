@@ -40,7 +40,10 @@ class VpnViewModel @Inject constructor(
   init {
     viewModelScope.launch {
       try {
-        publicIpStateFlow.emit(ipApi.fetch())
+        val ipData = ipApi.fetch()
+        publicIpStateFlow.emit(ipData)
+
+        Logger.d("IP Info: $ipData")
       } catch (e: Exception) {
         Logger.w(e, "Error fetching IP: (No crash)")
       }

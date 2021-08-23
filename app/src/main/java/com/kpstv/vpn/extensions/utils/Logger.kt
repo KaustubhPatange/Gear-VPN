@@ -24,7 +24,7 @@ object Logger {
 
   // More methods if needed
 
-  private class ExtendedDebugTree : Timber.DebugTree() {
+  private open class ExtendedDebugTree : Timber.DebugTree() {
 
     private val fqcnIgnore = listOf(
       Timber::class.java.name,
@@ -47,9 +47,9 @@ object Logger {
   }
 
   // Firebase Crashlytics tree
-  private class CrashlyticsTree : Timber.Tree() {
+  private class CrashlyticsTree : ExtendedDebugTree() {
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-      FirebaseCrashlytics.getInstance().log("[$tag] - $message${t?.let { "\n${it.printStackTrace()}" }}")
+      FirebaseCrashlytics.getInstance().log("[$tag] - $message${t?.let { "\n${it.printStackTrace()}" } ?: ""}")
     }
   }
 }

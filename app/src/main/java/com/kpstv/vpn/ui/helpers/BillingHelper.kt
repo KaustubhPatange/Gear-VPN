@@ -105,9 +105,7 @@ class BillingHelper(private val activity: ComponentActivity) {
     val params = SkuDetailsParams.newBuilder()
     params.setSkusList(listOf(purchase_sku)).setType(BillingClient.SkuType.SUBS)
 
-    val skuDetailsResult = withContext(Dispatchers.IO) {
-      billingClient.querySkuDetails(params.build())
-    }
+    val skuDetailsResult: SkuDetailsResult = billingClient.querySkuDetails(params.build())
 
     skuDetailsResult.skuDetailsList?.let { list ->
       sku = list.find { it.sku == purchase_sku }
@@ -143,9 +141,8 @@ class BillingHelper(private val activity: ComponentActivity) {
       if (!purchase.isAcknowledged) {
         val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
           .setPurchaseToken(purchase.purchaseToken)
-        val ackPurchaseResult = withContext(Dispatchers.IO) {
-          billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
-        }
+        val ackPurchaseResult = billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
+
         if (ackPurchaseResult.responseCode != BillingClient.BillingResponseCode.OK) {
           Toasty.error(activity, activity.getString(R.string.purchase_ack)).show()
           return

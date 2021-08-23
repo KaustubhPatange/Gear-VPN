@@ -39,6 +39,7 @@ See [Contributing Guidelines](CONTRIBUTING.md).
 
 ## Trademark
 
+- Based on [ics-openvpn](https://github.com/schwabe/ics-openvpn) project by schwabe.
 - Design inspiration from [Jakub Kittler](https://dribbble.com/shots/7025990-VPN-Concept).
 - Google Play (screenshots) inspiration from [Yahor Urbanovich](https://proandroiddev.com/how-i-made-beautiful-screenshots-for-google-play-developer-experience-61ce108fa6b4).
 - Some images & icons (except logo) are from [Icons8](https://icons8.com/).

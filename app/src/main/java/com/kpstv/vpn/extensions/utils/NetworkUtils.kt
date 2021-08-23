@@ -45,6 +45,7 @@ class NetworkUtils @Inject constructor() {
     return OkHttpClient.Builder()
       .connectTimeout(0, TimeUnit.MINUTES)
       .readTimeout(0, TimeUnit.MINUTES)
+      .callTimeout(0, TimeUnit.MINUTES)
   }
 
   /**
