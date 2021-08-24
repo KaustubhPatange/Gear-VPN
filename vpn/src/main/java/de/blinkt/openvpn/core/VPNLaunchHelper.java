@@ -48,12 +48,18 @@ public class VPNLaunchHelper {
         for (String abi : abis) {
 
             File vpnExecutable = new File(context.getCacheDir(), "c_" + getMiniVPNExecutableName() + "." + abi);
+            Logger.d("VpnExecutable: " + vpnExecutable.getPath() + ", Exist: " + vpnExecutable.exists() + ", Can execute: " + vpnExecutable.canExecute());
             if ((vpnExecutable.exists() && vpnExecutable.canExecute()) || writeMiniVPNBinary(context, abi, vpnExecutable)) {
                 return vpnExecutable.getPath();
             }
         }
         Logger.d("Unsupported ABI: " + Arrays.toString(abis));
-        throw new UnsupportedABIException("Cannot find any execute for this device's ABIs " + Arrays.toString(abis));
+        String nativeFile = new File(context.getApplicationInfo().nativeLibraryDir, "libovpnexec.so").getPath();
+
+        Logger.d("Native File: " + nativeFile);
+
+        return nativeFile; // TODO: fallback method
+//        throw new UnsupportedABIException("Cannot find any execute for this device's ABIs " + Arrays.toString(abis));
     }
 
     public static class UnsupportedABIException extends RuntimeException {
@@ -103,6 +109,7 @@ public class VPNLaunchHelper {
             try {
                 mvpn = context.getAssets().open(getMiniVPNExecutableName() + "." + abi);
             } catch (IOException errabi) {
+                Logger.d("Failed for architecture: " + abi);
                 VpnStatus.logInfo("Failed getting assets for archicture " + abi);
                 return false;
             }
@@ -121,12 +128,14 @@ public class VPNLaunchHelper {
 
             if (!mvpnout.setExecutable(true)) {
                 VpnStatus.logError("Failed to make OpenVPN executable");
+                Logger.d("Failed to make OpenVPN executable");
                 return false;
             }
 
 
             return true;
         } catch (IOException e) {
+            Logger.d("writeMiniVPNBinary: " + e.getMessage() + "\n" + e.getStackTrace());
             VpnStatus.logException(e);
             return false;
         }

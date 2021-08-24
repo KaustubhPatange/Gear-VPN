@@ -1,0 +1,5 @@
+Updated: Handle logic when there are no VPN servers to choose from.
+Fixed: Attempted to fix billing client crash on certain devices.
+Fixed: Crash on import config for some devices that doesn't handle */* mime type.
+Fixed: Some internal memory leaks.
+Fixed: Crashes when fetching data from VPN Book
