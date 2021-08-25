@@ -13,6 +13,7 @@ import com.kpstv.navigation.compose.SlideRight
 import com.kpstv.vpn.extensions.asVpnConfig
 import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.helpers.BillingHelper
+import com.kpstv.vpn.ui.sheets.PremiumBottomSheet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.parcelize.Parcelize
@@ -59,15 +60,15 @@ fun NavigationScreen(
 
   val onPurchaseComplete = billingHelper.purchaseComplete.collectAsState()
   if (onPurchaseComplete.value.sku == BillingHelper.purchase_sku) {
-    premiumBottomSheet.value = BottomSheetState.Expanded
+    premiumBottomSheet.show()
   }
 
   val onPurchaseClick: () -> Unit = {
     billingHelper.launch()
-    premiumBottomSheet.value = BottomSheetState.Collapsed
+    premiumBottomSheet.hide()
   }
 
-  val onPremiumClick: () -> Unit = { premiumBottomSheet.value = BottomSheetState.Expanded }
+  val onPremiumClick: () -> Unit = { premiumBottomSheet.show() }
 
   navigator.Setup(key = NavigationRoute.key, initial = NavigationRoute.Main()) { controller, dest ->
     when (dest) {
@@ -136,8 +137,7 @@ fun NavigationScreen(
     PremiumBottomSheet(
       premiumBottomSheet = premiumBottomSheet,
       isPremiumUnlocked = isPremiumUnlocked.value,
-      onPremiumClick = onPurchaseClick,
-      suppressBackPress = { navigator.suppressBackPress = it }
+      onPremiumClick = onPurchaseClick
     )
   }
 }

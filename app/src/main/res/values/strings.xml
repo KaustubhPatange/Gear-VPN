@@ -71,4 +71,7 @@
     <string name="unsupported_op">This operation is not supported by your device.</string>
     <string name="dialog_empty_vpn_text"><![CDATA[There were some errors fetching VPN servers from VPN Gate & VPN Book.\n\nMake sure these websites correctly open on your device.]]></string>
     <string name="alright">Alright</string>
+    <string name="filter_apps">Filter Apps</string>
+
+    <string name="enable_vpn">Enable VPN for %1$d apps</string>
 </resources>

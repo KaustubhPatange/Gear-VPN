@@ -1,9 +1,12 @@
 package com.kpstv.vpn.data.models
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 
 @Entity(tableName = "table_vpnconfigs")
+@Parcelize
 data class VpnConfiguration(
   val country: String,
   val countryFlagUrl: String,
@@ -24,7 +27,7 @@ data class VpnConfiguration(
   val username: String,
   val password: String,
   val premium: Boolean = false
-) {
+) : Parcelable {
   @PrimaryKey(autoGenerate = true)
   var id: Int = 0
 

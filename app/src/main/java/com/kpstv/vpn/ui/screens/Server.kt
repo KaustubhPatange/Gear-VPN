@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,9 +27,6 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.kpstv.navigation.compose.DialogRoute
-import com.kpstv.navigation.compose.findComposeNavigator
-import com.kpstv.navigation.compose.findController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
@@ -36,10 +35,12 @@ import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.components.BottomSheetState
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
+import com.kpstv.vpn.ui.sheets.AppsSheetServer
+import com.kpstv.vpn.ui.sheets.ProtocolConnectionType
+import com.kpstv.vpn.ui.sheets.ProtocolSheet
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.theme.goldenYellow
-import kotlinx.parcelize.Parcelize
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -52,12 +53,12 @@ fun ServerScreen(
   isPremiumUnlocked: Boolean = false,
   onItemClick: (VpnConfiguration, VpnConfig.ConnectionType) -> Unit
 ) {
-  val navigator = findComposeNavigator()
-
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
-  val protocolBottomSheet = rememberBottomSheetState()
 
-  val vpnConfig = remember { mutableStateOf(VpnConfiguration.createEmpty()) }
+  val protocolBottomSheetState = rememberBottomSheetState()
+  val appsBottomSheetState = rememberBottomSheetState()
+
+  val vpnConfig = rememberSaveable { mutableStateOf(VpnConfiguration.createEmpty()) }
 
   val filterServer by Settings.getFilterServer()
     .collectAsState(initial = Settings.DefaultFilterServer)
@@ -125,7 +126,7 @@ fun ServerScreen(
                 onPremiumClick = onPremiumClick,
                 onClick = { config ->
                   vpnConfig.value = config
-                  protocolBottomSheet.value = BottomSheetState.Expanded
+                  protocolBottomSheetState.show()
                 }
               )
             }
@@ -146,7 +147,11 @@ fun ServerScreen(
       Header(
         title = stringResource(R.string.choose_server),
         onBackButton = onBackButton,
-        actionRow = { HeaderDropdownMenu() }
+        actionRow = {
+          HeaderDropdownMenu(
+            onFilterAppsClick = { appsBottomSheetState }
+          )
+        }
       )
 
       Footer(
@@ -157,7 +162,7 @@ fun ServerScreen(
   }
 
   ProtocolSheet(
-    protocolSheetState = protocolBottomSheet,
+    protocolSheetState = protocolBottomSheetState,
     enableTCP = vpnConfig.value.configTCP != null,
     enableUDP = vpnConfig.value.configUDP != null,
     onItemClick = { type ->
@@ -171,19 +176,22 @@ fun ServerScreen(
           VpnConfig.ConnectionType.UDP
         )
       }
-    },
-    suppressBackPress = { navigator.suppressBackPress = it }
+    }
   )
+
+  AppsSheetServer(appSheetState = appsBottomSheetState)
 
   EmptyVpnDialog(show = vpnState is VpnLoadState.Empty)
 }
 
 @Composable
-private fun HeaderDropdownMenu(expanded: Boolean = false) {
+private fun HeaderDropdownMenu(expanded: Boolean = false, onFilterAppsClick: () -> Unit) {
   val expandedState = remember { mutableStateOf(expanded) }
 
   val filterServerState = Settings.getFilterServer()
     .collectAsState(initial = Settings.DefaultFilterServer)
+
+  val dismiss = remember { {expandedState.value = false} }
 
   @Composable
   fun DropdownCheckBoxItem(text: String, checked: Boolean, onClick: () -> Unit) {
@@ -192,7 +200,7 @@ private fun HeaderDropdownMenu(expanded: Boolean = false) {
         .fillMaxWidth()
         .clickable(onClick = {
           onClick()
-          expandedState.value = false
+          dismiss()
         })
         .padding(vertical = 10.dp, horizontal = 10.dp)
     ) {
@@ -243,6 +251,29 @@ private fun HeaderDropdownMenu(expanded: Boolean = false) {
         checked = filterServerState.value == Settings.ServerFilter.Free,
         onClick = { Settings.setFilterServer(Settings.ServerFilter.Free) }
       )
+      Divider()
+      DropdownMenuItem(
+        onClick = {
+
+          dismiss()
+        }
+      ) {
+        Row {
+          Icon(
+            painter = painterResource(R.drawable.ic_apps),
+            contentDescription = "apps icon"
+          )
+          Spacer(modifier = Modifier.weight(1f))
+          Text(
+            text = stringResource(R.string.filter_apps),
+            modifier = Modifier
+              .align(Alignment.CenterVertically)
+              .padding(horizontal = 5.dp),
+            color = MaterialTheme.colors.onSecondary,
+            style = MaterialTheme.typography.button.copy(fontSize = 16.sp)
+          )
+        }
+      }
     }
   )
 }

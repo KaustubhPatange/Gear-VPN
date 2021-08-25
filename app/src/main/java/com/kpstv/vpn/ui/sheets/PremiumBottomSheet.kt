@@ -1,7 +1,5 @@
-package com.kpstv.vpn.ui.components
+package com.kpstv.vpn.ui.sheets
 
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.annotation.RawRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,17 +17,17 @@ import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.*
 import com.google.accompanist.insets.navigationBarsPadding
 import com.kpstv.vpn.R
+import com.kpstv.vpn.ui.components.BottomSheetState
+import com.kpstv.vpn.ui.components.ThemeButton
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 
 @Composable
 fun PremiumBottomSheet(
-  premiumBottomSheet: MutableState<BottomSheetState>,
+  premiumBottomSheet: BottomSheetState,
   isPremiumUnlocked: Boolean,
   onPremiumClick: () -> Unit,
-  suppressBackPress: (Boolean) -> Unit
 ) {
-  BottomSheet(bottomSheetState = premiumBottomSheet) {
-
+  BaseBottomSheet(bottomSheetState = premiumBottomSheet) {
     if (!isPremiumUnlocked) {
       CommonSheet(
         lottieRes = R.raw.premium_gold,
@@ -42,29 +40,8 @@ fun PremiumBottomSheet(
         lottieRes = R.raw.heart_with_particles,
         text = stringResource(R.string.premium_complete_text),
         buttonText = stringResource(R.string.premium_complete_button),
-        onButtonClick = { premiumBottomSheet.value = BottomSheetState.Collapsed },
+        onButtonClick = { premiumBottomSheet.hide() },
       )
-    }
-
-    val backpress = remember {
-      object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-          premiumBottomSheet.value = BottomSheetState.Collapsed
-        }
-      }
-    }
-
-    LaunchedEffect(premiumBottomSheet.value) {
-      suppressBackPress.invoke(premiumBottomSheet.value == BottomSheetState.Expanded)
-      backpress.isEnabled = premiumBottomSheet.value == BottomSheetState.Expanded
-    }
-
-    val dispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current).onBackPressedDispatcher
-    DisposableEffect(Unit) {
-      dispatcher.addCallback(backpress)
-      onDispose {
-        backpress.remove()
-      }
     }
   }
 }

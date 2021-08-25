@@ -1,7 +1,5 @@
-package com.kpstv.vpn.ui.components
+package com.kpstv.vpn.ui.sheets
 
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,8 +20,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.google.accompanist.insets.navigationBarsPadding
 import com.kpstv.vpn.R
+import com.kpstv.vpn.ui.components.BottomSheetState
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
-import com.kpstv.vpn.ui.theme.backgroundInner
 import com.kpstv.vpn.ui.theme.dotColor
 
 enum class ProtocolConnectionType {
@@ -32,36 +30,13 @@ enum class ProtocolConnectionType {
 
 @Composable
 fun ProtocolSheet(
-  protocolSheetState: MutableState<BottomSheetState>,
+  protocolSheetState: BottomSheetState,
   enableTCP: Boolean = true,
   enableUDP: Boolean = true,
   onItemClick: (ProtocolConnectionType) -> Unit,
-  suppressBackPress: (Boolean) -> Unit
 ) {
-  BottomSheet(bottomSheetState = protocolSheetState) {
-
+  BaseBottomSheet(bottomSheetState = protocolSheetState) {
     CommonSheet(enableTCP = enableTCP, enableUDP = enableUDP, onItemClick = onItemClick)
-
-    val backpress = remember {
-      object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-          protocolSheetState.value = BottomSheetState.Collapsed
-        }
-      }
-    }
-
-    LaunchedEffect(protocolSheetState.value) {
-      suppressBackPress.invoke(protocolSheetState.value == BottomSheetState.Expanded)
-      backpress.isEnabled = protocolSheetState.value == BottomSheetState.Expanded
-    }
-
-    val dispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current).onBackPressedDispatcher
-    DisposableEffect(Unit) {
-      dispatcher.addCallback(backpress)
-      onDispose {
-        backpress.remove()
-      }
-    }
   }
 }
 

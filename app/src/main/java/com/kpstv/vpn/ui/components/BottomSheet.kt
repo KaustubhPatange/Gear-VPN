@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -21,12 +23,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Composable
-fun rememberBottomSheetState(initialState: BottomSheetState = BottomSheetState.Collapsed) =
-  remember { mutableStateOf(initialState) }
+fun rememberBottomSheetState(isExpanded: Boolean = false) =
+  rememberSaveable(isExpanded, saver = BottomSheetState.Saver) {
+    BottomSheetState(isExpanded)
+  }
+
+class BottomSheetState(isExpanded: Boolean = false) {
+  internal val expanded = mutableStateOf(isExpanded)
+
+  fun show() {
+    expanded.value = true
+  }
+
+  fun hide() {
+    expanded.value = false
+  }
+
+  fun isVisible() = expanded.value
+
+  companion object {
+    val Saver: Saver<BottomSheetState, *> = Saver(
+      save = { it.expanded },
+      restore = { BottomSheetState(it.value) }
+    )
+  }
+}
 
 /**
  * A bottom sheet component to display Modal Bottom Sheet.
@@ -43,11 +67,11 @@ fun rememberBottomSheetState(initialState: BottomSheetState = BottomSheetState.C
 @OptIn(ExperimentalMaterialApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun BottomSheet(
-  bottomSheetState: MutableState<BottomSheetState>,
+  bottomSheetState: BottomSheetState,
   content: @Composable () -> Unit,
 ) {
   val background = animateColorAsState(
-    targetValue = if (bottomSheetState.value == BottomSheetState.Expanded)
+    targetValue = if (bottomSheetState.isVisible())
       Color.Black.copy(alpha = 0.5f)
     else Color.Transparent
   )
@@ -59,33 +83,33 @@ fun BottomSheet(
   ) {
     val boxHeightPx = with(LocalDensity.current) { maxHeight.toPx() }
 
-    val swipeableState = rememberSwipeableState(bottomSheetState.value.state) state@{ state ->
-      if (bottomSheetState.value.state != state) {
-        bottomSheetState.value = BottomSheetState.Collapsed
+    val swipeableState = rememberSwipeableState(bottomSheetState.expanded.value) state@{ state ->
+      if (bottomSheetState.expanded.value != state) {
+        bottomSheetState.hide()
       }
       return@state true
     }
 
     val sheetSizePx = remember { mutableStateOf(0f) }
     val anchors = mapOf(
-      boxHeightPx to 0,
-      (1f + boxHeightPx - sheetSizePx.value) to 1 // if 1f is removed it throws a runtime exception.
+      boxHeightPx to false,
+      (1f + boxHeightPx - sheetSizePx.value) to true // if 1f is removed it throws a runtime exception.
     )
 
-    LaunchedEffect(bottomSheetState.value) effect@{
+    LaunchedEffect(bottomSheetState.expanded.value) effect@{
       if (swipeableState.isAnimationRunning) return@effect
       swipeableState.animateTo(
-        targetValue = if (bottomSheetState.value == BottomSheetState.Expanded) 1 else 0,
+        targetValue = bottomSheetState.isVisible(),
         anim = tween()
       )
     }
 
-    if (bottomSheetState.value == BottomSheetState.Expanded) {
+    if (bottomSheetState.isVisible()) {
       Box(modifier = Modifier
         .fillMaxSize()
         .pointerInteropFilter pointer@{ event ->
           if (event.action == MotionEvent.ACTION_UP) {
-            bottomSheetState.value = BottomSheetState.Collapsed
+            bottomSheetState.hide()
           }
           return@pointer true
         })
@@ -114,9 +138,9 @@ fun BottomSheet(
   }
 }
 
-enum class BottomSheetState(val state: Int) {
+/*enum class BottomSheetState(val state: Int) {
   Collapsed(0), Expanded(1)
-}
+}*/
 
 @Preview(showBackground = true)
 @Composable
@@ -128,10 +152,11 @@ fun PreviewBottomSheetPlayground() {
       val bottomSheetState = rememberBottomSheetState()
 
       Button(onClick = {
-        bottomSheetState.value = if (bottomSheetState.value == BottomSheetState.Expanded)
-          BottomSheetState.Collapsed
-        else
-          BottomSheetState.Expanded
+        if (bottomSheetState.isVisible()) {
+          bottomSheetState.hide()
+        } else {
+          bottomSheetState.show()
+        }
       }) {
         Text(text = "Toggle Sheet")
       }
