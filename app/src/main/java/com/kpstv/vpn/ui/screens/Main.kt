@@ -223,7 +223,7 @@ fun MainScreen(
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewStartScreen() {
   CommonPreviewTheme {

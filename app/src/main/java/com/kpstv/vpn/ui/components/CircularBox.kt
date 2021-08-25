@@ -447,7 +447,7 @@ fun CircularBox(
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun DefaultPreview() {
   CommonPreviewTheme {
@@ -455,7 +455,7 @@ fun DefaultPreview() {
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PlaygroundPreview() {
   val status = remember { mutableStateOf(ConnectivityStatus.NONE) }

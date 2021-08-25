@@ -74,4 +74,5 @@
     <string name="filter_apps">Filter Apps</string>
 
     <string name="enable_vpn">Enable VPN for %1$d apps</string>
+    <string name="save_filters">SAVE FILTERS</string>
 </resources>
