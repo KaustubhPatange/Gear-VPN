@@ -36,7 +36,8 @@ enum class ConnectivityStatus {
   NONE,
   CONNECTING,
   CONNECTED,
-  DISCONNECT
+  DISCONNECT,
+  RECONNECTING
 }
 
 private enum class CircularAnimateState {
@@ -59,6 +60,7 @@ private fun getStatusAsText(context: Context, status: ConnectivityStatus): Strin
   return when (status) {
     ConnectivityStatus.CONNECTING -> context.getString(R.string.status_connecting)
     ConnectivityStatus.CONNECTED -> context.getString(R.string.status_connected)
+    ConnectivityStatus.RECONNECTING -> context.getString(R.string.status_reconnecting)
     else -> context.getString(R.string.status_connect)
   }
 }
@@ -291,69 +293,81 @@ fun CircularBox(
   }
 
   LaunchedEffect(status) {
-    when (status) {
-      ConnectivityStatus.CONNECTING -> {
-        circularState.value = CircularAnimateState.SHRINK_IN
-        delay(600)
-        circularState.value = CircularAnimateState.SHRINK_OUT
-        delay(350)
 
-        circularState.value = CircularAnimateState.ROTATE
-        updateTextState()
+    suspend fun onConnecting() {
+      circularState.value = CircularAnimateState.ROTATE
+      updateTextState()
 
-        // text blink effect
-        launch {
-          alphaText.animateTo(
-            targetValue = 0.35f,
-            animationSpec = infiniteRepeatable(
-              animation = tween(600, easing = LinearEasing),
-              repeatMode = RepeatMode.Reverse
-            )
-          )
-        }
-
-        // arc scale
-        launch {
-          sweepArc.animateTo(
-            targetValue = maxSweepAngle,
-            animationSpec = tween(durationMillis = 700, easing = LinearEasing)
-          )
-        }
-        launch {
-          rotateArcYellow.animateTo(
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(
-              animation = tween(700, easing = LinearEasing)
-            )
-          )
-        }
-        launch {
-          rotateArcCyan.animateTo(
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(
-              animation = tween(1000, easing = LinearEasing),
-            )
-          )
-        }
-
-        // outer circle rotation
-        degreesOuter.animateTo(
-          targetValue = 360f,
-          animationSpec = tween(
-            5000, easing = CubicBezierEasing(
-              1f, 0f, 1f, 1.01f
-            )
-          )
-        )
-
-        degreesOuter.snapTo(0f)
-        degreesOuter.animateTo(
-          targetValue = 360f,
+      // text blink effect
+      launch {
+        alphaText.animateTo(
+          targetValue = 0.35f,
           animationSpec = infiniteRepeatable(
-            animation = tween(1000),
+            animation = tween(600, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
           )
         )
+      }
+
+      // arc scale
+      launch {
+        sweepArc.animateTo(
+          targetValue = maxSweepAngle,
+          animationSpec = tween(durationMillis = 700, easing = LinearEasing)
+        )
+      }
+      launch {
+        rotateArcYellow.animateTo(
+          targetValue = 360f,
+          animationSpec = infiniteRepeatable(
+            animation = tween(700, easing = LinearEasing)
+          )
+        )
+      }
+      launch {
+        rotateArcCyan.animateTo(
+          targetValue = 360f,
+          animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+          )
+        )
+      }
+
+      // outer circle rotation
+      degreesOuter.animateTo(
+        targetValue = 360f,
+        animationSpec = tween(
+          5000, easing = CubicBezierEasing(
+            1f, 0f, 1f, 1.01f
+          )
+        )
+      )
+
+      degreesOuter.snapTo(0f)
+      degreesOuter.animateTo(
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+          animation = tween(1000),
+          repeatMode = RepeatMode.Reverse
+        )
+      )
+    }
+
+    suspend fun connecting() {
+      // ensure the defaults
+      reset()
+
+      circularState.value = CircularAnimateState.SHRINK_IN
+      delay(600)
+      circularState.value = CircularAnimateState.SHRINK_OUT
+      delay(350)
+
+      onConnecting()
+    }
+
+    when (status) {
+      ConnectivityStatus.CONNECTING -> {
+        connecting()
       }
       ConnectivityStatus.CONNECTED -> {
         sweepArc.snapTo(maxSweepAngle)
@@ -406,6 +420,7 @@ fun CircularBox(
             repeatMode = RepeatMode.Reverse
           )
         )
+
         arcOffsetState.value = dashSizePx / 1.2f
         alphaArc.snapTo(1f)
 
@@ -416,6 +431,13 @@ fun CircularBox(
         circularState.value = CircularAnimateState.SHRINK_OUT_BIT
       }
       ConnectivityStatus.DISCONNECT -> {
+        // ensure connected state
+        circularState.value = CircularAnimateState.SHRINK_OUT_BIT
+        alphaArc.snapTo(1f)
+        alphaText.snapTo(1f)
+        updateTextState()
+        arcOffsetState.value = dashSizePx / 1.2f
+
         circularState.value = CircularAnimateState.SHRINK_IN
         delay(600)
         launch {
@@ -430,6 +452,35 @@ fun CircularBox(
         delay(350)
         reset()
       }
+      ConnectivityStatus.RECONNECTING -> {
+        val isConnectedState = circularState.value == CircularAnimateState.SHRINK_OUT_BIT
+        val isConnectingState = circularState.value == CircularAnimateState.ROTATE
+        if (isConnectedState || isConnectingState) {
+          arcOffsetState.value = 0f
+          alphaArc.snapTo(1f)
+          alphaText.snapTo(1f)
+
+          val arcYellow = async {
+            rotateArcYellow.animateTo(
+              targetValue = 0f,
+              animationSpec = tween(1500, easing = LinearEasing)
+            )
+          }
+          val arcCyan = async {
+            rotateArcCyan.animateTo(
+              targetValue = 0f,
+              animationSpec = tween(1500, easing = LinearEasing)
+            )
+          }
+          awaitAll(arcYellow, arcCyan)
+
+          updateTextState()
+
+          onConnecting()
+        } else {
+          connecting()
+        }
+      }
       ConnectivityStatus.NONE -> {
         reset()
       }
@@ -440,14 +491,14 @@ fun CircularBox(
         rotateArcYellow.snapTo(508f)
         rotateArcCyan.snapTo(511f)
       }*/
-     /* else -> {
+      /* else -> {
 
-      }*/
+       }*/
     }
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun DefaultPreview() {
   CommonPreviewTheme {
@@ -455,17 +506,17 @@ fun DefaultPreview() {
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PlaygroundPreview() {
   val status = remember { mutableStateOf(ConnectivityStatus.NONE) }
 
   LaunchedEffect(status.value) {
     if (status.value == ConnectivityStatus.CONNECTING) {
-      delay(8000)
+      delay(5000)
+      status.value = ConnectivityStatus.RECONNECTING
+      delay(4000)
       status.value = ConnectivityStatus.CONNECTED
-      delay(100)
-      status.value = ConnectivityStatus.NONE
     }
   }
 

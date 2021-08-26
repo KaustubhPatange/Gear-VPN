@@ -142,7 +142,7 @@ fun BottomSheet(
   Collapsed(0), Expanded(1)
 }*/
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewBottomSheetPlayground() {
   CommonPreviewTheme {

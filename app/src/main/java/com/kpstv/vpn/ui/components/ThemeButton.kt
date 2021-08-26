@@ -28,7 +28,7 @@ fun ThemeButton(onClick: () -> Unit, modifier: Modifier = Modifier, text: String
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewThemeButton() {
   CommonPreviewTheme {

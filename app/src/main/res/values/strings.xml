@@ -5,6 +5,7 @@
     <string name="status_disconnect">DISCONNECT</string>
     <string name="status_connecting">CONNECTING</string>
     <string name="status_connected">CONNECTED</string>
+    <string name="status_reconnecting">RECONNECTING</string>
 
     <string name="channel_refresh">Refresh Vpn</string>
     <string name="channel_update">Update</string>
@@ -74,4 +75,7 @@
     <string name="filter_apps">Filter Apps</string>
 
     <string name="enable_vpn">Enable VPN for %1$d apps</string>
+    <string name="save_filters">SAVE FILTERS</string>
+    <string name="more_options">More options</string>
+    <string name="vpn_reconnecting">Reconnecting with changes</string>
 </resources>

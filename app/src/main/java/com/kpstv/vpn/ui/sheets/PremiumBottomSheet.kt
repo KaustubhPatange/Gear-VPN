@@ -94,7 +94,7 @@ private fun CommonSheet(
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewPremiumBottomSheet() {
   CommonPreviewTheme {

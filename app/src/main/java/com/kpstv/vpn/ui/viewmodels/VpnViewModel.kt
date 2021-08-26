@@ -12,6 +12,7 @@ import com.kpstv.vpn.ui.components.ConnectivityStatus
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.helpers.VpnConnectionStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,11 +50,13 @@ class VpnViewModel @Inject constructor(
 
     viewModelScope.launch {
       connectionStatus.collect { state ->
+        android.util.Log.e("VpnViewModel", "State: $state")
         when(state) {
           is VpnConnectionStatus.Unknown -> { }
           is VpnConnectionStatus.StopVpn -> { }
+          is VpnConnectionStatus.ReconnectVpn -> { }
           is VpnConnectionStatus.NULL -> { }
-          is VpnConnectionStatus.Reconnecting -> connectivityStatusStateFlow.emit(ConnectivityStatus.DISCONNECT)
+          is VpnConnectionStatus.Reconnecting -> connectivityStatusStateFlow.emit(ConnectivityStatus.RECONNECTING)
           is VpnConnectionStatus.Disconnected -> {
             connectivityStatusStateFlow.emit(ConnectivityStatus.DISCONNECT)
           }
@@ -76,6 +79,12 @@ class VpnViewModel @Inject constructor(
   fun disconnect() {
     viewModelScope.launch {
       connectionStatusStateFlow.emit(VpnConnectionStatus.StopVpn())
+    }
+  }
+
+  fun reconnect() {
+    viewModelScope.launch {
+      connectionStatusStateFlow.emit(VpnConnectionStatus.ReconnectVpn())
     }
   }
 

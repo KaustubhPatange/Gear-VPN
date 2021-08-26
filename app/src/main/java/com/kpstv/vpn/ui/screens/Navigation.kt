@@ -72,11 +72,12 @@ fun NavigationScreen(
 
   navigator.Setup(key = NavigationRoute.key, initial = NavigationRoute.Main()) { controller, dest ->
     when (dest) {
+      // Main screen
       is NavigationRoute.Main -> MainScreen(
         publicIp = location.value?.query,
         configuration = currentConfig.value,
         connectivityStatus = connectivityStatus.value,
-        onChangeServer = {
+        onToChangeServer = {
           controller.navigateTo(NavigationRoute.Server()) {
             withAnimation {
               target = SlideRight
@@ -90,8 +91,12 @@ fun NavigationScreen(
         onDisconnect = {
           viewModel.disconnect()
         },
-        onPremiumClick = onPremiumClick
+        onPremiumClick = onPremiumClick,
+        onDisallowedAppListChanged = {
+          viewModel.reconnect()
+        }
       )
+      // Server screen
       is NavigationRoute.Server -> ServerScreen(
         vpnState = vpnLoadState.value,
         onBackButton = { controller.goBack() },
@@ -114,6 +119,7 @@ fun NavigationScreen(
           controller.goBack()
         }
       )
+      // Import screen
       is NavigationRoute.Import -> ImportScreen(
         onItemClick = { config ->
           viewModel.changeServer(config.asVpnConfiguration())

@@ -1,4 +1,4 @@
-package com.kpstv.vpn.ui.components
+package com.kpstv.vpn.ui.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 import com.kpstv.navigation.compose.DialogRoute
 import com.kpstv.navigation.compose.findController
 import com.kpstv.vpn.R
+import com.kpstv.vpn.ui.components.ThemeButton
 import com.kpstv.vpn.ui.screens.NavigationRoute
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import kotlinx.parcelize.Parcelize
@@ -48,7 +49,7 @@ private fun DialogContent(dismiss: () -> Unit) {
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewEmptyVpnDialog() {
   CommonPreviewTheme {

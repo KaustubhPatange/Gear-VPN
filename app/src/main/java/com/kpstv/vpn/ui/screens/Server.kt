@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,10 +31,9 @@ import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.ui.components.*
-import com.kpstv.vpn.ui.components.BottomSheetState
+import com.kpstv.vpn.ui.dialogs.EmptyVpnDialog
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
-import com.kpstv.vpn.ui.sheets.AppsSheetServer
 import com.kpstv.vpn.ui.sheets.ProtocolConnectionType
 import com.kpstv.vpn.ui.sheets.ProtocolSheet
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
@@ -51,12 +49,11 @@ fun ServerScreen(
   onImportButton: () -> Unit = {},
   onPremiumClick: () -> Unit = {},
   isPremiumUnlocked: Boolean = false,
-  onItemClick: (VpnConfiguration, VpnConfig.ConnectionType) -> Unit
+  onItemClick: (VpnConfiguration, VpnConfig.ConnectionType) -> Unit,
 ) {
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
 
   val protocolBottomSheetState = rememberBottomSheetState()
-  val appsBottomSheetState = rememberBottomSheetState()
 
   val vpnConfig = rememberSaveable { mutableStateOf(VpnConfiguration.createEmpty()) }
 
@@ -148,9 +145,7 @@ fun ServerScreen(
         title = stringResource(R.string.choose_server),
         onBackButton = onBackButton,
         actionRow = {
-          HeaderDropdownMenu(
-            onFilterAppsClick = { appsBottomSheetState }
-          )
+          HeaderDropdownMenu()
         }
       )
 
@@ -179,13 +174,11 @@ fun ServerScreen(
     }
   )
 
-  AppsSheetServer(appSheetState = appsBottomSheetState)
-
   EmptyVpnDialog(show = vpnState is VpnLoadState.Empty)
 }
 
 @Composable
-private fun HeaderDropdownMenu(expanded: Boolean = false, onFilterAppsClick: () -> Unit) {
+private fun HeaderDropdownMenu(expanded: Boolean = false) {
   val expandedState = remember { mutableStateOf(expanded) }
 
   val filterServerState = Settings.getFilterServer()
@@ -193,87 +186,39 @@ private fun HeaderDropdownMenu(expanded: Boolean = false, onFilterAppsClick: () 
 
   val dismiss = remember { {expandedState.value = false} }
 
-  @Composable
-  fun DropdownCheckBoxItem(text: String, checked: Boolean, onClick: () -> Unit) {
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .clickable(onClick = {
-          onClick()
-          dismiss()
-        })
-        .padding(vertical = 10.dp, horizontal = 10.dp)
-    ) {
-      RadioButton(selected = checked, onClick = onClick)
-      Text(
-        text = text,
-        modifier = Modifier
-          .align(Alignment.CenterVertically)
-          .padding(horizontal = 10.dp),
-        color = MaterialTheme.colors.onSecondary,
-        style = MaterialTheme.typography.button.copy(fontSize = 15.sp)
-      )
-    }
-  }
-
   HeaderButton(
     icon = R.drawable.ic_baseline_filter_list_24,
     contentDescription = "filter server",
     onClick = { expandedState.value = true }
   )
-  DropdownMenu(
-    expanded = expandedState.value,
-    modifier = Modifier
-      .background(MaterialTheme.colors.primaryVariant)
-      .width(150.dp),
-    onDismissRequest = { expandedState.value = false },
+  AppDropdownMenu(
+    title = stringResource(R.string.filter_server),
+    expandedState = expandedState,
     content = {
-      Text(
-        text = stringResource(R.string.filter_server),
-        modifier = Modifier.padding(horizontal = 10.dp),
-        style = MaterialTheme.typography.subtitle2
-      )
-      Spacer(modifier = Modifier.height(10.dp))
-      Divider()
-
-      DropdownCheckBoxItem(
+      AppDropdownCheckBoxItem(
         text = stringResource(R.string.server_filter_all),
         checked = filterServerState.value == Settings.ServerFilter.All,
-        onClick = { Settings.setFilterServer(Settings.ServerFilter.All) }
-      )
-      DropdownCheckBoxItem(
-        text = stringResource(R.string.server_filter_premium),
-        checked = filterServerState.value == Settings.ServerFilter.Premium,
-        onClick = { Settings.setFilterServer(Settings.ServerFilter.Premium) }
-      )
-      DropdownCheckBoxItem(
-        text = stringResource(R.string.server_filter_free),
-        checked = filterServerState.value == Settings.ServerFilter.Free,
-        onClick = { Settings.setFilterServer(Settings.ServerFilter.Free) }
-      )
-      Divider()
-      DropdownMenuItem(
         onClick = {
-
+          Settings.setFilterServer(Settings.ServerFilter.All)
           dismiss()
         }
-      ) {
-        Row {
-          Icon(
-            painter = painterResource(R.drawable.ic_apps),
-            contentDescription = "apps icon"
-          )
-          Spacer(modifier = Modifier.weight(1f))
-          Text(
-            text = stringResource(R.string.filter_apps),
-            modifier = Modifier
-              .align(Alignment.CenterVertically)
-              .padding(horizontal = 5.dp),
-            color = MaterialTheme.colors.onSecondary,
-            style = MaterialTheme.typography.button.copy(fontSize = 16.sp)
-          )
+      )
+      AppDropdownCheckBoxItem(
+        text = stringResource(R.string.server_filter_premium),
+        checked = filterServerState.value == Settings.ServerFilter.Premium,
+        onClick = {
+          Settings.setFilterServer(Settings.ServerFilter.Premium)
+          dismiss()
         }
-      }
+      )
+      AppDropdownCheckBoxItem(
+        text = stringResource(R.string.server_filter_free),
+        checked = filterServerState.value == Settings.ServerFilter.Free,
+        onClick = {
+          Settings.setFilterServer(Settings.ServerFilter.Free)
+          dismiss()
+        }
+      )
     }
   )
 }
@@ -433,7 +378,7 @@ private fun getCommonItemSubtext(config: VpnConfiguration): String {
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewFooter() {
   CommonPreviewTheme {
@@ -441,7 +386,7 @@ fun PreviewFooter() {
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewCommonItem() {
   CommonPreviewTheme {
@@ -453,7 +398,7 @@ fun PreviewCommonItem() {
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewCommonItemPremium() {
   CommonPreviewTheme {
@@ -465,7 +410,7 @@ fun PreviewCommonItemPremium() {
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewServerHeaders() {
   CommonPreviewTheme {

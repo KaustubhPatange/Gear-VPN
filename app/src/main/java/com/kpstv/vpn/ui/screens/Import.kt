@@ -378,6 +378,7 @@ private fun ProfileItem(
           .wrapContentHeight()
           .background(MaterialTheme.colors.background)
           .padding(horizontal = 20.dp)
+          .clip(RoundedCornerShape(10.dp))
           .border(
             width = 1.5.dp,
             color = dotColor.copy(alpha = 0.7f),
@@ -394,7 +395,6 @@ private fun ProfileItem(
             text = item.profileName,
             style = MaterialTheme.typography.h4.copy(fontSize = 18.sp),
             overflow = TextOverflow.Ellipsis,
-
             maxLines = 1
           )
           Spacer(modifier = Modifier.height(1.dp))
@@ -416,7 +416,7 @@ private fun ProfileItem(
   )
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewProfileScreen() {
   CommonPreviewTheme {
@@ -426,7 +426,7 @@ fun PreviewProfileScreen() {
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewProfileItem() {
   CommonPreviewTheme {

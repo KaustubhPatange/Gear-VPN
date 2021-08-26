@@ -10,11 +10,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,18 +22,23 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
+import com.kpstv.navigation.compose.findController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrl
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.dialogs.AppsDialog
+import com.kpstv.vpn.ui.dialogs.AppsDialogMain
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.cyanDark
@@ -46,10 +51,11 @@ fun MainScreen(
   publicIp: String?,
   configuration: VpnConfig = VpnConfig.createEmpty(),
   connectivityStatus: ConnectivityStatus = ConnectivityStatus.NONE,
-  onChangeServer: () -> Unit = {},
+  onToChangeServer: () -> Unit = {},
   onConnectClick: () -> Unit = {},
   onDisconnect: () -> Unit = {},
   onPremiumClick: () -> Unit = {},
+  onDisallowedAppListChanged: () -> Unit = {}
 ) {
   val context = LocalContext.current
 
@@ -69,6 +75,12 @@ fun MainScreen(
       .fillMaxSize()
   ) {
     Box(modifier = Modifier.fillMaxWidth()) {
+      SettingsDropdownMenu(
+        modifier = Modifier
+          .align(Alignment.CenterStart)
+          .padding(start = 10.dp),
+      )
+
       Text(
         text = stringResource(R.string.app_name),
         modifier = Modifier
@@ -161,7 +173,11 @@ fun MainScreen(
           maxLines = 1
         )
         AutoSizeSingleLineText(
-          text = stringResource(id = R.string.main_ip, configuration.ip, configuration.connectionType.name),
+          text = stringResource(
+            id = R.string.main_ip,
+            configuration.ip,
+            configuration.connectionType.name
+          ),
           style = MaterialTheme.typography.subtitle2,
           color = MaterialTheme.colors.onSecondary
         )
@@ -170,7 +186,7 @@ fun MainScreen(
       Spacer(modifier = Modifier.padding(start = 10.dp))
 
       ThemeButton(
-        onClick = onChangeServer,
+        onClick = onToChangeServer,
         modifier = Modifier
           .fillMaxHeight()
           .clip(RoundedCornerShape(5.dp)),
@@ -221,9 +237,51 @@ fun MainScreen(
 
     Spacer(modifier = Modifier.height(20.dp))
   }
+
+  AppsDialogMain(
+    onDisallowedAppListChanged = onDisallowedAppListChanged
+  )
 }
 
-@Preview(showBackground = true)
+@Composable
+private fun SettingsDropdownMenu(modifier: Modifier = Modifier) {
+  val expandedState = remember { mutableStateOf(false) }
+
+  val dismiss = remember { { expandedState.value = false } }
+
+  IconButton(
+    modifier = modifier,
+    onClick = { expandedState.value = true }
+  ) {
+    Icon(
+      tint = MaterialTheme.colors.secondary,
+      painter = painterResource(R.drawable.ic_gear_icon),
+      contentDescription = stringResource(R.string.more_options)
+    )
+  }
+
+  if (LocalInspectionMode.current) return // for preview
+
+  val controller = findController(key = NavigationRoute.key)
+
+  AppDropdownMenu(
+    title = stringResource(R.string.more_options),
+    expandedState = expandedState,
+    offset = DpOffset(15.dp, 0.dp)
+  ) {
+    AppDropdownIconItem(
+      painter = painterResource(R.drawable.ic_apps),
+      contentDescription = "filter apps",
+      onClick = {
+        controller.showDialog(AppsDialog)
+        dismiss()
+      }
+    )
+  }
+
+}
+
+@Preview
 @Composable
 fun PreviewStartScreen() {
   CommonPreviewTheme {

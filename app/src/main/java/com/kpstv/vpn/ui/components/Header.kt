@@ -69,14 +69,14 @@ fun HeaderButton(@DrawableRes icon: Int, contentDescription: String?, onClick: (
     modifier = Modifier
       .clip(CircleShape)
   ) {
-    Image(
+    Icon(
       painter = painterResource(icon),
       contentDescription = contentDescription
     )
   }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewHeader() {
   CommonPreviewTheme {
