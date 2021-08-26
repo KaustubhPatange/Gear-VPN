@@ -7,8 +7,6 @@ on:
       - "README.md"
       - "art/**"
   pull_request:
-    branches:
-      - master
     paths-ignore:
       - "README.md"
       - "art/**"

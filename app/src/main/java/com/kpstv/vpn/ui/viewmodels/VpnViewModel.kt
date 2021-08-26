@@ -56,7 +56,7 @@ class VpnViewModel @Inject constructor(
           is VpnConnectionStatus.StopVpn -> { }
           is VpnConnectionStatus.ReconnectVpn -> { }
           is VpnConnectionStatus.NULL -> { }
-          is VpnConnectionStatus.Reconnecting -> connectivityStatusStateFlow.emit(ConnectivityStatus.DISCONNECT)
+          is VpnConnectionStatus.Reconnecting -> connectivityStatusStateFlow.emit(ConnectivityStatus.RECONNECTING)
           is VpnConnectionStatus.Disconnected -> {
             connectivityStatusStateFlow.emit(ConnectivityStatus.DISCONNECT)
           }

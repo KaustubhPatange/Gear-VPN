@@ -78,7 +78,7 @@ fun MainScreen(
       SettingsDropdownMenu(
         modifier = Modifier
           .align(Alignment.CenterStart)
-          .padding(start = 10.dp)
+          .padding(start = 10.dp),
       )
 
       Text(

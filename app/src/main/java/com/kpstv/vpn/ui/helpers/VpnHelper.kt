@@ -65,17 +65,20 @@ class VpnHelper(private val activity: ComponentActivity) {
     lifecycleScope.launchWhenCreated {
       vpnViewModel.connectionStatus.collect { state ->
         if (state is VpnConnectionStatus.StopVpn) {
-          activity.startActivity(Intent(activity, DisconnectVPNActivity::class.java))
+          activity.startActivity(Intent(activity, DisconnectVPNActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+          })
         }
         if (state is VpnConnectionStatus.Disconnected) {
           openVpnService?.setDefaultStatus()
+          disposeJob.cancel()
         }
         if (state is VpnConnectionStatus.ReconnectVpn) {
           val currentServer = currentServer
           if (isVpnStarted && currentServer != null) {
-            /*stopVpn()
-            prepareVpn(currentServer)*/
+            // filthy hack to reconnect vpn
             stopVpn()
+            delay(1000)
             vpnViewModel.connect()
             Toasty.info(activity, getString(R.string.vpn_reconnecting)).show()
           }
