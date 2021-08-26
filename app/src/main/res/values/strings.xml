@@ -5,6 +5,7 @@
     <string name="status_disconnect">DISCONNECT</string>
     <string name="status_connecting">CONNECTING</string>
     <string name="status_connected">CONNECTED</string>
+    <string name="status_reconnecting">RECONNECTING</string>
 
     <string name="channel_refresh">Refresh Vpn</string>
     <string name="channel_update">Update</string>
