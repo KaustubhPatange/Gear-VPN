@@ -293,6 +293,9 @@ fun CircularBox(
   LaunchedEffect(status) {
     when (status) {
       ConnectivityStatus.CONNECTING -> {
+        // ensure the defaults
+        reset()
+
         circularState.value = CircularAnimateState.SHRINK_IN
         delay(600)
         circularState.value = CircularAnimateState.SHRINK_OUT
@@ -406,6 +409,7 @@ fun CircularBox(
             repeatMode = RepeatMode.Reverse
           )
         )
+
         arcOffsetState.value = dashSizePx / 1.2f
         alphaArc.snapTo(1f)
 
@@ -416,6 +420,13 @@ fun CircularBox(
         circularState.value = CircularAnimateState.SHRINK_OUT_BIT
       }
       ConnectivityStatus.DISCONNECT -> {
+        // ensure connected state
+        circularState.value = CircularAnimateState.SHRINK_OUT_BIT
+        alphaArc.snapTo(1f)
+        alphaText.snapTo(1f)
+        updateTextState()
+        arcOffsetState.value = dashSizePx / 1.2f
+
         circularState.value = CircularAnimateState.SHRINK_IN
         delay(600)
         launch {
