@@ -26,14 +26,11 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.kpstv.navigation.compose.findController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.ui.components.*
-import com.kpstv.vpn.ui.dialogs.AppsDialog
-import com.kpstv.vpn.ui.dialogs.AppsDialogServer
 import com.kpstv.vpn.ui.dialogs.EmptyVpnDialog
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
@@ -52,10 +49,8 @@ fun ServerScreen(
   onImportButton: () -> Unit = {},
   onPremiumClick: () -> Unit = {},
   isPremiumUnlocked: Boolean = false,
-  onItemClick: (VpnConfiguration, VpnConfig.ConnectionType) -> Unit
+  onItemClick: (VpnConfiguration, VpnConfig.ConnectionType) -> Unit,
 ) {
-  val controller = findController(key = NavigationRoute.key)
-
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
 
   val protocolBottomSheetState = rememberBottomSheetState()
@@ -150,9 +145,7 @@ fun ServerScreen(
         title = stringResource(R.string.choose_server),
         onBackButton = onBackButton,
         actionRow = {
-          HeaderDropdownMenu(
-            onFilterAppsClick = { controller.showDialog(AppsDialog) }
-          )
+          HeaderDropdownMenu()
         }
       )
 
@@ -181,17 +174,11 @@ fun ServerScreen(
     }
   )
 
-  AppsDialogServer(
-    onNeedToReconnect = {
-      
-    }
-  )
-
   EmptyVpnDialog(show = vpnState is VpnLoadState.Empty)
 }
 
 @Composable
-private fun HeaderDropdownMenu(expanded: Boolean = false, onFilterAppsClick: () -> Unit) {
+private fun HeaderDropdownMenu(expanded: Boolean = false) {
   val expandedState = remember { mutableStateOf(expanded) }
 
   val filterServerState = Settings.getFilterServer()
@@ -199,87 +186,39 @@ private fun HeaderDropdownMenu(expanded: Boolean = false, onFilterAppsClick: () 
 
   val dismiss = remember { {expandedState.value = false} }
 
-  @Composable
-  fun DropdownCheckBoxItem(text: String, checked: Boolean, onClick: () -> Unit) {
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .clickable(onClick = {
-          onClick()
-          dismiss()
-        })
-        .padding(vertical = 10.dp, horizontal = 10.dp)
-    ) {
-      RadioButton(selected = checked, onClick = onClick)
-      Text(
-        text = text,
-        modifier = Modifier
-          .align(Alignment.CenterVertically)
-          .padding(horizontal = 10.dp),
-        color = MaterialTheme.colors.onSecondary,
-        style = MaterialTheme.typography.button.copy(fontSize = 15.sp)
-      )
-    }
-  }
-
   HeaderButton(
     icon = R.drawable.ic_baseline_filter_list_24,
     contentDescription = "filter server",
     onClick = { expandedState.value = true }
   )
-  DropdownMenu(
-    expanded = expandedState.value,
-    modifier = Modifier
-      .background(MaterialTheme.colors.primaryVariant)
-      .width(150.dp),
-    onDismissRequest = { expandedState.value = false },
+  AppDropdownMenu(
+    title = stringResource(R.string.filter_server),
+    expandedState = expandedState,
     content = {
-      Text(
-        text = stringResource(R.string.filter_server),
-        modifier = Modifier.padding(horizontal = 10.dp),
-        style = MaterialTheme.typography.subtitle2
-      )
-      Spacer(modifier = Modifier.height(10.dp))
-      Divider()
-
-      DropdownCheckBoxItem(
+      AppDropdownCheckBoxItem(
         text = stringResource(R.string.server_filter_all),
         checked = filterServerState.value == Settings.ServerFilter.All,
-        onClick = { Settings.setFilterServer(Settings.ServerFilter.All) }
+        onClick = {
+          Settings.setFilterServer(Settings.ServerFilter.All)
+          dismiss()
+        }
       )
-      DropdownCheckBoxItem(
+      AppDropdownCheckBoxItem(
         text = stringResource(R.string.server_filter_premium),
         checked = filterServerState.value == Settings.ServerFilter.Premium,
-        onClick = { Settings.setFilterServer(Settings.ServerFilter.Premium) }
+        onClick = {
+          Settings.setFilterServer(Settings.ServerFilter.Premium)
+          dismiss()
+        }
       )
-      DropdownCheckBoxItem(
+      AppDropdownCheckBoxItem(
         text = stringResource(R.string.server_filter_free),
         checked = filterServerState.value == Settings.ServerFilter.Free,
-        onClick = { Settings.setFilterServer(Settings.ServerFilter.Free) }
-      )
-      Divider()
-      DropdownMenuItem(
         onClick = {
+          Settings.setFilterServer(Settings.ServerFilter.Free)
           dismiss()
-          onFilterAppsClick()
         }
-      ) {
-        Row {
-          Icon(
-            painter = painterResource(R.drawable.ic_apps),
-            contentDescription = "apps icon"
-          )
-          Spacer(modifier = Modifier.weight(1f))
-          Text(
-            text = stringResource(R.string.filter_apps),
-            modifier = Modifier
-              .align(Alignment.CenterVertically)
-              .padding(horizontal = 5.dp),
-            color = MaterialTheme.colors.onSecondary,
-            style = MaterialTheme.typography.button.copy(fontSize = 16.sp)
-          )
-        }
-      }
+      )
     }
   )
 }

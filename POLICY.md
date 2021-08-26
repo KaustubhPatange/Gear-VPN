@@ -25,6 +25,10 @@ Following are some third-party APIs or services the app uses. None of them colle
 - [vpngate.net](https://vpngate.net) - Provides list of free OpenVPN servers.
 - [vpnbook.com](https://vpnbook.com) - Provides list of free OpenVPN servers.
 
+Following are some list of permissions I used,
+
+1. [QUERY_ALL_PACKAGES](https://developer.android.com/reference/android/Manifest.permission#QUERY_ALL_PACKAGES) - Needed to implement split tunnel feature in VPN i.e allow user to give VPN access to selected apps.
+
 ## **Log Data**
 
 I want to inform you that whenever you use my Service, in a case of an error in the app I collect data and information (through third party products) on your phone called Log Data. This Log Data may include information such as your device Internet Protocol (“IP”) address, device name, operating system version, the configuration of the app when utilizing my Service, the time and date of your use of the Service, and other statistics.

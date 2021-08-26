@@ -79,4 +79,10 @@ public class DisconnectVPNActivity extends Activity implements DialogInterface.O
         finish();
     }
 
+    @Override
+    protected void onDestroy() {
+        mService = null;
+        mConnection = null;
+        super.onDestroy();
+    }
 }

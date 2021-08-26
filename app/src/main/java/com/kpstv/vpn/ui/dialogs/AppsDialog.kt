@@ -15,6 +15,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,12 +39,12 @@ import com.kpstv.vpn.ui.theme.dotColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.parcelize.Parcelize
-import okhttp3.Dispatcher
 import kotlin.math.abs
 
 @Composable
-fun AppsDialogServer(onNeedToReconnect: () -> Unit) {
-  AppsDialog(onNeedToReconnect = onNeedToReconnect)
+fun AppsDialogMain(onDisallowedAppListChanged: () -> Unit) {
+  if (LocalInspectionMode.current) return
+  AppsDialog(onDisallowedAppListChanged = onDisallowedAppListChanged)
 }
 
 @Parcelize
@@ -53,7 +54,7 @@ object AppsDialog : DialogRoute
 @Composable
 fun AppsDialog(
   viewModel: AppSheetViewModel = viewModel(),
-  onNeedToReconnect: () -> Unit
+  onDisallowedAppListChanged: () -> Unit
 ) {
   val controller = findController(key = NavigationRoute.key)
   val context = LocalContext.current
@@ -132,7 +133,7 @@ fun AppsDialog(
         onSaveClick = {
           if (disallowedAppPackagesSnapshot != disallowedAppPackages) {
             Settings.setDisallowedVpnApps(disallowedAppPackages.toSet())
-            onNeedToReconnect()
+            onDisallowedAppListChanged()
           }
           dismiss()
         }

@@ -1,5 +1,6 @@
 package com.kpstv.vpn.extensions.utils
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -29,9 +30,12 @@ object Notifications {
     val cancelIntent = AppBroadcast.createPendingIntent(this, AppBroadcast.STOP_REFRESHING)
 
     val builder = NotificationCompat.Builder(this, REFRESH_CHANNEL)
+      .setOngoing(true)
       .setContentTitle(getString(R.string.vpn_refresh))
       .setSmallIcon(R.drawable.ic_logo)
       .setProgress(100, 0, true)
+      .setCategory(Notification.CATEGORY_SERVICE)
+      .setPriority(NotificationCompat.PRIORITY_LOW)
       .addAction(R.drawable.ic_baseline_cancel_24, getString(android.R.string.cancel), cancelIntent)
 
     ForegroundInfo(NOTIFICATION_REFRESH, builder.build())

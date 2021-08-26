@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.kpstv.vpn.R
@@ -22,6 +23,7 @@ import de.blinkt.openvpn.core.OpenVPNService
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
 
 // Some implementations are taken from
 // https://github.com/KaustubhPatange/Moviesy/blob/master/app/src/main/java/com/kpstv/yts/vpn/VPNHelper.kt
@@ -44,6 +46,7 @@ class VpnHelper(private val activity: ComponentActivity) {
     }
     override fun onDestroy(owner: LifecycleOwner) {
       activity.unbindService(serviceConnection)
+      openVpnService = null
       LocalBroadcastManager.getInstance(activity).unregisterReceiver(broadcastReceiver)
       super.onDestroy(owner)
     }
@@ -67,6 +70,16 @@ class VpnHelper(private val activity: ComponentActivity) {
         if (state is VpnConnectionStatus.Disconnected) {
           openVpnService?.setDefaultStatus()
         }
+        if (state is VpnConnectionStatus.ReconnectVpn) {
+          val currentServer = currentServer
+          if (isVpnStarted && currentServer != null) {
+            /*stopVpn()
+            prepareVpn(currentServer)*/
+            stopVpn()
+            vpnViewModel.connect()
+            Toasty.info(activity, getString(R.string.vpn_reconnecting)).show()
+          }
+        }
         if (state is VpnConnectionStatus.NewConnection) {
           // new server
           if (isVpnStarted) stopVpn()
@@ -87,7 +100,7 @@ class VpnHelper(private val activity: ComponentActivity) {
 
   private fun stopVpn(): Boolean {
     try {
-      openVpnService?.stopVPN(true)
+      openVpnService?.stopVPN(false)
       isVpnStarted = false
       return true
     } catch (e: Exception) {
@@ -112,7 +125,17 @@ class VpnHelper(private val activity: ComponentActivity) {
     try {
       val server = currentServer ?: throw Exception("Server is null")
       if (server.config.isEmpty()) throw Exception("Config is empty")
-      OpenVpnApi.startVpn(activity, server.config, server.country, server.username, server.password)
+      activity.lifecycle.coroutineScope.launch {
+        val disallowedApps = Settings.getDisallowedVpnApps().firstOrNull()
+        OpenVpnApi.startVpn(
+          context = activity,
+          configText = server.config,
+          country = server.country,
+          userName = server.username,
+          password = server.password,
+          disallowedApps = disallowedApps?.toHashSet() ?: HashSet()
+        )
+      }
       isVpnStarted = true
       disposeAfterTimeout()
     } catch (e: Exception) {
@@ -166,7 +189,11 @@ class VpnHelper(private val activity: ComponentActivity) {
       }
       openVpnService = service
     }
-    override fun onServiceDisconnected(name: ComponentName?) { openVpnService = null }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+      openVpnService = null
+      activity.unbindService(this)
+    }
   }
 
   class VPNServiceContract : ActivityResultContract<Intent, Boolean>() {
@@ -218,5 +245,6 @@ sealed class VpnConnectionStatus(open val color: Int) {
   data class GetConfig(override val color: Int = Color.YELLOW) : VpnConnectionStatus(color)
   data class NoNetwork(override val color: Int = Color.RED) : VpnConnectionStatus(color)
   data class StopVpn(override val color: Int = Color.TRANSPARENT) : VpnConnectionStatus(color)
+  data class ReconnectVpn(override val color: Int = Color.TRANSPARENT) : VpnConnectionStatus(color)
   data class NULL(override val color: Int = Color.RED) : VpnConnectionStatus(color)
 }
