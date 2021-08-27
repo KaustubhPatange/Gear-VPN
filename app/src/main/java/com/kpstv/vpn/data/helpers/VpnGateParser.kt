@@ -23,7 +23,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
     val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
     Logger.d("Fetching from network: vpngate.net")
-    val vpnResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/en")
+    val vpnResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/")
     if (vpnResponse.isSuccessful) {
 
       val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time

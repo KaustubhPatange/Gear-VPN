@@ -50,7 +50,6 @@ class VpnViewModel @Inject constructor(
 
     viewModelScope.launch {
       connectionStatus.collect { state ->
-        android.util.Log.e("VpnViewModel", "State: $state")
         when(state) {
           is VpnConnectionStatus.Unknown -> { }
           is VpnConnectionStatus.StopVpn -> { }

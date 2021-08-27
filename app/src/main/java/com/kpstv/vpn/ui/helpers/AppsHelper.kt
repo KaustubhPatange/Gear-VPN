@@ -12,7 +12,9 @@ object AppsHelper {
   fun getListOfInstalledApps(context: Context): Sequence<AppPackage> = sequence {
     for (item in context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)) {
       val label = item.loadLabel(context.packageManager).toString()
-      if (!label.contains(".") && item.flags != ApplicationInfo.FLAG_SYSTEM) {
+      if (item.packageName != context.packageName && !label.contains(".")
+        && (item.className != null || item.flags and ApplicationInfo.FLAG_INSTALLED == ApplicationInfo.FLAG_INSTALLED)
+      ) {
         yield(
           AppPackage(
             name = item.loadLabel(context.packageManager).toString(),

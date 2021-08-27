@@ -78,4 +78,7 @@
     <string name="save_filters">SAVE FILTERS</string>
     <string name="more_options">More options</string>
     <string name="vpn_reconnecting">Reconnecting with changes</string>
+    <string name="server_filter">Filters</string>
+    <string name="apps_dialog_select_all">Select all</string>
+    <string name="apps_dialog_deselect_all">Deselect all</string>
 </resources>

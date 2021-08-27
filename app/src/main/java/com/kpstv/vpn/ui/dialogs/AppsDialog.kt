@@ -168,11 +168,13 @@ private fun Header(filterVpnNumber: Int, onSelectAll: () -> Unit, onDeselectAll:
       HeaderButton(
         icon = R.drawable.ic_select_all,
         contentDescription = "select all",
+        tooltip = stringResource(R.string.apps_dialog_select_all),
         onClick = { onSelectAll() }
       )
       HeaderButton(
         icon = R.drawable.ic_deselect_all,
         contentDescription = "deselect all",
+        tooltip = stringResource(R.string.apps_dialog_deselect_all),
         onClick = { onDeselectAll() })
 
     }

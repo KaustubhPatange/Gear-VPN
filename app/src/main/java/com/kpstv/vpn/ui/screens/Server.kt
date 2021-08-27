@@ -189,6 +189,7 @@ private fun HeaderDropdownMenu(expanded: Boolean = false) {
   HeaderButton(
     icon = R.drawable.ic_baseline_filter_list_24,
     contentDescription = "filter server",
+    tooltip = "Filter options",
     onClick = { expandedState.value = true }
   )
   AppDropdownMenu(
