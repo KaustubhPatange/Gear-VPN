@@ -10,6 +10,7 @@ data class SharedVpnConfig(
   val config: String,
   val country: String,
   val ip: String,
+  val expireTime: Long,
   val connectionType: ConnectionType
 ) : Parcelable {
   enum class ConnectionType { UNKNOWN, TCP, UDP }

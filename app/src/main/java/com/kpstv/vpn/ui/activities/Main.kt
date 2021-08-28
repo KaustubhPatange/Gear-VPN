@@ -14,7 +14,7 @@ import com.kpstv.vpn.extensions.utils.Initializer
 import com.kpstv.vpn.extensions.utils.NetworkMonitor
 import com.kpstv.vpn.ui.helpers.BillingHelper
 import com.kpstv.vpn.ui.helpers.InAppUpdates
-import com.kpstv.vpn.ui.helpers.VpnHelper
+import com.kpstv.vpn.ui.helpers.VpnActivityHelper
 import com.kpstv.vpn.ui.screens.NavigationScreen
 import com.kpstv.vpn.ui.theme.ComposeTestTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,7 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class Main : ComponentActivity() {
   private lateinit var navigator: ComposeNavigator
-  private val vpnHelper by lazy { VpnHelper(this) }
+  private val vpnHelper by lazy { VpnActivityHelper(this) }
   private val billingHelper by lazy { BillingHelper(this) }
   private val updateHelper by lazy { InAppUpdates(this) }
 

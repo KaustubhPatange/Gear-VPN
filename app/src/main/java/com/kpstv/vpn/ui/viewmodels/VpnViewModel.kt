@@ -12,7 +12,6 @@ import com.kpstv.vpn.ui.components.ConnectivityStatus
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.helpers.VpnConnectionStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -52,8 +51,8 @@ class VpnViewModel @Inject constructor(
       connectionStatus.collect { state ->
         when(state) {
           is VpnConnectionStatus.Unknown -> { }
-          is VpnConnectionStatus.StopVpn -> { }
-          is VpnConnectionStatus.ReconnectVpn -> { }
+          is VpnConnectionStatus.Commands.StopVpn -> { }
+          is VpnConnectionStatus.Commands.ReconnectVpn -> { }
           is VpnConnectionStatus.NULL -> { }
           is VpnConnectionStatus.Reconnecting -> connectivityStatusStateFlow.emit(ConnectivityStatus.RECONNECTING)
           is VpnConnectionStatus.Disconnected -> {
@@ -71,19 +70,19 @@ class VpnViewModel @Inject constructor(
 
   fun connect() {
     viewModelScope.launch {
-      connectionStatusStateFlow.emit(VpnConnectionStatus.NewConnection(server = currentVpnStateFlow.value))
+      connectionStatusStateFlow.emit(VpnConnectionStatus.Commands.NewConnection(server = currentVpnStateFlow.value))
     }
   }
 
   fun disconnect() {
     viewModelScope.launch {
-      connectionStatusStateFlow.emit(VpnConnectionStatus.StopVpn())
+      connectionStatusStateFlow.emit(VpnConnectionStatus.Commands.StopVpn())
     }
   }
 
   fun reconnect() {
     viewModelScope.launch {
-      connectionStatusStateFlow.emit(VpnConnectionStatus.ReconnectVpn())
+      connectionStatusStateFlow.emit(VpnConnectionStatus.Commands.ReconnectVpn())
     }
   }
 
@@ -99,24 +98,7 @@ class VpnViewModel @Inject constructor(
     }
   }
 
-  fun dispatchConnectionState(state: String) {
-    // map from string to state
-    val connectionState = when(state) {
-      "DISCONNECTED" -> VpnConnectionStatus.Disconnected()
-      "CONNECTED" -> VpnConnectionStatus.Connected()
-      "WAIT" -> VpnConnectionStatus.Waiting()
-      "AUTH" -> VpnConnectionStatus.Authenticating()
-      "RECONNECTING" -> VpnConnectionStatus.Reconnecting()
-      "NONETWORK" -> VpnConnectionStatus.NoNetwork()
-      "GET_CONFIG" -> VpnConnectionStatus.GetConfig()
-      "AUTH_FAILED" -> VpnConnectionStatus.AuthenticationFailed()
-      "null" -> VpnConnectionStatus.NULL()
-      "NOPROCESS" -> VpnConnectionStatus.NULL()
-      "VPN_GENERATE_CONFIG" -> VpnConnectionStatus.NULL()
-      "TCP_CONNECT" -> VpnConnectionStatus.NULL()
-      else -> VpnConnectionStatus.Unknown()
-    }
-
-    connectionStatusStateFlow.tryEmit(connectionState)
+  fun dispatchConnectionState(status: VpnConnectionStatus) {
+    connectionStatusStateFlow.tryEmit(status)
   }
 }

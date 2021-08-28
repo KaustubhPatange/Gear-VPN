@@ -36,6 +36,16 @@
             android:theme="@style/Theme.Main" />
 
         <receiver android:name="com.kpstv.vpn.recievers.AppBroadcast" />
+        
+        <service android:name=".services.GearConnect"
+            android:icon="@drawable/ic_logo"
+            android:label="@string/gear_connect"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action
+                    android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
 
         <provider
             android:name="androidx.startup.InitializationProvider"

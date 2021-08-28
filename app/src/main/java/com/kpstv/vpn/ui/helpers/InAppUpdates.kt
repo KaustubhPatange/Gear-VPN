@@ -10,6 +10,7 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.kpstv.vpn.extensions.utils.Notifications
+import com.kpstv.vpn.logging.Logger
 
 class InAppUpdates(private val activity: ComponentActivity) {
   private val appUpdateManager = AppUpdateManagerFactory.create(activity)
@@ -40,7 +41,7 @@ class InAppUpdates(private val activity: ComponentActivity) {
   fun init() {
     val appUpdateInfoTask = appUpdateManager.appUpdateInfo
     appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
-      android.util.Log.d("UpdateHelper", "Update Availability: ${appUpdateInfo.updateAvailability()}")
+      Logger.d("Update Availability: ${appUpdateInfo.updateAvailability()}")
       if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
         && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
       ) {

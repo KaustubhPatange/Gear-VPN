@@ -37,8 +37,7 @@ class VpnRepository @Inject constructor(
       emit(VpnLoadState.Loading())
 
       val local = fetchFromLocal()
-      val offsetDate = DateUtils.format(Calendar.getInstance().time).toLong()
-      if (!forceNetwork && local.isNotEmpty() && offsetDate < local.first().expireTime) {
+      if (!forceNetwork && local.isNotEmpty() && !local.first().isExpired()) {
         // Get from local
         emit(VpnLoadState.Completed(local))
       } else {

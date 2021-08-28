@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.kpstv.vpn.data.models.VpnConfiguration
+import com.kpstv.vpn.shared.SharedVpnConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -58,10 +60,30 @@ object Settings {
     }
   }
 
+  // Last VPN config
+  // This is typically used by Quick Tile service for "Gear connect" feature
+
+  fun getLastVpnConfig(): Flow<VpnConfig?> = dataStore.data.map { preferences ->
+    val configJson = preferences[lastVpnConfigKey] ?: return@map null
+    VpnConfigConverter.fromStringToVpnConfig(configJson)
+  }
+
+  fun setLastVpnConfig(value: VpnConfig) {
+    scope.launch {
+      dataStore.edit { prefs ->
+        VpnConfigConverter.toStringFromVpnConfig(value)?.let { config ->
+          prefs[lastVpnConfigKey] = config
+        }
+      }
+    }
+  }
+
   private const val FILTER_SERVER = "filter_server"
   private const val FILTER_APPS = "filter_apps"
+  private const val LAST_VPN_CONFIG = "last_vpn_config"
   private const val SETTINGS_PB = "settings"
 
   private val filterServerKey = stringPreferencesKey(FILTER_SERVER)
   private val filterAppKey = stringSetPreferencesKey(FILTER_APPS)
+  private val lastVpnConfigKey = stringPreferencesKey(LAST_VPN_CONFIG)
 }

@@ -135,6 +135,9 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
           }
       }
     }
+
+    Logger.d("Parsing completed with: ${vpnConfigurations.size} items")
+
     onComplete.invoke(formatConfigurations(vpnConfigurations))
   }
 

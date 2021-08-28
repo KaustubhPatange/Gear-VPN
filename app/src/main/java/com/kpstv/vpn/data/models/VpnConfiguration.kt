@@ -3,7 +3,9 @@ package com.kpstv.vpn.data.models
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.kpstv.vpn.extensions.utils.DateUtils
 import kotlinx.parcelize.Parcelize
+import java.util.*
 
 @Entity(tableName = "table_vpnconfigs")
 @Parcelize
@@ -31,6 +33,8 @@ data class VpnConfiguration(
   @PrimaryKey(autoGenerate = true)
   var id: Int = 0
 
+  fun isExpired(): Boolean = isExpired(expireTime)
+
   companion object {
     fun createEmpty(): VpnConfiguration = VpnConfiguration(
       country = "Unknown",
@@ -44,7 +48,13 @@ data class VpnConfiguration(
       username = "vpn",
       password = "vpn",
       score = 0,
-      expireTime = 0
+      expireTime = -1L
     )
+
+    fun isExpired(expireTime: Long): Boolean {
+      if (expireTime == -1L) return false
+      val offsetDate = DateUtils.format(Calendar.getInstance().time).toLong()
+      return offsetDate >= expireTime
+    }
   }
 }

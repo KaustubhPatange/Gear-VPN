@@ -13,6 +13,7 @@ fun VpnConfig.asShared() : SharedVpnConfig = SharedVpnConfig(
   config = config,
   country = country,
   connectionType = connectionType.asShared(),
+  expireTime = expireTime,
   ip = ip,
 )
 
@@ -22,6 +23,7 @@ fun SharedVpnConfig.asVpnConfig() : VpnConfig = VpnConfig(
   config = config,
   country = country,
   connectionType = connectionType.asVpn(),
+  expireTime = expireTime,
   ip = ip,
 )
 
@@ -34,6 +36,7 @@ fun VpnConfiguration.asVpnConfig(connectionType: VpnConfig.ConnectionType) : Vpn
   } ?: "",
   country = country,
   ip = ip,
+  expireTime = expireTime,
   connectionType = connectionType
 )
 

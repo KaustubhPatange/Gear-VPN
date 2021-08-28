@@ -81,4 +81,5 @@
     <string name="server_filter">Filters</string>
     <string name="apps_dialog_select_all">Select all</string>
     <string name="apps_dialog_deselect_all">Deselect all</string>
+    <string name="gear_connect">Gear connect</string>
 </resources>
