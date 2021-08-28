@@ -3,14 +3,19 @@ package com.kpstv.vpn.extensions.utils
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.TaskStackBuilder
 import androidx.core.content.getSystemService
 import androidx.work.ForegroundInfo
 import com.kpstv.vpn.R
 import com.kpstv.vpn.recievers.AppBroadcast
+import com.kpstv.vpn.ui.activities.Main
+import com.kpstv.vpn.ui.activities.Splash
 
 object Notifications {
   fun init(context: Context) = with(context) {
@@ -22,6 +27,10 @@ object Notifications {
 
       notificationManager.createNotificationChannel(
         NotificationChannel(UPDATE_CHANNEL, getString(R.string.channel_update), NotificationManager.IMPORTANCE_LOW)
+      )
+
+      notificationManager.createNotificationChannel(
+        NotificationChannel(COMMON_ALERT_CHANNEL, getString(R.string.channel_common_alert), NotificationManager.IMPORTANCE_DEFAULT)
       )
     }
   }
@@ -41,10 +50,6 @@ object Notifications {
     ForegroundInfo(NOTIFICATION_REFRESH, builder.build())
   }
 
-  private fun cancel(context: Context, id: Int) {
-    NotificationManagerCompat.from(context).cancel(id)
-  }
-
   fun createDownloadingNotification(context: Context, progress: Int = -1): Unit = with(context) {
     val builder = NotificationCompat.Builder(this, UPDATE_CHANNEL).apply {
       setContentTitle(getString(R.string.vpn_update_download))
@@ -60,9 +65,31 @@ object Notifications {
     cancel(context, NOTIFICATION_UPDATE)
   }
 
+  fun createVpnUserActionRequiredNotification(context: Context): Unit = with(context) {
+    val startIntent = Intent(this, Main::class.java)
+    val pendingIntent: PendingIntent? = TaskStackBuilder.create(this).run {
+      addNextIntentWithParentStack(startIntent)
+      getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+    val builder = NotificationCompat.Builder(this, COMMON_ALERT_CHANNEL).apply {
+      setContentTitle(getString(R.string.vpn_action_required_title))
+      setStyle(NotificationCompat.BigTextStyle().bigText(getString(R.string.vpn_action_required_text)))
+      setSmallIcon(R.drawable.ic_logo_error)
+      setContentIntent(pendingIntent)
+    }
+
+    NotificationManagerCompat.from(this).notify(NOTIFICATION_VPN_ACTION_REQUIRED, builder.build())
+  }
+
+  private fun cancel(context: Context, id: Int) {
+    NotificationManagerCompat.from(context).cancel(id)
+  }
+
   private const val REFRESH_CHANNEL = "refresh_channel"
+  private const val COMMON_ALERT_CHANNEL = "common_alert_channel"
   private const val UPDATE_CHANNEL = "refresh_update"
 
   private const val NOTIFICATION_REFRESH = 132
   private const val NOTIFICATION_UPDATE = 133
+  private const val NOTIFICATION_VPN_ACTION_REQUIRED = 134
 }

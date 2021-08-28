@@ -146,7 +146,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     };*/
     private final IBinder mBinder = new LocalBinder();
     private String state = "";
-    boolean flag = false;
+    boolean connectedFlag = false;
     private String mLastTunCfg;
     private String mRemoteGW;
     private Handler guiHandler;
@@ -627,6 +627,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     private void startOpenVPN() {
+        connectionStarted = true;
+
         try {
             mProfile.writeConfigFile(this);
         } catch (IOException e) {
@@ -1450,6 +1452,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     //sending message to main activity
     private void sendMessage(String state) {
+        if (state.equals("DISCONNECTED")) {
+            connectionStarted = false;
+        }
         Intent intent = new Intent("connectionState");
         intent.putExtra("state", state);
         this.state = state;
@@ -1477,10 +1482,20 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         this.state = "";
     }
     public boolean isConnected() {
-        return flag;
+        if (state.equals("CONNECTED")) {
+            return true;
+        } else if (state.equals("DISCONNECTED")) {
+            return false;
+        }
+        return false;
     }
 
     // Methods specific to Gear VPN
+
+    private boolean connectionStarted = false;
+    public boolean hasConnectionStarted() {
+        return connectionStarted;
+    }
 
     private SharedVpnConfig shared;
     public void setCurrentServer(SharedVpnConfig value) {

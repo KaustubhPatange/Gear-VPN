@@ -78,12 +78,28 @@ object Settings {
     }
   }
 
+  // Purchase
+
+  fun getHasPurchased(): Flow<Boolean> = dataStore.data.map { preferences ->
+    preferences[purchaseKey] ?: return@map false
+  }
+
+  fun setHasPurchased(value: Boolean) {
+    scope.launch {
+      dataStore.edit { prefs ->
+        prefs[purchaseKey] = value
+      }
+    }
+  }
+
   private const val FILTER_SERVER = "filter_server"
   private const val FILTER_APPS = "filter_apps"
   private const val LAST_VPN_CONFIG = "last_vpn_config"
+  private const val HAS_PURCHASED = "has_purchased"
   private const val SETTINGS_PB = "settings"
 
   private val filterServerKey = stringPreferencesKey(FILTER_SERVER)
   private val filterAppKey = stringSetPreferencesKey(FILTER_APPS)
   private val lastVpnConfigKey = stringPreferencesKey(LAST_VPN_CONFIG)
+  private val purchaseKey = booleanPreferencesKey(HAS_PURCHASED)
 }

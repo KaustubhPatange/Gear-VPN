@@ -8,6 +8,7 @@
     <string name="status_reconnecting">RECONNECTING</string>
 
     <string name="channel_refresh">Refresh Vpn</string>
+    <string name="channel_common_alert">Common Alert</string>
     <string name="channel_update">Update</string>
     <string name="vpn_refresh">Refreshing VPN lists</string>
     <string name="vpn_update_download">Gear VPN - Downloading updates</string>
@@ -33,7 +34,7 @@
 
     <string name="vpn_disconnect">Disconnected successfully</string>
     <string name="vpn_error">Could not connect to the server: %1$s</string>
-    <string name="vpn_auth_failed">Authentication failed: Incorrect username or password</string>
+    <string name="vpn_auth_failed">Authentication failed, try a different server.</string>
     <string name="save_profile">Save profile</string>
     <string name="profile_path">Location: %1$s</string>
     <string name="profile_path_invalid">Invalid config path</string>
@@ -82,4 +83,9 @@
     <string name="apps_dialog_select_all">Select all</string>
     <string name="apps_dialog_deselect_all">Deselect all</string>
     <string name="gear_connect">Gear connect</string>
+    <string name="vpn_action_required_title">User action required</string>
+    <string name="vpn_action_required_text">Couldn\'t establish VPN connection automatically.\nKindly connect manually one time to grant access.</string>
+
+    <string name="tile_gear_connected">Connected:\n%1$s - %2$s</string>
+    <string name="tile_gear_connecting">Connecting</string>
 </resources>

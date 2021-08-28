@@ -26,12 +26,11 @@ data class BillingSku(val sku: String) {
 
 class BillingHelper(private val activity: ComponentActivity) {
 
-  private val dataStoreHelper = BillingDataStoreHelper(activity)
   private var currentIsPurchase: Boolean = false
 
   private var billingErrorMessage: String? = null
 
-  val isPurchased: Flow<Boolean> = dataStoreHelper.watcher
+  val isPurchased: Flow<Boolean> get() = Settings.getHasPurchased()
   private val purchaseCompleteStateFlow: MutableStateFlow<BillingSku> = MutableStateFlow(BillingSku.createEmpty())
   val purchaseComplete: StateFlow<BillingSku> = purchaseCompleteStateFlow.asStateFlow()
 
@@ -56,7 +55,6 @@ class BillingHelper(private val activity: ComponentActivity) {
 
   private val activityObserver = object: DefaultLifecycleObserver {
     override fun onStop(owner: LifecycleOwner) {
-      dataStoreHelper.cancel()
       billingClient.endConnection()
     }
     override fun onDestroy(owner: LifecycleOwner) {
@@ -114,11 +112,11 @@ class BillingHelper(private val activity: ComponentActivity) {
 
   private suspend fun validatePurchase() {
 
-    suspend fun removeSubscription() {
+    fun removeSubscription() {
       if (currentIsPurchase) {
         Toasty.warning(activity, R.string.premium_expired, Toasty.LENGTH_LONG).show()
       }
-      dataStoreHelper.update(false)
+      Settings.setHasPurchased(false)
     }
 
     val purchaseResult = billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS)
@@ -133,7 +131,7 @@ class BillingHelper(private val activity: ComponentActivity) {
       }
     }
 
-    dataStoreHelper.update(true)
+    Settings.setHasPurchased(true)
   }
 
   private suspend fun handlePurchase(purchase: Purchase) {
@@ -151,38 +149,9 @@ class BillingHelper(private val activity: ComponentActivity) {
 
       if (purchase.skus.contains(purchase_sku)) {
         Toasty.info(activity, activity.getString(R.string.restart_maybe), Toasty.LENGTH_LONG).show()
-        dataStoreHelper.update(true)
+        Settings.setHasPurchased(true)
         purchaseCompleteStateFlow.emit(BillingSku(purchase_sku))
       }
-    }
-  }
-
-  internal class BillingDataStoreHelper(context: Context) {
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val dataStore: DataStore<Preferences> = PreferenceDataStoreFactory.create(
-      produceFile = { context.preferencesDataStoreFile(BILLING_PB) },
-      scope = scope
-    )
-
-    val watcher: Flow<Boolean> = dataStore.data.map { preferences ->
-      preferences[purchaseKey] ?: return@map false
-    }
-
-    suspend fun clear() = dataStore.edit { it.clear() }
-
-    suspend fun update(value: Boolean) {
-      dataStore.edit { prefs ->
-        prefs[purchaseKey] = value
-      }
-    }
-
-    fun cancel() = scope.cancel()
-
-    private val purchaseKey = booleanPreferencesKey(HAS_PURCHASED)
-
-    companion object {
-      private const val HAS_PURCHASED = "has_purchased"
-      private const val BILLING_PB = "billing"
     }
   }
 }

@@ -432,11 +432,13 @@ fun CircularBox(
       }
       ConnectivityStatus.DISCONNECT -> {
         // ensure connected state
-        circularState.value = CircularAnimateState.SHRINK_OUT_BIT
-        alphaArc.snapTo(1f)
-        alphaText.snapTo(1f)
-        updateTextState()
-        arcOffsetState.value = dashSizePx / 1.2f
+        if (circularState.value != CircularAnimateState.ROTATE) {
+          circularState.value = CircularAnimateState.SHRINK_OUT_BIT
+          alphaArc.snapTo(1f)
+          alphaText.snapTo(1f)
+          updateTextState()
+          arcOffsetState.value = dashSizePx / 1.2f
+        }
 
         circularState.value = CircularAnimateState.SHRINK_IN
         delay(600)

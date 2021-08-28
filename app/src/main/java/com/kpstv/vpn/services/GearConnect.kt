@@ -1,87 +1,174 @@
 package com.kpstv.vpn.services
 
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Build
-import android.os.IBinder
+import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import android.util.Log
 import androidx.annotation.RequiresApi
+import com.kpstv.vpn.R
+import com.kpstv.vpn.data.db.localized.VpnDao
+import com.kpstv.vpn.extensions.asVpnConfig
+import com.kpstv.vpn.extensions.utils.FlagUtils
+import com.kpstv.vpn.extensions.utils.Notifications
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
-import de.blinkt.openvpn.core.OpenVPNService
+import com.kpstv.vpn.ui.helpers.VpnConnectionStatus
+import com.kpstv.vpn.ui.helpers.VpnServiceHelper
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.N)
+@AndroidEntryPoint
 class GearConnect : TileService() {
-  private var openVpnService: OpenVPNService? = null
-  private var isVpnStarted: Boolean = false
+  private var connectJob = SupervisorJob()
+  private var serviceJob = SupervisorJob()
 
-  private var currentServer: VpnConfig? = null
+  private lateinit var vpnHelper: VpnServiceHelper
 
-  var job = SupervisorJob()
-  /* override fun onStartListening() {
-     qsTile?.state = Tile.STATE_INACTIVE
-     qsTile?.updateTile()
-   }
- */
+  @Inject
+  lateinit var vpnDao: VpnDao
+
+  override fun onCreate() {
+    super.onCreate()
+    Log.e("GearConnect", "onCreate")
+
+    vpnHelper = VpnServiceHelper(this)
+    vpnHelper.init()
+  }
+
+  override fun onStartListening() {
+    vpnHelper.init()
+
+    serviceJob = SupervisorJob()
+
+    Log.e("GearConnect", "onStartListening")
+
+    ensureTitleStatus(vpnHelper.connectionStatus.value)
+
+    CoroutineScope(serviceJob + Dispatchers.IO).launch {
+      vpnHelper.connectionStatus.collect { status ->
+        Log.e("GearConnect", "Status: $status")
+        ensureTitleStatus(status)
+      }
+    }
+    CoroutineScope(serviceJob + Dispatchers.IO).launch {
+      vpnHelper.commandState.collect { command ->
+        Log.e("GearConnect", "Command: $command")
+        when(command) {
+          is VpnServiceHelper.Command.Reset -> ensureOriginalStatus()
+          is VpnServiceHelper.Command.ServiceReconnection -> ensureConnectedStatus()
+        }
+      }
+    }
+  }
+
+  override fun onTileAdded() {
+    Log.e("GearConnect", "onTileAdded")
+  }
+
+  override fun onTileRemoved() {
+    Log.e("GearConnect", "onTileRemoved")
+  }
+
   override fun onClick() {
-    job = SupervisorJob()
-    CoroutineScope(job + Dispatchers.IO).launch {
-      performConnection()
+    Log.e("GearConnect", "onClick: ${vpnHelper.isConnected()}")
+
+    connectJob = SupervisorJob()
+    CoroutineScope(connectJob + Dispatchers.Main).launch {
+      if (vpnHelper.isConnected()) {
+        qsTile?.state = Tile.STATE_UNAVAILABLE
+        qsTile?.updateTile()
+
+        vpnHelper.disconnect(showDialog = false)
+      } else {
+        ensureConnectingStatus()
+        performConnection()
+      }
     }
   }
 
   override fun onStopListening() {
-    job.cancel()
+    connectJob.cancel()
+    serviceJob.cancel()
+  }
+
+  private fun ensureTitleStatus(status: VpnConnectionStatus) {
+    if (status is VpnConnectionStatus.Connected) {
+      ensureConnectedStatus()
+    }
+    if (status is VpnConnectionStatus.Disconnected) {
+      ensureOriginalStatus()
+    }
+  }
+
+  private fun ensureConnectingStatus() {
+    qsTile?.state = Tile.STATE_UNAVAILABLE
+    qsTile?.label = getString(R.string.tile_gear_connecting)
+    qsTile?.updateTile()
+  }
+
+  private fun ensureConnectedStatus() {
+    val server = vpnHelper.currentServer
+    if (server != null) {
+      qsTile?.state = Tile.STATE_ACTIVE
+      qsTile?.label = getString(
+        R.string.tile_gear_connected,
+        FlagUtils.getAsCountryShortForms(server.country),
+        server.connectionType.name
+      )
+      qsTile?.updateTile()
+    }
+  }
+
+  private fun ensureOriginalStatus() {
+    qsTile?.state = Tile.STATE_INACTIVE
+    qsTile?.label = getString(R.string.gear_connect)
+    qsTile?.updateTile()
   }
 
   private suspend fun performConnection() {
     val config = Settings.getLastVpnConfig().firstOrNull()
-    if (config == null) {
-
+    if (config != null && !config.isExpired()) {
+      vpnHelper.connect(config)
+      return
     }
-  }
 
-  private fun toggleServer() {
-    if (isVpnStarted) {
-      // stop connection
-      try {
-        openVpnService?.stopVPN(false)
-        isVpnStarted = false
-      } catch (e: Exception) {
-        e.printStackTrace()
+    val localConfigurations = vpnDao.getAll()
+    if (config != null && config.isExpired()) {
+      if (localConfigurations.isNotEmpty()) {
+        val localConfig =
+          localConfigurations.random().asVpnConfig(connectionType = VpnConfig.ConnectionType.TCP)
+        vpnHelper.connect(localConfig)
+        return
+      } else {
+        showUserActionRequired()
       }
     } else {
-      val server = currentServer
-      if (server != null) {
-        // connect
-      } else {
-        // Toast to show error
-      }
+      showUserActionRequired()
     }
   }
 
-  private val serviceConnection = object: ServiceConnection {
-    override fun onServiceConnected(name: ComponentName?, binder: IBinder) {
-      val service = (binder as OpenVPNService.LocalBinder).service
-
-      openVpnService = service
-    }
-    override fun onServiceDisconnected(name: ComponentName?) {
-      openVpnService = null
-      unbindService(this)
-    }
+  private fun showUserActionRequired() {
+    Notifications.createVpnUserActionRequiredNotification(this)
   }
 
-  private fun bindToVPNService() {
-    val serviceIntent = Intent(this, OpenVPNService::class.java).apply {
-      action = OpenVPNService.START_SERVICE
-    }
-    bindService(serviceIntent, serviceConnection, 0)
+  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    Log.e("GearConnect", "onStartCommand: $flags, $startId")
+    return super.onStartCommand(intent, flags, startId)
   }
+
+  override fun onDestroy() {
+    vpnHelper.dispose()
+    Log.e("GearConnect", "onDestroy")
+
+    super.onDestroy()
+  }
+
 }
