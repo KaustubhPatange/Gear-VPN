@@ -1453,7 +1453,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     //sending message to main activity
     private void sendMessage(String state) {
         if (state.equals("DISCONNECTED")) {
+            connectedFlag = false;
             connectionStarted = false;
+        } else if (state.equals("CONNECTED")) {
+            connectedFlag = true;
         }
         Intent intent = new Intent("connectionState");
         intent.putExtra("state", state);
@@ -1482,12 +1485,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         this.state = "";
     }
     public boolean isConnected() {
-        if (state.equals("CONNECTED")) {
-            return true;
-        } else if (state.equals("DISCONNECTED")) {
-            return false;
-        }
-        return false;
+        return connectedFlag;
     }
 
     // Methods specific to Gear VPN
