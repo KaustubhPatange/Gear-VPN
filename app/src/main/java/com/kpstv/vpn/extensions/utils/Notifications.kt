@@ -75,6 +75,7 @@ object Notifications {
       setContentTitle(getString(R.string.vpn_action_required_title))
       setStyle(NotificationCompat.BigTextStyle().bigText(getString(R.string.vpn_action_required_text)))
       setSmallIcon(R.drawable.ic_logo_error)
+      setAutoCancel(true)
       setContentIntent(pendingIntent)
     }
 

@@ -1,10 +1,8 @@
 package com.kpstv.vpn.services
 
-import android.content.Intent
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.localized.VpnDao
@@ -37,8 +35,6 @@ class GearConnect : TileService() {
 
   override fun onCreate() {
     super.onCreate()
-    Log.e("GearConnect", "onCreate")
-
     vpnHelper = VpnServiceHelper(this)
     vpnHelper.init()
   }
@@ -48,19 +44,15 @@ class GearConnect : TileService() {
 
     serviceJob = SupervisorJob()
 
-    Log.e("GearConnect", "onStartListening")
-
     ensureTitleStatus(vpnHelper.connectionStatus.value)
 
     CoroutineScope(serviceJob + Dispatchers.IO).launch {
       vpnHelper.connectionStatus.collect { status ->
-        Log.e("GearConnect", "Status: $status")
         ensureTitleStatus(status)
       }
     }
     CoroutineScope(serviceJob + Dispatchers.IO).launch {
       vpnHelper.commandState.collect { command ->
-        Log.e("GearConnect", "Command: $command")
         when(command) {
           is VpnServiceHelper.Command.Reset -> ensureOriginalStatus()
           is VpnServiceHelper.Command.ServiceReconnection -> ensureConnectedStatus()
@@ -69,17 +61,7 @@ class GearConnect : TileService() {
     }
   }
 
-  override fun onTileAdded() {
-    Log.e("GearConnect", "onTileAdded")
-  }
-
-  override fun onTileRemoved() {
-    Log.e("GearConnect", "onTileRemoved")
-  }
-
   override fun onClick() {
-    Log.e("GearConnect", "onClick: ${vpnHelper.isConnected()}")
-
     connectJob = SupervisorJob()
     CoroutineScope(connectJob + Dispatchers.Main).launch {
       if (vpnHelper.isConnected()) {
@@ -100,11 +82,12 @@ class GearConnect : TileService() {
   }
 
   private fun ensureTitleStatus(status: VpnConnectionStatus) {
-    if (status is VpnConnectionStatus.Connected) {
+    if (status is VpnConnectionStatus.Connected || vpnHelper.isConnected()) {
       ensureConnectedStatus()
-    }
-    if (status is VpnConnectionStatus.Disconnected) {
+    } else if (status is VpnConnectionStatus.Disconnected) {
       ensureOriginalStatus()
+    } else if (status !is VpnConnectionStatus.NULL && status !is VpnConnectionStatus.Unknown) {
+      ensureConnectingStatus()
     }
   }
 
@@ -116,7 +99,7 @@ class GearConnect : TileService() {
 
   private fun ensureConnectedStatus() {
     val server = vpnHelper.currentServer
-    if (server != null) {
+    if (server != null && vpnHelper.isConnected()) {
       qsTile?.state = Tile.STATE_ACTIVE
       qsTile?.label = getString(
         R.string.tile_gear_connected,
@@ -157,17 +140,11 @@ class GearConnect : TileService() {
 
   private fun showUserActionRequired() {
     Notifications.createVpnUserActionRequiredNotification(this)
-  }
-
-  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-    Log.e("GearConnect", "onStartCommand: $flags, $startId")
-    return super.onStartCommand(intent, flags, startId)
+    ensureOriginalStatus()
   }
 
   override fun onDestroy() {
     vpnHelper.dispose()
-    Log.e("GearConnect", "onDestroy")
-
     super.onDestroy()
   }
 

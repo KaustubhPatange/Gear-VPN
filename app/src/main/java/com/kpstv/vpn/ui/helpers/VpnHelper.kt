@@ -199,8 +199,6 @@ open class VpnHelper(
       val lastPacketReceive = intent.getStringExtra("lastPacketReceive") ?: "0"
       val bytesIn = intent.getStringExtra("byteIn") ?: " "
       val bytesOut = intent.getStringExtra("byteOut") ?: " "*/
-
-//      android.util.Log.d("VpnHelper", "Status: ${intent.getStringExtra("state")}")
     }
   }
 

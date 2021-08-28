@@ -2,7 +2,6 @@ package com.kpstv.vpn.ui.helpers
 
 import android.app.Service
 import android.content.Intent
-import android.util.Log
 import com.kpstv.vpn.extensions.utils.Notifications
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +33,6 @@ class VpnServiceHelper(private val service: Service) : VpnHelper(service) {
   }
 
   override fun onServiceConnected() {
-    Log.e("VpnServiceHelper", "OnServiceConnected")
     val server = currentServer ?: return
     commandsStateFlow.tryEmit(Command.ServiceReconnection(server))
   }
@@ -44,25 +42,18 @@ class VpnServiceHelper(private val service: Service) : VpnHelper(service) {
   }
 
   override fun onConnectionTimeout() {
-    Log.e("VpnServiceHelper", "onConnectionTimeout")
     commandsStateFlow.tryEmit(Command.Reset)
   }
 
   override fun onPrepareVpnFailed() {
-    Log.e("VpnServiceHelper", "onPrepareVpnFailed")
-
     commandsStateFlow.tryEmit(Command.Reset)
   }
 
   override fun onStartVpnFailed(exception: Exception) {
-    Log.e("VpnServiceHelper", "onStartVpnFailed")
-
     commandsStateFlow.tryEmit(Command.Reset)
   }
 
   override fun onStopVpnFailed(exception: Exception) {
-    Log.e("VpnServiceHelper", "onStopVpnFailed")
-
     commandsStateFlow.tryEmit(Command.Reset)
   }
 
