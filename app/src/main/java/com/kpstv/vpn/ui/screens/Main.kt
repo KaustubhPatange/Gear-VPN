@@ -10,11 +10,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +36,7 @@ import com.kpstv.navigation.compose.findController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrl
 import com.kpstv.vpn.extensions.utils.FlagUtils
+import com.kpstv.vpn.extensions.utils.NetworkMonitor
 import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.dialogs.AppsDialog
 import com.kpstv.vpn.ui.dialogs.AppsDialogMain
@@ -60,10 +61,12 @@ fun MainScreen(
   val context = LocalContext.current
 
   val ipTextColor: Color by animateColorAsState(
-    if (connectivityStatus == ConnectivityStatus.CONNECTED) greenColorDark else MaterialTheme.colors.error
+    if (connectivityStatus.isConnected()) greenColorDark else MaterialTheme.colors.error
   )
 
-  val ipText = if (connectivityStatus != ConnectivityStatus.CONNECTED)
+  val isNetworkConnected by NetworkMonitor.connection.collectAsState()
+
+  val ipText = if (!connectivityStatus.isConnected())
     stringResource(R.string.vpn_status, publicIp ?: stringResource(R.string.vpn_public_ip_unknown))
   else stringResource(R.string.vpn_status_hidden)
 
@@ -191,7 +194,7 @@ fun MainScreen(
           .fillMaxHeight()
           .clip(RoundedCornerShape(5.dp)),
         text = stringResource(R.string.change_server),
-        enabled = connectivityStatus != ConnectivityStatus.CONNECTED && connectivityStatus != ConnectivityStatus.CONNECTING
+        enabled = !connectivityStatus.isConnected() && !connectivityStatus.isConnecting()
       )
     }
 
@@ -205,9 +208,12 @@ fun MainScreen(
         .height(55.dp)
     ) {
       ThemeButton(
-        enabled = connectivityStatus != ConnectivityStatus.CONNECTING && configuration.isNotEmpty(),
+        enabled = (
+          (!connectivityStatus.isConnecting() && configuration.isNotEmpty()) // when VPN connected or disconnected
+            && !(connectivityStatus.isDisconnected() && !isNetworkConnected) // when network present & VPN connected
+          ),
         onClick = {
-          if (connectivityStatus == ConnectivityStatus.CONNECTED) {
+          if (connectivityStatus.isConnected()) {
             onDisconnect.invoke()
           } else {
             onConnectClick.invoke()
@@ -218,12 +224,12 @@ fun MainScreen(
           .clip(RoundedCornerShape(10.dp))
           .fillMaxHeight()
           .animateContentSize(),
-        text = if (connectivityStatus != ConnectivityStatus.CONNECTED)
+        text = if (!connectivityStatus.isConnected())
           stringResource(R.string.status_connect)
         else stringResource(R.string.status_disconnect)
       )
 
-      AnimatedVisibility(visible = connectivityStatus == ConnectivityStatus.CONNECTING) {
+      AnimatedVisibility(visible = connectivityStatus.isConnecting()) {
         ThemeButton(
           onClick = onDisconnect,
           modifier = Modifier

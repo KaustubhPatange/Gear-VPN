@@ -37,7 +37,11 @@ enum class ConnectivityStatus {
   CONNECTING,
   CONNECTED,
   DISCONNECT,
-  RECONNECTING
+  RECONNECTING;
+
+  fun isConnecting(): Boolean = this == CONNECTING || this == RECONNECTING
+  fun isConnected(): Boolean = this == CONNECTED
+  fun isDisconnected(): Boolean = this == NONE || this == DISCONNECT
 }
 
 private enum class CircularAnimateState {

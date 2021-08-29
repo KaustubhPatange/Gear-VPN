@@ -92,6 +92,11 @@ open class VpnHelper(
     return service.isConnected
   }
 
+  fun hasConnectionStarted() : Boolean {
+    val service = openVpnService ?: return false
+    return service.hasConnectionStarted()
+  }
+
   /**
    * Connect to [server] otherwise will use [currentServer].
    */
@@ -166,11 +171,6 @@ open class VpnHelper(
     } catch (e: Exception) {
       onStartVpnFailed(e)
     }
-  }
-
-  private fun hasConnectionStarted() : Boolean {
-    val service = openVpnService ?: return false
-    return service.hasConnectionStarted()
   }
 
   private val broadcastReceiver = object : BroadcastReceiver() {

@@ -82,6 +82,17 @@ object Notifications {
     NotificationManagerCompat.from(this).notify(NOTIFICATION_VPN_ACTION_REQUIRED, builder.build())
   }
 
+  fun createNoInternetNotification(context: Context): Unit = with(context) {
+    val builder = NotificationCompat.Builder(this, COMMON_ALERT_CHANNEL).apply {
+      setContentTitle(getString(R.string.notify_no_net))
+      setContentText(getString(R.string.notify_no_net_text))
+      setSmallIcon(R.drawable.ic_logo_error)
+      setAutoCancel(true)
+    }
+
+    NotificationManagerCompat.from(this).notify(NOTIFICATION_NO_INTERNET, builder.build())
+  }
+
   private fun cancel(context: Context, id: Int) {
     NotificationManagerCompat.from(context).cancel(id)
   }
@@ -93,4 +104,5 @@ object Notifications {
   private const val NOTIFICATION_REFRESH = 132
   private const val NOTIFICATION_UPDATE = 133
   private const val NOTIFICATION_VPN_ACTION_REQUIRED = 134
+  private const val NOTIFICATION_NO_INTERNET = 135
 }

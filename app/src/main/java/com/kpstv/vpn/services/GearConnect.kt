@@ -8,6 +8,7 @@ import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.extensions.asVpnConfig
 import com.kpstv.vpn.extensions.utils.FlagUtils
+import com.kpstv.vpn.extensions.utils.NetworkMonitor
 import com.kpstv.vpn.extensions.utils.Notifications
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
@@ -18,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -44,12 +46,16 @@ class GearConnect : TileService() {
 
     serviceJob = SupervisorJob()
 
-    ensureTitleStatus(vpnHelper.connectionStatus.value)
+    ensureTitleStatus(
+      isConnected = NetworkMonitor.connection.value,
+      status = vpnHelper.connectionStatus.value
+    )
 
     CoroutineScope(serviceJob + Dispatchers.IO).launch {
-      vpnHelper.connectionStatus.collect { status ->
-        ensureTitleStatus(status)
-      }
+      vpnHelper.connectionStatus.combine(NetworkMonitor.connection) { status, isConnected -> status to isConnected }
+        .collect { (status: VpnConnectionStatus, isConnected: Boolean) ->
+          ensureTitleStatus(isConnected, status)
+        }
     }
     CoroutineScope(serviceJob + Dispatchers.IO).launch {
       vpnHelper.commandState.collect { command ->
@@ -64,7 +70,9 @@ class GearConnect : TileService() {
   override fun onClick() {
     connectJob = SupervisorJob()
     CoroutineScope(connectJob + Dispatchers.Main).launch {
-      if (vpnHelper.isConnected()) {
+      if (!NetworkMonitor.connection.value) {
+        Notifications.createNoInternetNotification(this@GearConnect)
+      } else if (vpnHelper.isConnected()) {
         qsTile?.state = Tile.STATE_UNAVAILABLE
         qsTile?.updateTile()
 
@@ -81,8 +89,10 @@ class GearConnect : TileService() {
     serviceJob.cancel()
   }
 
-  private fun ensureTitleStatus(status: VpnConnectionStatus) {
-    if (status is VpnConnectionStatus.Connected || vpnHelper.isConnected()) {
+  private fun ensureTitleStatus(isConnected: Boolean, status: VpnConnectionStatus) {
+    if (!isConnected && !vpnHelper.isConnected()) {
+      ensureNotConnectedStatus()
+    } else if (status is VpnConnectionStatus.Connected || vpnHelper.isConnected()) {
       ensureConnectedStatus()
     } else if (status is VpnConnectionStatus.Disconnected) {
       ensureOriginalStatus()
@@ -113,6 +123,12 @@ class GearConnect : TileService() {
   private fun ensureOriginalStatus() {
     qsTile?.state = Tile.STATE_INACTIVE
     qsTile?.label = getString(R.string.gear_connect)
+    qsTile?.updateTile()
+  }
+
+  private fun ensureNotConnectedStatus() {
+    qsTile?.state = Tile.STATE_UNAVAILABLE
+    qsTile?.label = getString(R.string.tile_gear_no_net)
     qsTile?.updateTile()
   }
 

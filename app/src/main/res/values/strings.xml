@@ -88,4 +88,7 @@
 
     <string name="tile_gear_connected">Connected:\n%1$s - %2$s</string>
     <string name="tile_gear_connecting">Connecting</string>
+    <string name="tile_gear_no_net">No Internet</string>
+    <string name="notify_no_net">Unable to connect</string>
+    <string name="notify_no_net_text">No internet connect available for VPN</string>
 </resources>
