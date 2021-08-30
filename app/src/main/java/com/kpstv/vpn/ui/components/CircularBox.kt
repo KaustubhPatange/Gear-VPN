@@ -37,7 +37,11 @@ enum class ConnectivityStatus {
   CONNECTING,
   CONNECTED,
   DISCONNECT,
-  RECONNECTING
+  RECONNECTING;
+
+  fun isConnecting(): Boolean = this == CONNECTING || this == RECONNECTING
+  fun isConnected(): Boolean = this == CONNECTED
+  fun isDisconnected(): Boolean = this == NONE || this == DISCONNECT
 }
 
 private enum class CircularAnimateState {
@@ -432,11 +436,13 @@ fun CircularBox(
       }
       ConnectivityStatus.DISCONNECT -> {
         // ensure connected state
-        circularState.value = CircularAnimateState.SHRINK_OUT_BIT
-        alphaArc.snapTo(1f)
-        alphaText.snapTo(1f)
-        updateTextState()
-        arcOffsetState.value = dashSizePx / 1.2f
+        if (circularState.value != CircularAnimateState.ROTATE) {
+          circularState.value = CircularAnimateState.SHRINK_OUT_BIT
+          alphaArc.snapTo(1f)
+          alphaText.snapTo(1f)
+          updateTextState()
+          arcOffsetState.value = dashSizePx / 1.2f
+        }
 
         circularState.value = CircularAnimateState.SHRINK_IN
         delay(600)

@@ -30,7 +30,7 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
       super.onStart(owner)
     }
     override fun onStop(owner: LifecycleOwner) {
-      saveVpnConfigState()
+//      saveVpnConfigState()
       super.onPause(owner)
     }
     override fun onDestroy(owner: LifecycleOwner) {
@@ -71,7 +71,10 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
         }
         if (state is VpnConnectionStatus.Connected) {
           // save the last connected vpn config
-          currentServer?.let { Settings.setLastVpnConfig(it) }
+          currentServer?.let { server ->
+            vpnViewModel.changeServer(server)
+            Settings.setLastVpnConfig(server)
+          }
         }
       }
     }
@@ -88,6 +91,10 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
   override fun onStartVpnFailed(exception: Exception) {
     exception.printStackTrace()
     Toasty.error(activity, activity.getString(R.string.vpn_error, exception.message)).show()
+  }
+
+  override fun onStopVpnFailed(exception: Exception) {
+    exception.printStackTrace()
   }
 
   override fun onPrepareVpnFailed() {

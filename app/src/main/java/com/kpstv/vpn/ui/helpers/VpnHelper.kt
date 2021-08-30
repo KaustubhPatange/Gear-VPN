@@ -15,7 +15,6 @@ import de.blinkt.openvpn.OpenVpnApi
 import de.blinkt.openvpn.core.OpenVPNService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
-import kotlin.contracts.contract
 
 // Some implementations are taken from
 // https://github.com/KaustubhPatange/Moviesy/blob/master/app/src/main/java/com/kpstv/yts/vpn/VPNHelper.kt
@@ -24,28 +23,37 @@ open class VpnHelper(
   private val context: Context,
   private val lifecycleScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) {
-  var currentServer: VpnConfig? = null
-    private set
-
-  private var isVpnStarted: Boolean = false
+  private var _currentServer: VpnConfig? = null
+  var currentServer: VpnConfig?
+    get() {
+      val server = getSavedVpnConfigState()
+      if (server != null) {
+        return server
+      }
+      return _currentServer
+    }
+    private set(value) {
+      _currentServer = value
+      saveVpnConfigState()
+    }
 
   private var openVpnService: OpenVPNService? = null
 
   private var disposeJob = SupervisorJob()
 
-  fun init() {
+  open fun init() {
     LocalBroadcastManager.getInstance(context)
       .registerReceiver(broadcastReceiver, IntentFilter("connectionState"))
     bindToVPNService()
   }
 
-  fun dispose() {
-    context.unbindService(serviceConnection)
-    openVpnService = null
+  open fun dispose() {
     LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver)
+    openVpnService = null
+    context.unbindService(serviceConnection)
   }
 
-  fun saveVpnConfigState() {
+  private fun saveVpnConfigState() {
     val service = openVpnService ?: return
     service.currentServer = currentServer?.asShared()
   }
@@ -66,6 +74,8 @@ open class VpnHelper(
 
   open fun onStartVpnFailed(exception: Exception) {}
 
+  open fun onStopVpnFailed(exception: Exception) {}
+
   open fun onPrepareVpnFailed() {}
 
   open fun onRequestPermissionForVPN(intent: Intent) {}
@@ -77,11 +87,21 @@ open class VpnHelper(
    */
   open fun onConnectionTimeout() {}
 
+  fun isConnected(): Boolean {
+    val service = openVpnService ?: return false
+    return service.isConnected
+  }
+
+  fun hasConnectionStarted() : Boolean {
+    val service = openVpnService ?: return false
+    return service.hasConnectionStarted()
+  }
+
   /**
    * Connect to [server] otherwise will use [currentServer].
    */
   fun connect(server: VpnConfig) {
-    if (isVpnStarted) stopVpn()
+    if (hasConnectionStarted()) stopVpn()
     prepareVpn(server)
   }
 
@@ -100,7 +120,7 @@ open class VpnHelper(
    */
   suspend fun reconnect(): Boolean {
     val currentServer = currentServer
-    if (isVpnStarted && currentServer != null) {
+    if (hasConnectionStarted() && currentServer != null) {
       // filthy hack to reconnect vpn
       stopVpn()
       delay(1000)
@@ -113,17 +133,16 @@ open class VpnHelper(
   private fun stopVpn(): Boolean {
     try {
       openVpnService?.stopVPN(false)
-      isVpnStarted = false
       return true
     } catch (e: Exception) {
-      e.printStackTrace()
+      onStopVpnFailed(e)
     }
     return false
   }
 
   private fun prepareVpn(server: VpnConfig) {
     this.currentServer = server
-    if (!isVpnStarted) {
+    if (!hasConnectionStarted()) {
       val intent = VpnService.prepare(context)
       if (intent != null) {
         onRequestPermissionForVPN(intent)
@@ -148,7 +167,6 @@ open class VpnHelper(
           disallowedApps = disallowedApps?.toHashSet() ?: HashSet()
         )
       }
-      isVpnStarted = true
       disposeAfterTimeout()
     } catch (e: Exception) {
       onStartVpnFailed(e)
@@ -181,8 +199,6 @@ open class VpnHelper(
       val lastPacketReceive = intent.getStringExtra("lastPacketReceive") ?: "0"
       val bytesIn = intent.getStringExtra("byteIn") ?: " "
       val bytesOut = intent.getStringExtra("byteOut") ?: " "*/
-
-//      android.util.Log.d("VpnHelper", "Status: ${intent.getStringExtra("state")}")
     }
   }
 
@@ -196,10 +212,12 @@ open class VpnHelper(
   }
 
   private fun bindToVPNService() {
-    val serviceIntent = Intent(context, OpenVPNService::class.java).apply {
-      action = OpenVPNService.START_SERVICE
+    if (openVpnService == null) {
+      val serviceIntent = Intent(context, OpenVPNService::class.java).apply {
+        action = OpenVPNService.START_SERVICE
+      }
+      context.bindService(serviceIntent, serviceConnection, 0)
     }
-    context.bindService(serviceIntent, serviceConnection, 0)
   }
 
   private val serviceConnection = object : ServiceConnection {
@@ -208,6 +226,7 @@ open class VpnHelper(
       if (restoreVpnConfigState()) {
         onServiceConnected()
       }
+      saveVpnConfigState()
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {

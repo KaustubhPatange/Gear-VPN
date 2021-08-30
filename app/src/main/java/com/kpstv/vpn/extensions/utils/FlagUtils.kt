@@ -14,6 +14,13 @@ object FlagUtils {
     return null
   }
 
+  fun getAsCountryShortForms(country: String) : String {
+    if (country.contains("\\s".toRegex())) {
+      return country.split("\\s".toRegex()).joinToString { it.first().toString() }
+    }
+    return country
+  }
+
   private const val FlagJson: String = """
     {
       "Korea": "https://cdn.countryflags.com/thumbs/south-korea/flag-round-250.png",
