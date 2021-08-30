@@ -25,14 +25,6 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
   private val vpnViewModel by activity.viewModels<VpnViewModel>()
 
   private val lifecycleObserver = object : DefaultLifecycleObserver {
-    override fun onStart(owner: LifecycleOwner) {
-      onServiceConnected()
-      super.onStart(owner)
-    }
-    override fun onStop(owner: LifecycleOwner) {
-//      saveVpnConfigState()
-      super.onPause(owner)
-    }
     override fun onDestroy(owner: LifecycleOwner) {
       dispose()
       super.onDestroy(owner)

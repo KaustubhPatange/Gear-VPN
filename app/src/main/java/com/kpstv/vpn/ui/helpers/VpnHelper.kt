@@ -223,9 +223,8 @@ open class VpnHelper(
   private val serviceConnection = object : ServiceConnection {
     override fun onServiceConnected(name: ComponentName?, binder: IBinder) {
       openVpnService = (binder as OpenVPNService.LocalBinder).service
-      if (restoreVpnConfigState()) {
-        onServiceConnected()
-      }
+      restoreVpnConfigState()
+      onServiceConnected()
       saveVpnConfigState()
     }
 
