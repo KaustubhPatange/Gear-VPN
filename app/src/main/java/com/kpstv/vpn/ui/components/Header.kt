@@ -79,6 +79,7 @@ fun Header(title: String, onBackButton: () -> Unit = {}, actionRow: @Composable 
 fun HeaderButton(
   @DrawableRes icon: Int,
   contentDescription: String?,
+  modifier: Modifier = Modifier,
   tooltip: String? = null,
   tooltipOffset: IntOffset = IntOffset.Zero,
   enabled: Boolean = true,
@@ -87,7 +88,7 @@ fun HeaderButton(
 ) {
 
   Box(
-    modifier = Modifier
+    modifier = modifier
       .tooltipClickable(
         onClick = onClick,
         enabled = enabled,

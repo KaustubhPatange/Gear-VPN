@@ -26,8 +26,8 @@ object NoServerDialog : DialogRoute
 fun EmptyVpnDialog(show: Boolean = false) {
   val controller = findController(NavigationRoute::class)
 
-  controller.CreateDialog(key = NoServerDialog::class) { _, dismiss ->
-    DialogContent(dismiss = dismiss)
+  controller.CreateDialog(key = NoServerDialog::class) {
+    DialogContent(dismiss = ::dismiss)
   }
 
   if (show) controller.showDialog(NoServerDialog)
