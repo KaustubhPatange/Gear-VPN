@@ -12,6 +12,7 @@ import com.kpstv.navigation.compose.Route
 import com.kpstv.navigation.compose.SlideRight
 import com.kpstv.vpn.extensions.asVpnConfig
 import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.dialogs.WelcomeDialogScreen
 import com.kpstv.vpn.ui.helpers.BillingHelper
 import com.kpstv.vpn.ui.sheets.PremiumBottomSheet
 import kotlinx.coroutines.Dispatchers
@@ -138,12 +139,17 @@ fun NavigationScreen(
       )
     }
 
+    /* Connection Status : An overlay on status bar */
     ConnectionStatusBox()
 
+    /* Premium Bottom Sheet */
     PremiumBottomSheet(
       premiumBottomSheet = premiumBottomSheet,
       isPremiumUnlocked = isPremiumUnlocked.value,
       onPremiumClick = onPurchaseClick
     )
+
+    /* Welcome Dialog */
+    WelcomeDialogScreen()
   }
 }

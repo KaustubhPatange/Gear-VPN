@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
@@ -78,8 +79,9 @@ fun Header(title: String, onBackButton: () -> Unit = {}, actionRow: @Composable 
 @Composable
 fun HeaderButton(
   @DrawableRes icon: Int,
-  contentDescription: String?,
   modifier: Modifier = Modifier,
+  iconTint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
+  contentDescription: String?,
   tooltip: String? = null,
   tooltipOffset: IntOffset = IntOffset.Zero,
   enabled: Boolean = true,
@@ -110,6 +112,7 @@ fun HeaderButton(
     CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
       Icon(
         painter = painterResource(icon),
+        tint = iconTint,
         contentDescription = contentDescription
       )
     }

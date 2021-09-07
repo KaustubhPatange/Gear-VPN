@@ -82,7 +82,7 @@
     <string name="server_filter">Filters</string>
     <string name="apps_dialog_select_all">Select all</string>
     <string name="apps_dialog_deselect_all">Deselect all</string>
-    <string name="apps_dialog_search">Search</string>
+    <string name="apps_dialog_search">Search"Welcome to Gear VPN"</string>
     <string name="gear_connect">Gear connect</string>
     <string name="vpn_action_required_title">User action required</string>
     <string name="vpn_action_required_text">Couldn\'t establish VPN connection automatically.\nKindly connect manually one time to grant access.</string>
@@ -92,4 +92,10 @@
     <string name="tile_gear_no_net">No Internet</string>
     <string name="notify_no_net">Unable to connect</string>
     <string name="notify_no_net_text">No internet connect available for VPN</string>
+    <string name="next">Next (%1$d/%2$d)</string>
+    <string name="finish">Finish</string>
+    <string name="welcome_welcome">Welcome</string>
+    <string name="welcome_text">The app uses servers served by OpenVPN community, so there are high chances some of them may not connect.\n\nIn such case you should try other servers or import a custom VPN server configuration.</string>
+    <string name="feature_title">Feature: %1$s</string>
+    <string name="feature_gear_connect">Quickly connect to a random VPN through quick settings without opening the app.</string>
 </resources>

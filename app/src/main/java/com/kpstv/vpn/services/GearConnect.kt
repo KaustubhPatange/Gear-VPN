@@ -90,9 +90,9 @@ class GearConnect : TileService() {
   }
 
   private fun ensureTitleStatus(isConnected: Boolean, status: VpnConnectionStatus) {
-    if (!isConnected && !vpnHelper.isConnected()) {
+    /*if (!isConnected && !vpnHelper.isConnected()) {
       ensureNotConnectedStatus()
-    } else if (status is VpnConnectionStatus.Connected || vpnHelper.isConnected()) {
+    } else */if (status is VpnConnectionStatus.Connected || vpnHelper.isConnected()) {
       ensureConnectedStatus()
     } else if (status is VpnConnectionStatus.Disconnected) {
       ensureOriginalStatus()

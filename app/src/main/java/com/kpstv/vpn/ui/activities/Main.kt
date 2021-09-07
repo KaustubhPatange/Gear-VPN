@@ -8,6 +8,7 @@ import androidx.compose.material.Surface
 import androidx.lifecycle.coroutineScope
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.kpstv.navigation.compose.ComposeNavigator
+import com.kpstv.vpn.extensions.CoilCustomImageLoader
 import com.kpstv.vpn.extensions.SlideTopTransition
 import com.kpstv.vpn.extensions.utils.AppUtils.setEdgeToEdgeSystemUiFlags
 import com.kpstv.vpn.extensions.utils.Initializer
@@ -38,8 +39,10 @@ class Main : ComponentActivity() {
     setContent {
       ComposeTestTheme {
         ProvideWindowInsets {
-          Surface(color = MaterialTheme.colors.background) {
-            NavigationScreen(navigator = navigator, billingHelper = billingHelper)
+          CoilCustomImageLoader {
+            Surface(color = MaterialTheme.colors.background) {
+              NavigationScreen(navigator = navigator, billingHelper = billingHelper)
+            }
           }
         }
       }
