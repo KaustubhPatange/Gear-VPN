@@ -32,6 +32,10 @@ sealed interface NavigationRoute : Route {
   @Immutable
   data class Import(private val noArg: String = "") : NavigationRoute
 
+  @Parcelize
+  @Immutable
+  data class About(private val noArg: String = "") : NavigationRoute
+
   companion object {
     val key = NavigationRoute::class
   }
@@ -86,6 +90,14 @@ fun NavigationScreen(
             }
           }
         },
+        onToAboutScreen = {
+          controller.navigateTo(NavigationRoute.About()) {
+            withAnimation {
+              target = SlideTop
+              current = Fade
+            }
+          }
+        },
         onConnectClick = {
           viewModel.connect()
         },
@@ -135,6 +147,10 @@ fun NavigationScreen(
         },
         isPremiumUnlocked = isPremiumUnlocked.value,
         onPremiumClick = onPremiumClick,
+        goBack = { controller.goBack() }
+      )
+      // About screen
+      is NavigationRoute.About -> AboutScreen(
         goBack = { controller.goBack() }
       )
     }

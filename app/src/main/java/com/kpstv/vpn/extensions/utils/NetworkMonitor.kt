@@ -52,6 +52,11 @@ object NetworkMonitor {
     )
   }
 
+  // forcefully fire network changes
+  fun forceUpdate() {
+    fireNetworkChanges()
+  }
+
   private fun fireNetworkChanges() {
     connectionStateFlow.tryEmit(networks.size > 0)
     Logger.d("NetworkMonitor Status: ${connection.value}")

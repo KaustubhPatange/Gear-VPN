@@ -71,7 +71,7 @@ fun AppDropdownCheckBoxItem(text: String, checked: Boolean, onClick: () -> Unit)
 }
 
 @Composable
-fun AppDropdownIconItem(painter: Painter, contentDescription: String, onClick: () -> Unit) {
+fun AppDropdownIconItem(title: String, painter: Painter, contentDescription: String, onClick: () -> Unit) {
   DropdownMenuItem(
     onClick = onClick
   ) {
@@ -80,9 +80,9 @@ fun AppDropdownIconItem(painter: Painter, contentDescription: String, onClick: (
         painter = painter,
         contentDescription = contentDescription
       )
-      Spacer(modifier = Modifier.weight(1f))
+      Spacer(modifier = Modifier.width(5.dp))
       Text(
-        text = stringResource(R.string.filter_apps),
+        text = title,
         modifier = Modifier
           .align(Alignment.CenterVertically)
           .padding(horizontal = 5.dp),

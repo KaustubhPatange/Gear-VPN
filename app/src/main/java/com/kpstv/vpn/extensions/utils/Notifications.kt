@@ -93,6 +93,21 @@ object Notifications {
     NotificationManagerCompat.from(this).notify(NOTIFICATION_NO_INTERNET, builder.build())
   }
 
+  fun createAuthenticationFailedNotification(context: Context, serverName: String, serverIp: String): Unit = with(context) {
+    val builder = NotificationCompat.Builder(this, COMMON_ALERT_CHANNEL).apply {
+      setContentTitle(getString(R.string.notification_auth_fail))
+      setStyle(NotificationCompat.BigTextStyle().bigText(getString(R.string.notification_auth_fail_text, serverName, serverIp)))
+      setSmallIcon(R.drawable.ic_logo_error)
+      setAutoCancel(true)
+    }
+
+    NotificationManagerCompat.from(this).notify(NOTIFICATION_AUTH_FAILED, builder.build())
+  }
+
+  fun cancelAuthenticationFailedNotification(context: Context) {
+    cancel(context, NOTIFICATION_AUTH_FAILED)
+  }
+
   private fun cancel(context: Context, id: Int) {
     NotificationManagerCompat.from(context).cancel(id)
   }
@@ -105,4 +120,5 @@ object Notifications {
   private const val NOTIFICATION_UPDATE = 133
   private const val NOTIFICATION_VPN_ACTION_REQUIRED = 134
   private const val NOTIFICATION_NO_INTERNET = 135
+  private const val NOTIFICATION_AUTH_FAILED = 136
 }

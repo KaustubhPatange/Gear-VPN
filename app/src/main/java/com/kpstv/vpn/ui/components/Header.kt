@@ -29,12 +29,11 @@ import com.kpstv.vpn.R
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 
 @Composable
-fun Header(title: String, onBackButton: () -> Unit = {}, actionRow: @Composable () -> Unit = {}) {
+fun Header(title: String, modifier: Modifier = Modifier, onBackButton: () -> Unit = {}, actionRow: @Composable () -> Unit = {}) {
   Column(
-    modifier = Modifier
+    modifier = modifier
       .background(color = MaterialTheme.colors.background.copy(alpha = 0.93f))
       .statusBarsPadding()
-      .padding(top = 5.dp)
   ) {
 
     Box(

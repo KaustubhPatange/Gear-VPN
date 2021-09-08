@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Gear VPN</string>
+    <string name="app_description"><![CDATA[Fast, Secure & Open sourced VPN based on OpenVPN.]]></string>
 
     <string name="status_connect">CONNECT</string>
     <string name="status_disconnect">DISCONNECT</string>
@@ -74,6 +75,7 @@
     <string name="dialog_empty_vpn_text"><![CDATA[There were some errors fetching VPN servers from VPN Gate & VPN Book.\n\nMake sure these websites correctly open on your device.]]></string>
     <string name="alright">Alright</string>
     <string name="filter_apps">Filter Apps</string>
+    <string name="about">About</string>
 
     <string name="enable_vpn">Enable VPN for %1$d apps</string>
     <string name="save_filters">SAVE FILTERS</string>
@@ -98,4 +100,7 @@
     <string name="welcome_text">The app uses servers served by OpenVPN community, so there are high chances some of them may not connect.\n\nIn such case you should try other servers or import a custom VPN server configuration.</string>
     <string name="feature_title">Feature: %1$s</string>
     <string name="feature_gear_connect">Quickly connect to a random VPN through quick settings without opening the app.</string>
+
+    <string name="notification_auth_fail">Authentication failed</string>
+    <string name="notification_auth_fail_text">Your previous connect to %1$s - %2$s did not succeed, kindly try again or choose a different server.</string>
 </resources>

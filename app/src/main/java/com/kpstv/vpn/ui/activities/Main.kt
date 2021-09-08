@@ -53,4 +53,9 @@ class Main : ComponentActivity() {
     updateHelper.init()
     NetworkMonitor.init(applicationContext)
   }
+
+  override fun onResume() {
+    super.onResume()
+    NetworkMonitor.forceUpdate()
+  }
 }

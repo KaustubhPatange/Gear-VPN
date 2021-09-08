@@ -22,8 +22,8 @@ Link to privacy policy of third party service providers used by the app
 Following are some third-party APIs or services the app uses. None of them collect or send any user data.
 
 - [ip-api.com](https://ip-api.com) - Used to detect the public IP for the connection request.
-- [vpngate.net](https://vpngate.net) - Provides list of free OpenVPN servers.
-- [vpnbook.com](https://vpnbook.com) - Provides list of free OpenVPN servers.
+- [vpngate.net](https://vpngate.net) - Community provided OpenVPN servers.
+- [vpnbook.com](https://vpnbook.com) - Community provided OpenVPN servers.
 
 Following are some list of permissions I used,
 

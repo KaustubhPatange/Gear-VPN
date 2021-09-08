@@ -10,10 +10,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,11 +49,12 @@ fun MainScreen(
   publicIp: String?,
   configuration: VpnConfig = VpnConfig.createEmpty(),
   connectivityStatus: ConnectivityStatus = ConnectivityStatus.NONE,
-  onToChangeServer: () -> Unit = {},
-  onConnectClick: () -> Unit = {},
-  onDisconnect: () -> Unit = {},
-  onPremiumClick: () -> Unit = {},
-  onDisallowedAppListChanged: () -> Unit = {}
+  onToChangeServer: () -> Unit,
+  onToAboutScreen: () -> Unit,
+  onConnectClick: () -> Unit,
+  onDisconnect: () -> Unit,
+  onPremiumClick: () -> Unit,
+  onDisallowedAppListChanged: () -> Unit
 ) {
   val context = LocalContext.current
 
@@ -78,10 +76,12 @@ fun MainScreen(
       .fillMaxSize()
   ) {
     Box(modifier = Modifier.fillMaxWidth()) {
+      /* Settings button */
       SettingsDropdownMenu(
         modifier = Modifier
           .align(Alignment.CenterStart)
           .padding(start = 10.dp),
+        goToAboutScreen = onToAboutScreen
       )
 
       Text(
@@ -250,7 +250,10 @@ fun MainScreen(
 }
 
 @Composable
-private fun SettingsDropdownMenu(modifier: Modifier = Modifier) {
+private fun SettingsDropdownMenu(
+  modifier: Modifier = Modifier,
+  goToAboutScreen: () -> Unit
+) {
   val expandedState = remember { mutableStateOf(false) }
 
   val dismiss = remember { { expandedState.value = false } }
@@ -276,10 +279,20 @@ private fun SettingsDropdownMenu(modifier: Modifier = Modifier) {
     offset = DpOffset(15.dp, 0.dp)
   ) {
     AppDropdownIconItem(
+      title = stringResource(R.string.filter_apps),
       painter = painterResource(R.drawable.ic_apps),
       contentDescription = "filter apps",
       onClick = {
         controller.showDialog(AppsDialog)
+        dismiss()
+      }
+    )
+    AppDropdownIconItem(
+      title = stringResource(R.string.about),
+      painter = painterResource(R.drawable.ic_help),
+      contentDescription = "about",
+      onClick = {
+        goToAboutScreen()
         dismiss()
       }
     )
@@ -291,6 +304,14 @@ private fun SettingsDropdownMenu(modifier: Modifier = Modifier) {
 @Composable
 fun PreviewStartScreen() {
   CommonPreviewTheme {
-    MainScreen(publicIp = "104.156.232.238")
+    MainScreen(
+      publicIp = "104.156.232.238",
+      onToChangeServer = {},
+      onToAboutScreen = {},
+      onDisallowedAppListChanged = {},
+      onPremiumClick = {},
+      onConnectClick = {},
+      onDisconnect = {}
+    )
   }
 }

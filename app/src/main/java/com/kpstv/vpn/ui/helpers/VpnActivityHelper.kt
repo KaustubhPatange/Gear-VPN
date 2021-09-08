@@ -13,6 +13,7 @@ import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.asVpnConfig
+import com.kpstv.vpn.extensions.utils.Notifications
 import com.kpstv.vpn.ui.viewmodels.VpnViewModel
 import de.blinkt.openvpn.OpenVpnApi
 import de.blinkt.openvpn.core.OpenVPNService
@@ -57,9 +58,16 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
         if (state is VpnConnectionStatus.Commands.NewConnection) {
           // new server
           connect(state.server)
+
+          // dismiss auth failed notification
+          Notifications.cancelAuthenticationFailedNotification(activity)
         }
         if (state is VpnConnectionStatus.AuthenticationFailed) {
           Toasty.error(activity, getString(R.string.vpn_auth_failed)).show()
+
+          // show auth failed notification
+          val server = currentServer ?: return@collect
+          Notifications.createAuthenticationFailedNotification(activity, server.country, server.ip)
         }
         if (state is VpnConnectionStatus.Connected) {
           // save the last connected vpn config

@@ -121,7 +121,10 @@ fun ImportScreen(
     }
 
     Column {
-      Header(title = stringResource(R.string.import_config), goBack)
+      Header(
+        title = stringResource(R.string.import_config),
+        onBackButton = goBack
+      )
       if (localConfigurations.value.isEmpty()) {
         Spacer(modifier = Modifier.height(10.dp))
         ImportHeader(onItemClick = onChangeProfile)
