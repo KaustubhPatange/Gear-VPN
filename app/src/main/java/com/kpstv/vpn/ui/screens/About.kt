@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsHeight
-import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.vpn.BuildConfig
 import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrl
@@ -47,7 +46,7 @@ fun AboutScreen(goBack: () -> Unit) {
       initialValue = 0F,
       targetValue = -360F,
       animationSpec = infiniteRepeatable(
-        animation = tween(30000, easing = LinearEasing, delayMillis = 1000)
+        animation = tween(60000, easing = LinearEasing)
       )
     )
 

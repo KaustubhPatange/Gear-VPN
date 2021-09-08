@@ -9,13 +9,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
-import com.kpstv.vpn.R
 
 @Composable
 fun AppDropdownMenu(
@@ -30,8 +27,7 @@ fun AppDropdownMenu(
   DropdownMenu(
     expanded = expandedState.value,
     modifier = modifier
-      .background(MaterialTheme.colors.primaryVariant)
-      .width(150.dp),
+      .background(MaterialTheme.colors.primaryVariant),
     onDismissRequest = { expandedState.value = false },
     offset = offset,
     properties = properties,
@@ -71,24 +67,30 @@ fun AppDropdownCheckBoxItem(text: String, checked: Boolean, onClick: () -> Unit)
 }
 
 @Composable
-fun AppDropdownIconItem(title: String, painter: Painter, contentDescription: String, onClick: () -> Unit) {
+fun AppDropdownIconItem(
+  title: String,
+  painter: Painter,
+  contentDescription: String,
+  onClick: () -> Unit
+) {
   DropdownMenuItem(
     onClick = onClick
   ) {
-    Row {
-      Icon(
-        painter = painter,
-        contentDescription = contentDescription
-      )
-      Spacer(modifier = Modifier.width(5.dp))
-      Text(
-        text = title,
-        modifier = Modifier
-          .align(Alignment.CenterVertically)
-          .padding(horizontal = 5.dp),
-        color = MaterialTheme.colors.onSecondary,
-        style = MaterialTheme.typography.button.copy(fontSize = 16.sp)
-      )
-    }
+    Icon(
+      modifier = Modifier.size(24.dp),
+      painter = painter,
+      contentDescription = contentDescription
+    )
+    Spacer(modifier = Modifier.width(5.dp))
+    Text(
+      text = title,
+      modifier = Modifier
+        .align(Alignment.CenterVertically)
+        .padding(horizontal = 5.dp),
+      maxLines = 1,
+      softWrap = false,
+      color = MaterialTheme.colors.onSecondary,
+      style = MaterialTheme.typography.button.copy(fontSize = 16.sp)
+    )
   }
 }

@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import es.dmoral.toasty.Toasty
 
 
 object AppUtils {
@@ -40,9 +41,13 @@ object AppUtils {
   }
 
   fun Context.launchUrl(url: String) {
-    Intent(Intent.ACTION_VIEW).apply {
-      data = Uri.parse(url)
-      startActivity(this)
+    try {
+      Intent(Intent.ACTION_VIEW).apply {
+        data = Uri.parse(url)
+        startActivity(this)
+      }
+    } catch (e: Exception) {
+      Toasty.error(this, getString(com.kpstv.vpn.R.string.error_no_activity_url)).show()
     }
   }
 }
