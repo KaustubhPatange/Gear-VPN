@@ -1,5 +1,6 @@
 package com.kpstv.vpn.ui.helpers
 
+import android.app.ActivityManager
 import android.content.*
 import android.graphics.Color
 import android.net.VpnService
@@ -38,6 +39,7 @@ open class VpnHelper(
     }
 
   private var openVpnService: OpenVPNService? = null
+  private var serviceBinded: Boolean = false
 
   private var disposeJob = SupervisorJob()
 
@@ -50,7 +52,10 @@ open class VpnHelper(
   open fun dispose() {
     LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver)
     openVpnService = null
-    context.unbindService(serviceConnection)
+    if (serviceBinded) {
+      context.unbindService(serviceConnection)
+    }
+    serviceBinded = false
   }
 
   private fun saveVpnConfigState() {
@@ -222,6 +227,7 @@ open class VpnHelper(
 
   private val serviceConnection = object : ServiceConnection {
     override fun onServiceConnected(name: ComponentName?, binder: IBinder) {
+      serviceBinded = true
       openVpnService = (binder as OpenVPNService.LocalBinder).service
       restoreVpnConfigState()
       onServiceConnected()
@@ -229,6 +235,7 @@ open class VpnHelper(
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
+      serviceBinded = false
       openVpnService = null
       context.unbindService(this)
     }

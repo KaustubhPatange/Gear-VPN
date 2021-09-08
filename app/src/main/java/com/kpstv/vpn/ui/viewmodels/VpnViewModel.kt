@@ -58,9 +58,15 @@ class VpnViewModel @Inject constructor(
           is VpnConnectionStatus.Disconnected -> {
             connectivityStatusStateFlow.emit(ConnectivityStatus.DISCONNECT)
           }
-          is VpnConnectionStatus.Connected -> connectivityStatusStateFlow.emit(ConnectivityStatus.CONNECTED)
+          is VpnConnectionStatus.Connected -> {
+            connectivityStatusStateFlow.emit(ConnectivityStatus.CONNECTED)
+          }
           else -> connectivityStatusStateFlow.emit(ConnectivityStatus.CONNECTING)
         }
+      }
+    }
+    viewModelScope.launch {
+      connectivityStatusStateFlow.collect { value ->
       }
     }
   }

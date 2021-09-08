@@ -103,7 +103,7 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
   override fun onServiceConnected() {
     val server = currentServer ?: return
     vpnViewModel.changeServer(server)
-    vpnViewModel.setPreConnectionStatus()
+    if (isConnected()) vpnViewModel.setPreConnectionStatus()
   }
 
   class VPNServiceContract : ActivityResultContract<Intent, Boolean>() {
