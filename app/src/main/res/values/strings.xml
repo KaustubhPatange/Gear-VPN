@@ -105,4 +105,7 @@
     <string name="notification_auth_fail_text">Your previous connect to %1$s - %2$s did not succeed, kindly try again or choose a different server.</string>
     <string name="error_no_activity_url">Could not find a browser to launch a url</string>
     <string name="vpn_request_denied">VPN connection request denied</string>
+    <string name="how_to_title">How To Use</string>
+    <string name="how_to_desc">Once all servers are loaded select one of your choice &amp; click \"Connect\".</string>
+    <string name="feature_split_text">Filter apps to exclude/include from VPN access.</string>
 </resources>

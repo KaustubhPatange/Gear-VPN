@@ -85,7 +85,9 @@ private fun WelcomeDialog() {
         ) { _, dest ->
           when (dest) {
             is WelcomeScreenRoute.Welcome -> WelcomeScreen()
-            is WelcomeScreenRoute.GearConnect -> GearConnectScreen()
+            is WelcomeScreenRoute.HowTo -> HowToScreen()
+            is WelcomeScreenRoute.FeatureSplitTunnel -> SplitTunnelScreen()
+            is WelcomeScreenRoute.FeatureGearConnect -> GearConnectScreen()
           }
         }
 
@@ -161,9 +163,27 @@ private fun WelcomeScreen() {
 }
 
 @Composable
+private fun HowToScreen() {
+  FeatureScreen(
+    name = stringResource(R.string.how_to_title),
+    gif = R.drawable.how_to,
+    description = stringResource(R.string.how_to_desc)
+  )
+}
+
+@Composable
+private fun SplitTunnelScreen() {
+  FeatureScreen(
+    name = stringResource(R.string.feature_title, "Split tunnel"),
+    gif = R.drawable.feature_split_tunnel,
+    description = stringResource(R.string.feature_split_text)
+  )
+}
+
+@Composable
 private fun GearConnectScreen() {
   FeatureScreen(
-    name = "Gear Connect",
+    name = stringResource(R.string.feature_title, "Gear Connect"),
     gif = R.drawable.feature_gear_connect,
     description = stringResource(R.string.feature_gear_connect)
   )
@@ -177,7 +197,7 @@ private fun FeatureScreen(name: String, @DrawableRes gif: Int, description: Stri
       .padding(20.dp)
   ) {
     Text(
-      text = stringResource(R.string.feature_title, name),
+      text = name,
       style = MaterialTheme.typography.h5.copy(fontSize = 22.sp)
     )
     Spacer(modifier = Modifier.height(30.dp))
@@ -217,22 +237,30 @@ private sealed class WelcomeScreenRoute(val index: Int) : DialogRoute {
   object Welcome : WelcomeScreenRoute(0)
 
   @Parcelize
-  object GearConnect : WelcomeScreenRoute(1)
+  object HowTo : WelcomeScreenRoute(1)
+
+  @Parcelize
+  object FeatureSplitTunnel : WelcomeScreenRoute(2)
+
+  @Parcelize
+  object FeatureGearConnect : WelcomeScreenRoute(3)
 
   companion object {
-    const val totalScreens = 2
+    const val totalScreens = 4
     val key = WelcomeScreenRoute::class
   }
 }
 
 private fun WelcomeScreenRoute.next(): WelcomeScreenRoute? {
   return when (this) {
-    WelcomeScreenRoute.Welcome -> WelcomeScreenRoute.GearConnect
-    WelcomeScreenRoute.GearConnect -> null
+    WelcomeScreenRoute.Welcome -> WelcomeScreenRoute.HowTo
+    WelcomeScreenRoute.HowTo -> WelcomeScreenRoute.FeatureSplitTunnel
+    WelcomeScreenRoute.FeatureSplitTunnel -> WelcomeScreenRoute.FeatureGearConnect
+    WelcomeScreenRoute.FeatureGearConnect -> null
   }
 }
 
-private fun WelcomeScreenRoute.isLast() = this is WelcomeScreenRoute.GearConnect
+private fun WelcomeScreenRoute.isLast() = this is WelcomeScreenRoute.FeatureGearConnect
 
 @Preview
 @Composable

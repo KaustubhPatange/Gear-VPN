@@ -56,6 +56,9 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
 
       for(ele in elements) {
         val url = "https://www.vpnbook.com${ele.attr("href")}"
+        val name = nameRegex.find(url)?.groups?.get(1)?.value ?: "-1"
+
+        Logger.d("Download configs for $name")
 
         val stream = URL(url).openStream()
         val bytes = stream.readBytes()
@@ -88,7 +91,6 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
 
         zipStream.close()
 
-        val name = nameRegex.find(url)?.groups?.get(1)?.value ?: "-1"
 
         val configuration = VpnConfiguration.createEmpty().copy(
           country = countryMap.getOrElse(name) { "Unknown" },
@@ -99,6 +101,8 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
           password = password,
           ip = ip ?: "Unknown"
         )
+
+        Logger.d("Ip: ${configuration.ip}, Has TCP: ${configTCP != null}, Has UDP: ${configUDP != null}")
 
         vpnConfigurations.add(configuration)
         onNewConfigurationAdded.invoke(formatConfiguration(vpnConfigurations))

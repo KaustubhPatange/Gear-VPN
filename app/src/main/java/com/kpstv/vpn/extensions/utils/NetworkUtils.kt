@@ -107,8 +107,9 @@ class NetworkUtils @Inject constructor() {
 
     sslSocketFactory(insecureSocketFactory, naiveTrustManager)
     hostnameVerifier { hostname, _ ->
-      return@hostnameVerifier (hostname.equals("www.vpngate.net") || hostname.equals("www.vpnbook.com")
-          || hostname.equals("raw.githubusercontent.com"))
+      return@hostnameVerifier hostname.contains(
+        "vpngate|vpnbook|github|ip-api".toRegex()
+      )
     }
     return this
   }

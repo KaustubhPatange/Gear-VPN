@@ -1,0 +1,5 @@
+Added: Split tunnel feature - Filter apps to give VPN access.
+Added: Gear connect feature - Quickly connect to VPN through quick settings.
+Added: About screen which displays useful links to websites & privacy policy.
+Added: Welcome screens to showcase some features & quick notes.
+Fixed: Some issues from crashlytics.

@@ -1,5 +1,6 @@
 package com.kpstv.vpn.ui.dialogs
 
+import android.os.Parcelable
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -62,7 +64,8 @@ fun AppsDialogMain(onDisallowedAppListChanged: () -> Unit) {
 @Parcelize
 object AppsDialog : DialogRoute
 
-private enum class DialogMode {
+@Parcelize
+private enum class DialogMode : Parcelable {
   Normal, Search
 }
 
@@ -75,9 +78,9 @@ fun AppsDialog(
   val controller = findController(key = NavigationRoute.key)
   val context = LocalContext.current
 
-  val dialogMode = remember { mutableStateOf(DialogMode.Normal) }
+  val dialogMode = rememberSaveable { mutableStateOf(DialogMode.Normal) }
 
-  val searchText = remember { mutableStateOf("") }
+  val searchText = rememberSaveable { mutableStateOf("") }
 
   controller.CreateDialog(
     key = AppsDialog::class,
@@ -171,7 +174,7 @@ fun AppsDialog(
             Settings.setDisallowedVpnApps(disallowedAppPackages.toSet())
             onDisallowedAppListChanged()
           }
-          dismiss()
+          controller.closeDialog(AppsDialog::class)
         }
       )
 
