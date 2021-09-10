@@ -6,12 +6,31 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun AutoSizeSingleLineText(
   text: String,
+  modifier: Modifier = Modifier,
+  style: TextStyle = LocalTextStyle.current,
+  color: Color = Color.Unspecified,
+  overflow: TextOverflow = TextOverflow.Clip,
+  // Add more parameters according to need
+) {
+  AutoSizeSingleLineText(
+    text = AnnotatedString(text),
+    modifier = modifier,
+    style = style,
+    color = color,
+    overflow = overflow
+  )
+}
+
+@Composable
+fun AutoSizeSingleLineText(
+  text: AnnotatedString,
   modifier: Modifier = Modifier,
   style: TextStyle = LocalTextStyle.current,
   color: Color = Color.Unspecified,

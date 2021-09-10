@@ -41,7 +41,7 @@ class VpnViewModel @Inject constructor(
         val ipData = ipApi.fetch()
         publicIpStateFlow.emit(ipData)
 
-        Logger.d("IP Info: $ipData")
+        Logger.d("IP Info: ${ipData.country}, ${ipData.city}, ${ipData.region}")
       } catch (e: Exception) {
         Logger.w(e, "Error fetching IP: (No crash)")
       }
@@ -63,10 +63,6 @@ class VpnViewModel @Inject constructor(
           }
           else -> connectivityStatusStateFlow.emit(ConnectivityStatus.CONNECTING)
         }
-      }
-    }
-    viewModelScope.launch {
-      connectivityStatusStateFlow.collect { value ->
       }
     }
   }

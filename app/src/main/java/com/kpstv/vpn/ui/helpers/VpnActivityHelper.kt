@@ -36,6 +36,9 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
     val currentServer = currentServer
     if (ok && currentServer != null) {
       connect(currentServer)
+    } else {
+      Toasty.error(activity, activity.getString(R.string.vpn_request_denied)).show()
+      disconnect(showDialog = false)
     }
   }
 
@@ -114,7 +117,7 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
     if (isConnected()) vpnViewModel.setPreConnectionStatus()
   }
 
-  class VPNServiceContract : ActivityResultContract<Intent, Boolean>() {
+  private class VPNServiceContract : ActivityResultContract<Intent, Boolean>() {
     override fun createIntent(context: Context, input: Intent): Intent {
       return input
     }

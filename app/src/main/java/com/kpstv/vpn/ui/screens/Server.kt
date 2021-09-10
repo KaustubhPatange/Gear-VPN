@@ -1,12 +1,18 @@
 package com.kpstv.vpn.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -16,7 +22,11 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -184,7 +194,7 @@ private fun HeaderDropdownMenu(expanded: Boolean = false) {
   val filterServerState = Settings.getFilterServer()
     .collectAsState(initial = Settings.DefaultFilterServer)
 
-  val dismiss = remember { {expandedState.value = false} }
+  val dismiss = remember { { expandedState.value = false } }
 
   HeaderButton(
     icon = R.drawable.ic_baseline_filter_list_24,
@@ -304,7 +314,8 @@ private fun CommonItem(
         color = if (config.premium) goldenYellow else dotColor.copy(alpha = 0.7f),
         shape = RoundedCornerShape(10.dp)
       )
-      .height(65.dp)
+//      .wrapContentHeight()
+//      .height(65.dp)
       .clickable(
         onClick = {
           if (config.premium && !isPremiumUnlocked) {
@@ -314,8 +325,8 @@ private fun CommonItem(
           }
         },
       )
-      .padding(5.dp)
       .fillMaxWidth()
+      .padding(7.dp)
   ) {
     Image(
       painter = rememberImagePainter(
@@ -327,8 +338,11 @@ private fun CommonItem(
       ),
       modifier = Modifier
         .padding(5.dp)
-        .requiredWidthIn(max = 40.dp)
-        .fillMaxHeight()
+        .size(40.dp)
+        .align(Alignment.CenterVertically)
+//        .height(40.dp)
+        /* .requiredWidthIn(max = 40.dp)
+         .fillMaxHeight()*/
         .scale(1f),
       contentDescription = "Country flag",
       contentScale = ContentScale.Fit
@@ -338,7 +352,7 @@ private fun CommonItem(
 
     Column(
       modifier = Modifier
-        .weight(1f)
+        .fillMaxWidth()
         .align(Alignment.CenterVertically)
     ) {
       Row(modifier = Modifier.fillMaxWidth()) {
@@ -355,12 +369,15 @@ private fun CommonItem(
             .weight(1f)
             .align(Alignment.CenterVertically),
           style = MaterialTheme.typography.h5.copy(fontSize = 15.sp),
-          color = MaterialTheme.colors.onSecondary
+          color = MaterialTheme.colors.onSecondary,
+          overflow = TextOverflow.Ellipsis,
+          maxLines = 1
         )
       }
       Spacer(modifier = Modifier.height(1.dp))
       AutoSizeSingleLineText(
         text = getCommonItemSubtext(config),
+        modifier = Modifier.padding(end = 5.dp),
         style = MaterialTheme.typography.subtitle2,
         color = MaterialTheme.colors.onSurface,
       )

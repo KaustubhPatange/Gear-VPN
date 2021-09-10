@@ -1,5 +1,6 @@
 package com.kpstv.vpn.extensions.utils
 
+import com.kpstv.vpn.logging.Logger
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
@@ -7,7 +8,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.IOException
-import java.net.SocketException
+import java.net.ProtocolException
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -28,9 +29,14 @@ class NetworkUtils @Inject constructor() {
      * Returns the body of the response & closes the response
      */
     fun Response.getBodyAndClose(): String? {
-      val data = body?.string()
-      body?.close()
-      return data
+      try {
+        val data = body?.string()
+        body?.close()
+        return data
+      } catch (e: ProtocolException) {
+        Logger.w(e, "Protocol exception: ${e.message}")
+      }
+      return null
     }
   }
 

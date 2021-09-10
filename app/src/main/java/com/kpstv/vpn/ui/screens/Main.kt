@@ -169,11 +169,9 @@ fun MainScreen(
           .weight(1f)
           .align(Alignment.CenterVertically)
       ) {
-        Text(
+        AutoSizeSingleLineText(
           text = configuration.country,
-          style = MaterialTheme.typography.h2,
-          overflow = TextOverflow.Ellipsis,
-          maxLines = 1
+          style = MaterialTheme.typography.h2
         )
         AutoSizeSingleLineText(
           text = stringResource(

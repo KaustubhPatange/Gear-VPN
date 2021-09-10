@@ -56,7 +56,11 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
 
       for(ele in elements) {
         val url = "https://www.vpnbook.com${ele.attr("href")}"
-        val bytes = URL(url).openStream().readBytes()
+
+        val stream = URL(url).openStream()
+        val bytes = stream.readBytes()
+        stream.close()
+
         val zipStream = ZipInputStream(ByteArrayInputStream(bytes))
 
         var configUDP: String? = null
