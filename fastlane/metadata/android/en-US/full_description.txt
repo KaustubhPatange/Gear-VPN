@@ -1,4 +1,4 @@
-Gear VPN is the world's ONLY free & open-sourced VPN service that respects your privacy and is safe to use.
+Gear VPN is a free (with paid features) & open-sourced VPN service that respects your privacy and is safe to use.
 
 Now you can access blocked websites easily with just a click using Gear VPN's Secure & Fast VPN Tunnels.
 
@@ -8,7 +8,7 @@ Gear VPN is based on OpenVPN client for Android & uses fast, secure servers avai
 
 Gear VPN is 100% free, unlimited, secured and super easy to use. You can connect to any of the servers below (United States, Korea, Japan, Indonesia, Thailand, Canada) to enjoy unlimited online privacy and freedom. 
 
-On the other hand, Gear VPN is open-sourced which means all the code for the app is completely open for others to view & contribute so you can really see if this app is not doing some things it's supposed to not do. This way any enthusiast can make sure if this app has any privacy-related issues.
+On the other hand, Gear VPN is open-sourced which means all the code for the app is completely open for others to view & contribute so you can really see if this app is not doing some things it's supposed to not do. This way any enthusiast can make sure if this app does not have any privacy-related issues.
 
 <b>Features</b>:
 
@@ -20,10 +20,12 @@ On the other hand, Gear VPN is open-sourced which means all the code for the app
 🚀 No irritating Ads
 🚀 Torrent-friendly
 🚀 No bandwidth limits
+🚀 Split tunneling
+🚀 Gear connect for quick connect
 🚀 User-friendly interface
 🚀 Shield yourself from cyber threats
 
-For developers: This app is written using Jetpack Compose (Google's new UI toolkit for developing native Android apps)
+For developers: This app is written using Jetpack Compose (Google's new UI toolkit for developing native Android apps).
 
 <b>Github</b>:
 
