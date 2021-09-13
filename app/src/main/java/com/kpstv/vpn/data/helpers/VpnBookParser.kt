@@ -24,7 +24,7 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
     val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
     var username = "vpnbook"
-    var password = "2mxt8wz"
+    var password = "e7x76mc"
 
     Logger.d("Fetching credentials for vpnbook.com")
     val appSettingResponse = networkUtils.simpleGetRequest(SettingsUrl)

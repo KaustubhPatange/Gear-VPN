@@ -5,17 +5,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kpstv.vpn.data.db.localized.LocalDao
 import com.kpstv.vpn.data.models.LocalConfiguration
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.kpstv.vpn.di.presentation.viewmodel.AssistedSavedStateViewModelFactory
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ImportViewModel @Inject constructor(
-  private val savedStateHandle: SavedStateHandle,
+class ImportViewModel @AssistedInject constructor(
+  @Assisted private val savedStateHandle: SavedStateHandle,
   private val localDao: LocalDao
 ) : ViewModel() {
   private val job = SupervisorJob()
@@ -39,4 +40,7 @@ class ImportViewModel @Inject constructor(
     job.cancel()
     super.onCleared()
   }
+
+  @AssistedFactory
+  interface Factory : AssistedSavedStateViewModelFactory<ImportViewModel>
 }

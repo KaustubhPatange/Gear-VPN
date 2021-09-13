@@ -4,6 +4,7 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.annotation.RequiresApi
+import com.kpstv.vpn.App
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.extensions.asVpnConfig
@@ -14,7 +15,6 @@ import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.helpers.VpnConnectionStatus
 import com.kpstv.vpn.ui.helpers.VpnServiceHelper
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,8 +25,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.N)
-@AndroidEntryPoint
 class GearConnect : TileService() {
+  private val appComponent get() = (application as App).appComponent
+
   private var connectJob = SupervisorJob()
   private var serviceJob = SupervisorJob()
 
@@ -36,6 +37,7 @@ class GearConnect : TileService() {
   lateinit var vpnDao: VpnDao
 
   override fun onCreate() {
+    appComponent.newServiceComponent().inject(this)
     super.onCreate()
     vpnHelper = VpnServiceHelper(this)
     vpnHelper.init()

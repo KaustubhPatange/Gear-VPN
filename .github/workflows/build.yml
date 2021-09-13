@@ -5,10 +5,12 @@ on:
       - master
     paths-ignore:
       - "README.md"
+      - "settings.json"
       - "art/**"
   pull_request:
     paths-ignore:
       - "README.md"
+      - "settings.json"
       - "art/**"
 jobs:
   buildJob:

@@ -1,25 +1,31 @@
 package com.kpstv.vpn
 
 import android.app.Application
-import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.kpstv.vpn.di.app.AppComponent
+import com.kpstv.vpn.di.app.DaggerAppComponent
+import com.kpstv.vpn.di.service.worker.InjectDaggerWorkerFactory
 import com.kpstv.vpn.logging.Logger
 import com.kpstv.vpn.extensions.utils.Notifications
 import com.kpstv.vpn.ui.helpers.Settings
-import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
-@HiltAndroidApp
 class App : Application(), Configuration.Provider {
 
-  @Inject lateinit var workerFactory: HiltWorkerFactory
+  val appComponent: AppComponent by lazy {
+    DaggerAppComponent.factory()
+      .create(this)
+  }
+
+  @Inject lateinit var workerFactory: dagger.Lazy<InjectDaggerWorkerFactory>
 
   override fun getWorkManagerConfiguration() =
     Configuration.Builder()
-      .setWorkerFactory(workerFactory)
+      .setWorkerFactory(workerFactory.get())
       .build()
 
   override fun onCreate() {
+    appComponent.inject(this)
     super.onCreate()
     Notifications.init(this)
 

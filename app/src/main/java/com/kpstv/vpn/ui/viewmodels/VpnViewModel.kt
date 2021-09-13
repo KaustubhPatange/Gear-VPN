@@ -7,18 +7,19 @@ import com.kpstv.vpn.data.api.IpApi
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.db.repository.VpnRepository
 import com.kpstv.vpn.data.models.Location
+import com.kpstv.vpn.di.presentation.viewmodel.AssistedSavedStateViewModelFactory
 import com.kpstv.vpn.logging.Logger
 import com.kpstv.vpn.ui.components.ConnectivityStatus
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.helpers.VpnConnectionStatus
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class VpnViewModel @Inject constructor(
-  private val savedStateHandle: SavedStateHandle,
+class VpnViewModel @AssistedInject constructor(
+  @Assisted private val savedStateHandle: SavedStateHandle,
   private val repository: VpnRepository,
   private val ipApi: IpApi
 ) : ViewModel() {
@@ -103,4 +104,7 @@ class VpnViewModel @Inject constructor(
   fun dispatchConnectionState(status: VpnConnectionStatus) {
     connectionStatusStateFlow.tryEmit(status)
   }
+
+  @AssistedFactory
+  interface Factory : AssistedSavedStateViewModelFactory<VpnViewModel>
 }
