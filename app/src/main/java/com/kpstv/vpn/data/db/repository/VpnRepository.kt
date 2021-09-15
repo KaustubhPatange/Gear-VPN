@@ -4,6 +4,7 @@ import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.data.helpers.VpnGateParser
 import com.kpstv.vpn.data.helpers.VpnBookParser
 import com.kpstv.vpn.data.models.VpnConfiguration
+import com.kpstv.vpn.di.app.AppScope
 import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.safeNetworkAccessor
@@ -23,7 +24,7 @@ sealed class VpnLoadState(open val configs: List<VpnConfiguration>) {
     VpnLoadState(configs)
 }
 
-@Singleton
+@AppScope
 class VpnRepository @Inject constructor(
   private val vpnDao: VpnDao,
   networkUtils: NetworkUtils

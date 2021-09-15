@@ -23,9 +23,9 @@ class AppModule {
   /* Database */
 
   @Provides
-  fun provideDatabase(application: Application): VpnDatabase {
+  fun provideDatabase(@AppContext context: Context): VpnDatabase {
     return Room.databaseBuilder(
-      application.applicationContext,
+      context,
       VpnDatabase::class.java,
       "vpn.db"
     )

@@ -1,4 +1,4 @@
-package com.kpstv.vpn.di.presentation
+package com.kpstv.vpn.di.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.kpstv.vpn.di.presentation.viewmodel.AssistedSavedStateViewModelFactory

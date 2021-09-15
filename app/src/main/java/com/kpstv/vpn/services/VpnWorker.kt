@@ -42,9 +42,7 @@ class VpnWorker @AssistedInject constructor(
   }
 
   @AssistedFactory
-  interface Factory : DaggerWorkerFactory<VpnWorker> {
-    override fun create(appContext: Context, params: WorkerParameters): VpnWorker
-  }
+  interface Factory : DaggerWorkerFactory<VpnWorker>
 
   companion object {
     private const val ID = "com.kpstv.vpn:VPN-Worker"

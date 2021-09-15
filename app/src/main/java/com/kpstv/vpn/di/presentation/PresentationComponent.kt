@@ -1,6 +1,7 @@
 package com.kpstv.vpn.di.presentation
 
 import androidx.savedstate.SavedStateRegistryOwner
+import com.kpstv.vpn.di.presentation.viewmodel.ViewModelModule
 import com.kpstv.vpn.ui.activities.Main
 import dagger.BindsInstance
 import dagger.Subcomponent

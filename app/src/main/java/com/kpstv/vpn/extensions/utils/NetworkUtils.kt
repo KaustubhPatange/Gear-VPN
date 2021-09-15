@@ -1,5 +1,6 @@
 package com.kpstv.vpn.extensions.utils
 
+import com.kpstv.vpn.di.app.AppScope
 import com.kpstv.vpn.logging.Logger
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -21,7 +22,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 // https://github.com/KaustubhPatange/Moviesy/blob/master/app/src/main/java/com/kpstv/yts/extensions/utils/RetrofitUtils.kt
-@Singleton
+@AppScope
 class NetworkUtils @Inject constructor() {
 
   companion object {
