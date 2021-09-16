@@ -1,20 +1,20 @@
 package com.kpstv.vpn.services
 
 import android.content.Context
-import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.data.db.repository.VpnRepository
 import com.kpstv.vpn.data.helpers.VpnGateParser
 import com.kpstv.vpn.data.helpers.VpnBookParser
+import com.kpstv.vpn.di.service.worker.DaggerWorkerFactory
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.Notifications
 import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import java.util.concurrent.TimeUnit
 
 // A worker to refresh VPN configurations every 7 hours.
-@HiltWorker
 class VpnWorker @AssistedInject constructor(
   @Assisted private val appContext: Context,
   @Assisted workerParams: WorkerParameters,
@@ -41,6 +41,8 @@ class VpnWorker @AssistedInject constructor(
     }
   }
 
+  @AssistedFactory
+  interface Factory : DaggerWorkerFactory<VpnWorker>
 
   companion object {
     private const val ID = "com.kpstv.vpn:VPN-Worker"
