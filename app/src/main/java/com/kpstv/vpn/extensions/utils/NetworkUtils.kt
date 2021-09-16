@@ -15,6 +15,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import javax.net.ssl.X509TrustManager
 import java.security.cert.X509Certificate
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import kotlin.coroutines.resume
@@ -105,12 +107,18 @@ class NetworkUtils @Inject constructor() {
       init(null, trustAllCerts, SecureRandom())
     }.socketFactory
 
-    sslSocketFactory(insecureSocketFactory, naiveTrustManager)
-    hostnameVerifier { hostname, _ ->
-      return@hostnameVerifier hostname.contains(
+    val verifiedHosts = HostnameVerifier host@{ hostname, _ ->
+      return@host hostname.contains(
         "vpngate|vpnbook|github|ip-api".toRegex()
       )
     }
+
+    sslSocketFactory(insecureSocketFactory, naiveTrustManager)
+    hostnameVerifier(verifiedHosts)
+
+    HttpsURLConnection.setDefaultSSLSocketFactory(insecureSocketFactory)
+    HttpsURLConnection.setDefaultHostnameVerifier(verifiedHosts)
+
     return this
   }
 }
