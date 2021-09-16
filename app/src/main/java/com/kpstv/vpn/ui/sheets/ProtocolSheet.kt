@@ -5,8 +5,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.Divider
+import androidx.compose.material.LocalContentAlpha
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,6 +24,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.google.accompanist.insets.navigationBarsPadding
 import com.kpstv.vpn.R
+import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.ui.components.BottomSheetState
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
@@ -30,18 +35,25 @@ enum class ProtocolConnectionType {
 
 @Composable
 fun ProtocolSheet(
+  vpnConfig: VpnConfiguration,
   protocolSheetState: BottomSheetState,
-  enableTCP: Boolean = true,
-  enableUDP: Boolean = true,
   onItemClick: (ProtocolConnectionType) -> Unit,
 ) {
   BaseBottomSheet(bottomSheetState = protocolSheetState) {
-    CommonSheet(enableTCP = enableTCP, enableUDP = enableUDP, onItemClick = onItemClick)
+    CommonSheet(
+      countryName = vpnConfig.country,
+      ipAddr = vpnConfig.ip,
+      enableTCP = vpnConfig.configTCP != null,
+      enableUDP = vpnConfig.configUDP != null,
+      onItemClick = onItemClick
+    )
   }
 }
 
 @Composable
 private fun CommonSheet(
+  countryName: String,
+  ipAddr: String,
   enableTCP: Boolean,
   enableUDP: Boolean,
   onItemClick: (ProtocolConnectionType) -> Unit
@@ -56,7 +68,12 @@ private fun CommonSheet(
   ) {
     Text(
       text = stringResource(R.string.choose_protocol),
-      style = MaterialTheme.typography.h4.copy(fontSize = 20.sp)
+      style = MaterialTheme.typography.h4.copy(fontSize = 22.sp)
+    )
+    Text(
+      text = stringResource(R.string.main_ip, countryName, ipAddr),
+      style = MaterialTheme.typography.subtitle1,
+      color = dotColor,
     )
     Spacer(modifier = Modifier.height(10.dp))
     Divider()
@@ -131,7 +148,7 @@ private fun CommonRow(
     CompositionLocalProvider(LocalContentAlpha provides if (enable) 1f else 0.3f) {
       Text(
         text = title,
-        style = MaterialTheme.typography.h4.copy(fontSize = 26.sp)
+        style = MaterialTheme.typography.h4.copy(fontSize = 28.sp)
       )
       Spacer(modifier = Modifier.height(10.dp))
       Text(
@@ -148,7 +165,13 @@ private fun CommonRow(
 @Composable
 fun PreviewProtocolSheet() {
   CommonPreviewTheme {
-    CommonSheet(onItemClick = {}, enableTCP = true, enableUDP = true)
+    CommonSheet(
+      countryName = "United States",
+      ipAddr = "123.456.7.890",
+      onItemClick = {},
+      enableTCP = true,
+      enableUDP = true
+    )
   }
 }
 
@@ -156,6 +179,12 @@ fun PreviewProtocolSheet() {
 @Composable
 fun PreviewProtocolSheet2() {
   CommonPreviewTheme {
-    CommonSheet(onItemClick = {}, enableTCP = true, enableUDP = false)
+    CommonSheet(
+      countryName = "United States",
+      ipAddr = "123.456.7.890",
+      onItemClick = {},
+      enableTCP = true,
+      enableUDP = false
+    )
   }
 }

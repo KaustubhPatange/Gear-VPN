@@ -168,8 +168,7 @@ fun ServerScreen(
 
   ProtocolSheet(
     protocolSheetState = protocolBottomSheetState,
-    enableTCP = vpnConfig.value.configTCP != null,
-    enableUDP = vpnConfig.value.configUDP != null,
+    vpnConfig = vpnConfig.value,
     onItemClick = { type ->
       when (type) {
         ProtocolConnectionType.TCP -> onItemClick.invoke(
