@@ -1,5 +1,6 @@
 package com.kpstv.vpn.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,13 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +38,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
+import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.dialogs.EmptyVpnDialog
@@ -49,6 +49,7 @@ import com.kpstv.vpn.ui.sheets.ProtocolSheet
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.theme.goldenYellow
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -68,7 +69,6 @@ fun ServerScreen(
   val vpnConfig = rememberSaveable { mutableStateOf(VpnConfiguration.createEmpty()) }
 
   val filterServer by Settings.getFilterServer()
-    .collectAsState(initial = Settings.DefaultFilterServer)
 
   SwipeRefresh(
     modifier = Modifier.fillMaxSize(),
@@ -104,6 +104,7 @@ fun ServerScreen(
                   .statusBarsPadding()
                   .height(80.dp)
               )
+              ServerQuickTip()
               ServerHeader(
                 title = stringResource(R.string.premium_server),
                 premium = true,
@@ -126,7 +127,7 @@ fun ServerScreen(
           }
 
           if ((isPremiumServerExpanded && item.premium) || (isFreeServerExpanded && !item.premium)) {
-            key(item.ip) {
+            key(item.ip + index) {
               CommonItem(
                 config = item,
                 isPremiumUnlocked = isPremiumUnlocked,
@@ -191,7 +192,6 @@ private fun HeaderDropdownMenu(expanded: Boolean = false) {
   val expandedState = remember { mutableStateOf(expanded) }
 
   val filterServerState = Settings.getFilterServer()
-    .collectAsState(initial = Settings.DefaultFilterServer)
 
   val dismiss = remember { { expandedState.value = false } }
 
@@ -395,6 +395,24 @@ private fun getCommonItemSubtext(config: VpnConfiguration): String {
   }
 }
 
+@Composable
+private fun ServerQuickTip() {
+  val context = LocalContext.current
+  val showTip by Settings.ServerQuickTipShown.getAsState(defaultValue = !LocalInspectionMode.current)
+  QuickTip(
+    message = stringResource(R.string.server_tip_text),
+    visible = !showTip,
+    buttonText = stringResource(R.string.learn_more),
+    buttonOnClick = {
+      Settings.ServerQuickTipShown.set(true)
+      context.launchUrlInApp(context.getString(R.string.app_faq_server))
+    }
+  )
+  if (!showTip) {
+    Spacer(modifier = Modifier.height(15.dp))
+  }
+}
+
 @Preview
 @Composable
 fun PreviewFooter() {
@@ -444,6 +462,14 @@ fun PreviewServerHeaders() {
         title = "Hidden Servers", expanded = false
       )
     }
+  }
+}
+
+@Preview
+@Composable
+fun PreviewServerQuickTip() {
+  CommonPreviewTheme {
+    ServerQuickTip()
   }
 }
 

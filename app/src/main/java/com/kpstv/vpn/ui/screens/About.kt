@@ -25,6 +25,7 @@ import com.google.accompanist.insets.statusBarsHeight
 import com.kpstv.vpn.BuildConfig
 import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrl
+import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
 import com.kpstv.vpn.ui.components.Header
 import com.kpstv.vpn.ui.components.HeaderButton
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
@@ -95,14 +96,21 @@ fun AboutScreen(goBack: () -> Unit) {
             icon = R.drawable.ic_github,
             contentDescription = "github",
             tooltip = "Github",
-            onClick = { context.launchUrl(context.getString(R.string.app_github)) }
+            onClick = { context.launchUrlInApp(context.getString(R.string.app_github)) }
+          )
+          Spacer(modifier = Modifier.width(5.dp))
+          HeaderButton(
+            icon = R.drawable.ic_faq,
+            contentDescription = "faq",
+            tooltip = "FAQs",
+            onClick = { context.launchUrlInApp(context.getString(R.string.app_faq)) }
           )
           Spacer(modifier = Modifier.width(5.dp))
           HeaderButton(
             icon = R.drawable.ic_privacy_policy,
             contentDescription = "privacy-policy",
             tooltip = "Privacy policy",
-            onClick = { context.launchUrl(context.getString(R.string.app_privacy_policy)) }
+            onClick = { context.launchUrlInApp(context.getString(R.string.app_privacy_policy)) }
           )
         }
       }

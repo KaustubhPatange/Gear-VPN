@@ -6,7 +6,7 @@ import android.net.Uri
 object VpnConfigUtil {
 
   private val certificateRegex = "[-]+BEGIN\\sCERTIFICATE[-]+".toRegex()
-  private val certificateRSARegex = "[-]+BEGIN\\sRSA\\sPRIVATE\\sKEY[-]+".toRegex()
+  private val certificatePrivateRegex = "[-]+BEGIN\\s(RSA\\s)?PRIVATE\\sKEY[-]+".toRegex()
 
   fun verifyConfigData(context: Context, uri: Uri): Boolean {
     try {
@@ -16,13 +16,13 @@ object VpnConfigUtil {
       stream.close()
 
       // OPEN VPN uses tcp or udp protocol
-      if (!(lines.contains("client") && (lines.contains("proto udp") || lines.contains("proto tcp")))) {
+      if (!(lines.contains("client") && (lines.contains("dev tun") || lines.contains("remote")))) {
         return false
       }
 
       // check for certificates
       if (lines.none { it.matches(certificateRegex) }) return false
-      if (lines.none { it.matches(certificateRSARegex) }) return false
+      if (lines.none { it.matches(certificatePrivateRegex) }) return false
 
       return true
     } catch (e: Exception) {

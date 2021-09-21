@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -39,10 +40,10 @@ import com.kpstv.vpn.R
 import com.kpstv.vpn.data.models.LocalConfiguration
 import com.kpstv.vpn.extensions.utils.AppUtils.asPassword
 import com.kpstv.vpn.extensions.utils.AppUtils.getFileName
+import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
 import com.kpstv.vpn.extensions.utils.VpnConfigUtil
-import com.kpstv.vpn.ui.components.AnimatedSwipeDismiss
-import com.kpstv.vpn.ui.components.Header
-import com.kpstv.vpn.ui.components.ThemeButton
+import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.viewmodels.ImportViewModel
@@ -138,6 +139,7 @@ private fun ImportHeader(
   importViewModel: ImportViewModel = viewModel(),
   onItemClick: (LocalConfiguration) -> Boolean,
 ) {
+  ImportServerQuickTip()
   Profile(
     changeProfile = { config, toSave ->
       if (onItemClick(config)) {
@@ -419,6 +421,26 @@ private fun ProfileItem(
   )
 }
 
+@Composable
+private fun ImportServerQuickTip() {
+  val context = LocalContext.current
+  val showTip by Settings.ImportServerTipShown.getAsState(defaultValue = !LocalInspectionMode.current)
+  Box(modifier = Modifier.padding(horizontal = 20.dp)) {
+    QuickTip(
+      message = stringResource(R.string.import_server_tip_text),
+      visible = !showTip,
+      buttonText = stringResource(R.string.learn_more),
+      buttonOnClick = {
+        Settings.ImportServerTipShown.set(true)
+        context.launchUrlInApp(context.getString(R.string.app_import_server))
+      }
+    )
+  }
+  if (!showTip) {
+    Spacer(modifier = Modifier.height(20.dp))
+  }
+}
+
 @Preview
 @Composable
 fun PreviewProfileScreen() {
@@ -445,3 +467,10 @@ fun PreviewProfileItem() {
   }
 }
 
+@Preview
+@Composable
+fun PreviewImportServerQuickTip() {
+  CommonPreviewTheme {
+    ImportServerQuickTip()
+  }
+}

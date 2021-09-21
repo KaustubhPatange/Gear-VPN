@@ -16,6 +16,7 @@
         android:isFeatureSplit="false"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_config"
+        tools:replace="networkSecurityConfig"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Splash"
@@ -53,4 +54,12 @@
             tools:node="remove"/>
 
     </application>
+
+    <!-- Needed for Custom Tabs -->
+    <queries>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+    </queries>
+
 </manifest>

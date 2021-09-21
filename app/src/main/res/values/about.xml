@@ -2,4 +2,7 @@
 <resources>
     <string name="app_github">https://github.com/KaustubhPatange/Gear-VPN</string>
     <string name="app_privacy_policy">https://github.com/KaustubhPatange/Gear-VPN/blob/master/POLICY.md</string>
+    <string name="app_faq">https://github.com/KaustubhPatange/Gear-VPN/wiki/FAQs</string>
+    <string name="app_faq_server">https://github.com/KaustubhPatange/Gear-VPN/wiki/FAQs#q-why-some-of-the-servers-does-not-work-connect</string>
+    <string name="app_import_server">https://github.com/KaustubhPatange/Gear-VPN/wiki/Import-OpenVPN-Configuration</string>
 </resources>

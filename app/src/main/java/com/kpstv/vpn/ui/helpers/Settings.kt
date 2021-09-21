@@ -1,26 +1,30 @@
 package com.kpstv.vpn.ui.helpers
 
 import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStoreFile
-import com.kpstv.vpn.data.models.VpnConfiguration
-import com.kpstv.vpn.shared.SharedVpnConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.io.File
 
 object Settings {
 
-  private lateinit var dataStore: DataStore<Preferences>
+  private var dataStore: DataStore<Preferences> = PreferenceDataStoreFactory.create(
+    produceFile = { File.createTempFile("", null) } // just for sake of seeing previews as I don't want lateinit
+  )
   private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
   fun init(context: Context) {
-    if (::dataStore.isInitialized) return // no twice initialization
+
+//    if (::dataStore.isInitialized) return // no twice initialization
     dataStore = PreferenceDataStoreFactory.create(
       produceFile = { context.preferencesDataStoreFile(SETTINGS_PB) },
       scope = scope
@@ -29,9 +33,10 @@ object Settings {
 
   // Filter Servers
 
-  fun getFilterServer(): Flow<ServerFilter> = dataStore.data.map { preferences ->
+  @Composable
+  fun getFilterServer(): State<ServerFilter> = dataStore.data.map { preferences ->
     ServerFilter.valueOf(preferences[filterServerKey] ?: ServerFilter.All.name)
-  }
+  }.collectAsState(initial = DefaultFilterServer)
 
   fun setFilterServer(serverFilter: ServerFilter) {
     scope.launch {
@@ -41,7 +46,7 @@ object Settings {
     }
   }
 
-  val DefaultFilterServer: ServerFilter = ServerFilter.All
+  private val DefaultFilterServer: ServerFilter = ServerFilter.All
 
   enum class ServerFilter {
     All, Premium, Free
@@ -49,15 +54,10 @@ object Settings {
 
   // Filter Apps
 
-  fun getDisallowedVpnApps(): Flow<Set<String>> = dataStore.data.map { preferences ->
-    preferences[filterAppKey] ?: emptySet()
-  }
-
-  fun setDisallowedVpnApps(values: Set<String>) {
-    scope.launch {
-      dataStore.edit { prefs ->
-        prefs[filterAppKey] = values
-      }
+  object DisallowedVpnApps : Setting<Set<String>>(dataStore, default = emptySet()) {
+    override val name: String = FILTER_APPS
+    fun set(values: Set<String>) {
+      scope.launch { setAsync(values) }
     }
   }
 
@@ -81,15 +81,10 @@ object Settings {
 
   // Purchase
 
-  fun getHasPurchased(): Flow<Boolean> = dataStore.data.map { preferences ->
-    preferences[purchaseKey] ?: return@map false
-  }
-
-  fun setHasPurchased(value: Boolean) {
-    scope.launch {
-      dataStore.edit { prefs ->
-        prefs[purchaseKey] = value
-      }
+  object HasPurchased : Setting<Boolean>(dataStore, default = false) {
+    override val name: String = HAS_PURCHASED
+    fun set(value: Boolean) {
+      scope.launch { setAsync(value) }
     }
   }
 
@@ -107,6 +102,51 @@ object Settings {
     }
   }
 
+  // Server Quick Tip
+
+  object ServerQuickTipShown : Setting<Boolean>(dataStore, default = false) {
+    fun set(value: Boolean) {
+      scope.launch { setAsync(value) }
+    }
+  }
+
+  // Import server Tip
+
+  object ImportServerTipShown : Setting<Boolean>(dataStore, default = false) {
+    fun set(value: Boolean) {
+      scope.launch { setAsync(value) }
+    }
+  }
+
+
+  abstract class Setting<T : Any>(private val dataStore: DataStore<Preferences>, private val default: T) {
+    open val name: String get() = this::class.javaObjectType.name
+    open fun keyProvider(): Preferences.Key<out Any> {
+      return when(default) {
+        is Boolean -> booleanPreferencesKey(name)
+        is String -> stringPreferencesKey(name)
+        is Int -> intPreferencesKey(name)
+        is Set<*> -> stringSetPreferencesKey(name)
+        else -> throw IllegalStateException("Cannot create key for type ${default::class.javaObjectType.name}")
+      }
+    }
+    @Suppress("UNCHECKED_CAST")
+    open fun get(): Flow<T> {
+      return dataStore.data.map { preferences -> preferences[keyProvider()] ?: default } as Flow<T>
+    }
+    @Suppress("UNCHECKED_CAST")
+    open suspend fun setAsync(value: T) {
+      dataStore.edit { prefs ->
+        prefs[keyProvider() as Preferences.Key<T>] = value
+      }
+    }
+
+    @Composable
+    open fun getAsState(defaultValue: T = default): State<T> {
+      return get().collectAsState(initial = defaultValue)
+    }
+  }
+
   private const val FILTER_SERVER = "filter_server"
   private const val FILTER_APPS = "filter_apps"
   private const val LAST_VPN_CONFIG = "last_vpn_config"
@@ -115,8 +155,6 @@ object Settings {
   private const val SETTINGS_PB = "settings"
 
   private val filterServerKey = stringPreferencesKey(FILTER_SERVER)
-  private val filterAppKey = stringSetPreferencesKey(FILTER_APPS)
   private val lastVpnConfigKey = stringPreferencesKey(LAST_VPN_CONFIG)
-  private val purchaseKey = booleanPreferencesKey(HAS_PURCHASED)
   private fun getWelcomeScreenKey(version: Int) = booleanPreferencesKey("$FIRST_LAUNCH$version")
 }

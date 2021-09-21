@@ -162,7 +162,7 @@ open class VpnHelper(
       val server = currentServer ?: throw Exception("Server is null")
       if (server.config.isEmpty()) throw Exception("Config is empty")
       lifecycleScope.launch {
-        val disallowedApps = Settings.getDisallowedVpnApps().firstOrNull()
+        val disallowedApps = Settings.DisallowedVpnApps.get().firstOrNull()
         OpenVpnApi.startVpn(
           context = context,
           configText = server.config,

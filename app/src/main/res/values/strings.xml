@@ -108,4 +108,7 @@
     <string name="how_to_title">How To Use</string>
     <string name="how_to_desc">Once all servers are loaded select one of your choice &amp; click \"Connect\".</string>
     <string name="feature_split_text">Filter apps to exclude/include from VPN access.</string>
+    <string name="server_tip_text">Some of the servers listed here may not work.</string>
+    <string name="learn_more">Learn more</string>
+    <string name="import_server_tip_text">Connect to any third party OpenVPN servers.</string>
 </resources>

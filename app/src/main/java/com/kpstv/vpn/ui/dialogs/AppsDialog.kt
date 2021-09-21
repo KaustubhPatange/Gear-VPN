@@ -99,7 +99,7 @@ fun AppsDialog(
     val disallowedAppPackagesSnapshot = arrayListOf<String>()
 
     LaunchedEffect(Unit) {
-      Settings.getDisallowedVpnApps().collect { packages ->
+      Settings.DisallowedVpnApps.get().collect { packages ->
         disallowedAppPackagesSnapshot.addAll(packages)
         disallowedAppPackages.addAll(packages)
       }
@@ -171,7 +171,7 @@ fun AppsDialog(
         modifier = Modifier.align(Alignment.BottomCenter),
         onSaveClick = {
           if (disallowedAppPackagesSnapshot != disallowedAppPackages) {
-            Settings.setDisallowedVpnApps(disallowedAppPackages.toSet())
+            Settings.DisallowedVpnApps.set(disallowedAppPackages.toSet())
             onDisallowedAppListChanged()
           }
           controller.closeDialog(AppsDialog::class)

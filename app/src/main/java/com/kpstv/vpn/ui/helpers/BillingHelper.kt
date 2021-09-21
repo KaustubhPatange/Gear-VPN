@@ -1,13 +1,6 @@
 package com.kpstv.vpn.ui.helpers
 
-import android.content.Context
 import androidx.activity.ComponentActivity
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -30,7 +23,7 @@ class BillingHelper(private val activity: ComponentActivity) {
 
   private var billingErrorMessage: String? = null
 
-  val isPurchased: Flow<Boolean> get() = Settings.getHasPurchased()
+  val isPurchased: Flow<Boolean> get() = Settings.HasPurchased.get()
   private val purchaseCompleteStateFlow: MutableStateFlow<BillingSku> = MutableStateFlow(BillingSku.createEmpty())
   val purchaseComplete: StateFlow<BillingSku> = purchaseCompleteStateFlow.asStateFlow()
 
@@ -116,7 +109,7 @@ class BillingHelper(private val activity: ComponentActivity) {
       if (currentIsPurchase) {
         Toasty.warning(activity, R.string.premium_expired, Toasty.LENGTH_LONG).show()
       }
-      Settings.setHasPurchased(false)
+      Settings.HasPurchased.set(false)
     }
 
     val purchaseResult = billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS)
@@ -131,7 +124,7 @@ class BillingHelper(private val activity: ComponentActivity) {
       }
     }
 
-    Settings.setHasPurchased(true)
+    Settings.HasPurchased.set(true)
   }
 
   private suspend fun handlePurchase(purchase: Purchase) {
@@ -149,7 +142,7 @@ class BillingHelper(private val activity: ComponentActivity) {
 
       if (purchase.skus.contains(purchase_sku)) {
         Toasty.info(activity, activity.getString(R.string.restart_maybe), Toasty.LENGTH_LONG).show()
-        Settings.setHasPurchased(true)
+        Settings.HasPurchased.set(true)
         purchaseCompleteStateFlow.emit(BillingSku(purchase_sku))
       }
     }

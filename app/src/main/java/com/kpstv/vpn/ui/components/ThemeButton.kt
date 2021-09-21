@@ -3,15 +3,26 @@ package com.kpstv.vpn.ui.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 
 @Composable
-fun ThemeButton(onClick: () -> Unit, modifier: Modifier = Modifier, text: String, enabled: Boolean = true) {
+fun ThemeButton(
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  text: String,
+  fontSize: TextUnit = TextUnit.Unspecified,
+  enabled: Boolean = true
+) {
   Button(
     onClick = onClick,
     modifier = modifier,
@@ -22,8 +33,11 @@ fun ThemeButton(onClick: () -> Unit, modifier: Modifier = Modifier, text: String
     )
   ) {
     Text(
+      fontSize = fontSize,
       text = text,
-      color = if (enabled) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onSecondary.copy(alpha = 0.5f)
+      color = if (enabled) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onSecondary.copy(
+        alpha = 0.5f
+      )
     )
   }
 }
