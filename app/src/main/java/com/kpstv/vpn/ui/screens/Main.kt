@@ -147,20 +147,22 @@ fun MainScreen(
         )
         .padding(10.dp)
     ) {
-      Image(
-        painter = rememberImagePainter(
-          FlagUtils.getOrNull(configuration.country) ?: "",
-          builder = {
-            placeholder(R.drawable.unknown)
-            crossfade(true)
-          }
-        ),
-        modifier = Modifier
-          .padding(10.dp)
-          .requiredWidthIn(max = 50.dp)
-          .fillMaxHeight(),
-        contentDescription = "country",
-      )
+      if (!configuration.country.startsWith("Custom")) {
+        Image(
+          painter = rememberImagePainter(
+            FlagUtils.getOrNull(configuration.country) ?: "",
+            builder = {
+              placeholder(R.drawable.unknown)
+              crossfade(true)
+            }
+          ),
+          modifier = Modifier
+            .padding(10.dp)
+            .requiredWidthIn(max = 50.dp)
+            .fillMaxHeight(),
+          contentDescription = "country",
+        )
+      }
 
       Spacer(modifier = Modifier.width(10.dp))
 

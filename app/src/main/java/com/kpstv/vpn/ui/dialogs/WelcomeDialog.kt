@@ -56,7 +56,7 @@ private fun WelcomeDialog() {
       usePlatformDefaultWidth = false
     )
   ) {
-    val dialogRouteController = rememberController<WelcomeScreenRoute>()
+    val dialogRouteController = rememberNavController<WelcomeScreenRoute>()
 
     val currentRoute by dialogRouteController.getCurrentRouteAsFlow()
       .collectAsState(initial = WelcomeScreenRoute.Welcome)
@@ -82,7 +82,7 @@ private fun WelcomeDialog() {
           key = WelcomeScreenRoute.key,
           initial = WelcomeScreenRoute.Welcome,
           controller = dialogRouteController
-        ) { _, dest ->
+        ) { dest ->
           when (dest) {
             is WelcomeScreenRoute.Welcome -> WelcomeScreen()
             is WelcomeScreenRoute.HowTo -> HowToScreen()

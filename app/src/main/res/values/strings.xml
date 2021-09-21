@@ -111,4 +111,6 @@
     <string name="server_tip_text">Some of the servers listed here may not work.</string>
     <string name="learn_more">Learn more</string>
     <string name="import_server_tip_text">Connect to any third party OpenVPN servers.</string>
+
+    <string name="import_config_country">Custom (%1$s)</string>
 </resources>

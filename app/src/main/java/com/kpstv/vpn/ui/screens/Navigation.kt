@@ -1,20 +1,20 @@
 package com.kpstv.vpn.ui.screens
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kpstv.navigation.compose.*
+import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
-import com.kpstv.vpn.data.models.asVpnConfiguration
+import com.kpstv.vpn.data.models.asVpnConfig
 import com.kpstv.vpn.extensions.SlideTop
-import com.kpstv.vpn.ui.viewmodels.VpnViewModel
-import com.kpstv.navigation.compose.ComposeNavigator
-import com.kpstv.navigation.compose.Fade
-import com.kpstv.navigation.compose.Route
-import com.kpstv.navigation.compose.SlideRight
 import com.kpstv.vpn.extensions.asVpnConfig
-import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.components.ConnectionStatusBox
+import com.kpstv.vpn.ui.components.rememberBottomSheetState
 import com.kpstv.vpn.ui.dialogs.WelcomeDialogScreen
 import com.kpstv.vpn.ui.helpers.BillingHelper
 import com.kpstv.vpn.ui.sheets.PremiumBottomSheet
+import com.kpstv.vpn.ui.viewmodels.VpnViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.parcelize.Parcelize
@@ -49,6 +49,7 @@ fun NavigationScreen(
   billingHelper: BillingHelper,
   viewModel: VpnViewModel = viewModel()
 ) {
+  val context = LocalContext.current
   val shouldRefresh = remember { mutableStateOf(Load(), policy = referentialEqualityPolicy()) }
   val vpnCollectJob = remember(shouldRefresh.value) { SupervisorJob() }
 
@@ -75,7 +76,13 @@ fun NavigationScreen(
 
   val onPremiumClick: () -> Unit = { premiumBottomSheet.show() }
 
-  navigator.Setup(key = NavigationRoute.key, initial = NavigationRoute.Main()) { controller, dest ->
+  val navController = rememberNavController<NavigationRoute>()
+
+  navigator.Setup(
+    key = NavigationRoute.key,
+    initial = NavigationRoute.Main(),
+    controller = navController
+  ) { dest ->
     when (dest) {
       // Main screen
       is NavigationRoute.Main -> MainScreen(
@@ -83,7 +90,7 @@ fun NavigationScreen(
         configuration = currentConfig.value,
         connectivityStatus = connectivityStatus.value,
         onToChangeServer = {
-          controller.navigateTo(NavigationRoute.Server()) {
+          navController.navigateTo(NavigationRoute.Server()) {
             withAnimation {
               target = SlideRight
               current = Fade
@@ -91,7 +98,7 @@ fun NavigationScreen(
           }
         },
         onToAboutScreen = {
-          controller.navigateTo(NavigationRoute.About()) {
+          navController.navigateTo(NavigationRoute.About()) {
             withAnimation {
               target = SlideTop
               current = Fade
@@ -112,13 +119,13 @@ fun NavigationScreen(
       // Server screen
       is NavigationRoute.Server -> ServerScreen(
         vpnState = vpnLoadState.value,
-        onBackButton = { controller.goBack() },
+        onBackButton = { navController.goBack() },
         onRefresh = {
           vpnCollectJob.cancel()
           shouldRefresh.value = Load(refresh = true)
         },
         onImportButton = {
-          controller.navigateTo(NavigationRoute.Import()) {
+          navController.navigateTo(NavigationRoute.Import()) {
             withAnimation {
               target = SlideTop
               current = Fade
@@ -129,15 +136,17 @@ fun NavigationScreen(
         onPremiumClick = onPremiumClick,
         onItemClick = { config, type ->
           viewModel.changeServer(config.asVpnConfig(type))
-          controller.goBack()
+          navController.goBack()
         }
       )
       // Import screen
       is NavigationRoute.Import -> ImportScreen(
         onItemClick = { config ->
-          viewModel.changeServer(config.asVpnConfiguration())
+          viewModel.changeServer(
+            config.asVpnConfig()
+              .run { copy(country = context.getString(R.string.import_config_country, country)) })
 
-          controller.navigateTo(NavigationRoute.Main()) {
+          navController.navigateTo(NavigationRoute.Main()) {
             popUpTo(NavigationRoute.Main())
             withAnimation {
               target = Fade
@@ -147,11 +156,11 @@ fun NavigationScreen(
         },
         isPremiumUnlocked = isPremiumUnlocked.value,
         onPremiumClick = onPremiumClick,
-        goBack = { controller.goBack() }
+        goBack = { navController.goBack() }
       )
       // About screen
       is NavigationRoute.About -> AboutScreen(
-        goBack = { controller.goBack() }
+        goBack = { navController.goBack() }
       )
     }
 

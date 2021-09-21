@@ -15,9 +15,9 @@ data class LocalConfiguration(
   var id: Int = 0
 }
 
-fun LocalConfiguration.asVpnConfiguration() : VpnConfig {
+fun LocalConfiguration.asVpnConfig() : VpnConfig {
   return VpnConfig.createEmpty().copy(
-    country = "Custom ($profileName)",
+    country = profileName,
     username = userName,
     password = password,
     config = config,
