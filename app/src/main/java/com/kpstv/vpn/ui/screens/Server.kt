@@ -1,6 +1,5 @@
 package com.kpstv.vpn.ui.screens
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -49,7 +48,6 @@ import com.kpstv.vpn.ui.sheets.ProtocolSheet
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.theme.goldenYellow
-import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable

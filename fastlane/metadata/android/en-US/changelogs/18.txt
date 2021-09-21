@@ -1,0 +1,5 @@
+Added: Quick Tips for some general notes.
+Added: FAQs section answering some of most asked questions.
+Added: Links will now be opened within the app using Custom Tabs.
+Updated: Protocol sheet will now show country name & IP of the selected server.
+Fixed: Attempt to fix platform SSL/TLS issue.
