@@ -7,10 +7,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.kpstv.vpn.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.File
@@ -23,8 +25,6 @@ object Settings {
   private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
   fun init(context: Context) {
-
-//    if (::dataStore.isInitialized) return // no twice initialization
     dataStore = PreferenceDataStoreFactory.create(
       produceFile = { context.preferencesDataStoreFile(SETTINGS_PB) },
       scope = scope
@@ -88,18 +88,32 @@ object Settings {
     }
   }
 
-  // Welcome screen
+  // Version update
 
-  fun getWelcomeScreenShown(version: Int): Flow<Boolean> = dataStore.data.map { preferences ->
-    preferences[getWelcomeScreenKey(version)] ?: return@map false
+  fun getIfVersionUpdateChecked(version: Int): Flow<Boolean> = dataStore.data.map { preferences ->
+    preferences[getFirstLaunchKey(version)] ?: return@map false
   }
 
-  fun setWelcomeScreenShown(version: Int, value: Boolean) {
+  fun setIfVersionUpdateChecked(version: Int, value: Boolean) {
     scope.launch {
       dataStore.edit { prefs ->
-        prefs[getWelcomeScreenKey(version)] = value
+        prefs[getFirstLaunchKey(version)] = value
       }
     }
+  }
+
+  // First Launch helper (include version updates as well)
+
+  /**
+   * Call once as value will be immediately changed when invoked first time.
+   */
+  suspend fun isFirstLaunchAndSet(): Boolean {
+    val version = BuildConfig.VERSION_CODE * 1000
+    val isUpgradeChecked = getIfVersionUpdateChecked(version).first()
+    if (!isUpgradeChecked) {
+      setIfVersionUpdateChecked(version, true)
+    }
+    return !isUpgradeChecked
   }
 
   // Server Quick Tip
@@ -117,7 +131,6 @@ object Settings {
       scope.launch { setAsync(value) }
     }
   }
-
 
   abstract class Setting<T : Any>(private val dataStore: DataStore<Preferences>, private val default: T) {
     open val name: String get() = this::class.javaObjectType.name
@@ -156,5 +169,5 @@ object Settings {
 
   private val filterServerKey = stringPreferencesKey(FILTER_SERVER)
   private val lastVpnConfigKey = stringPreferencesKey(LAST_VPN_CONFIG)
-  private fun getWelcomeScreenKey(version: Int) = booleanPreferencesKey("$FIRST_LAUNCH$version")
+  private fun getFirstLaunchKey(version: Int) = booleanPreferencesKey("$FIRST_LAUNCH$version")
 }

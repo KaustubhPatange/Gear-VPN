@@ -228,8 +228,8 @@ private fun FeatureScreen(name: String, @DrawableRes gif: Int, description: Stri
 private object WelcomeDialogRoute : DialogRoute {
   private const val version = 1 // update this to show dialog for newer versions of app.
 
-  fun getWelcomeScreenState() = Settings.getWelcomeScreenShown(version)
-  fun setWelcomeScreenState(value: Boolean) = Settings.setWelcomeScreenShown(version, value)
+  fun getWelcomeScreenState() = Settings.getIfVersionUpdateChecked(version)
+  fun setWelcomeScreenState(value: Boolean) = Settings.setIfVersionUpdateChecked(version, value)
 }
 
 private sealed class WelcomeScreenRoute(val index: Int) : DialogRoute {

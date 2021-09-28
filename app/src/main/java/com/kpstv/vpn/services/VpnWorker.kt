@@ -12,6 +12,9 @@ import com.kpstv.vpn.extensions.utils.Notifications
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import java.util.concurrent.TimeUnit
 
 // A worker to refresh VPN configurations every 7 hours.
@@ -25,15 +28,17 @@ class VpnWorker @AssistedInject constructor(
   private val openApiParser = VpnGateParser(networkUtils)
   private val vpnBookParser = VpnBookParser(networkUtils)
 
-  override suspend fun doWork(): Result {
+  override suspend fun doWork(): Result = coroutineScope scope@{
     setForeground(Notifications.createRefreshNotification(appContext))
 
-    val openList = openApiParser.parse()
-    val vpnList = vpnBookParser.parse()
+    val openListAsync = async { openApiParser.parse() }
+    val vpnListAsync = async { vpnBookParser.parse() }
 
-    val final = VpnRepository.merge(vpnList, openList)
+    val configList = awaitAll(openListAsync, vpnListAsync)
 
-    return if (final.isNotEmpty()) {
+    val final = VpnRepository.merge(configList[0], configList[1])
+
+    return@scope if (final.isNotEmpty()) {
       dao.insertAll(final)
       Result.success()
     } else {
