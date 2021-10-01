@@ -2,6 +2,7 @@ package com.kpstv.vpn.services
 
 import android.content.Context
 import androidx.work.*
+import com.kpstv.vpn.data.api.IpApi
 import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.data.db.repository.VpnRepository
 import com.kpstv.vpn.data.helpers.VpnGateParser
@@ -9,18 +10,18 @@ import com.kpstv.vpn.data.helpers.VpnBookParser
 import com.kpstv.vpn.di.service.worker.DaggerWorkerFactory
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.Notifications
+import com.kpstv.vpn.logging.Logger
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 
 // A worker to refresh VPN configurations every 7 hours.
 class VpnWorker @AssistedInject constructor(
   @Assisted private val appContext: Context,
   @Assisted workerParams: WorkerParameters,
+  private val ipApi: IpApi,
   private val dao: VpnDao,
   networkUtils: NetworkUtils,
 ) : CoroutineWorker(appContext, workerParams) {
@@ -28,8 +29,14 @@ class VpnWorker @AssistedInject constructor(
   private val openApiParser = VpnGateParser(networkUtils)
   private val vpnBookParser = VpnBookParser(networkUtils)
 
-  override suspend fun doWork(): Result = coroutineScope scope@{
+  override suspend fun doWork(): Result = CoroutineScope(Dispatchers.IO).async scope@{
     setForeground(Notifications.createRefreshNotification(appContext))
+
+    // fetch IP for logging
+    try {
+      val ipData = ipApi.fetch()
+      Logger.d("IP Info: ${ipData.country}, ${ipData.city}, ${ipData.region}")
+    } catch (_ : Exception) { }
 
     val openListAsync = async { openApiParser.parse() }
     val vpnListAsync = async { vpnBookParser.parse() }
@@ -44,7 +51,7 @@ class VpnWorker @AssistedInject constructor(
     } else {
       Result.failure()
     }
-  }
+  }.await()
 
   @AssistedFactory
   interface Factory : DaggerWorkerFactory<VpnWorker>

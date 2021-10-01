@@ -18,7 +18,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
   suspend fun parse(
     onNewConfigurationAdded: suspend (snapshot: List<VpnConfiguration>) -> Unit = {},
     onComplete: suspend (snapshot: List<VpnConfiguration>) -> Unit
-  ) {
+  ): Unit = coroutineScope scope@{
 
     val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
@@ -37,7 +37,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
         .findLast { it.id() == "vg_hosts_table_id" }?.child(0)
         ?: run {
           onComplete.invoke(formatConfigurations(vpnConfigurations))
-          return
+          return@scope
         }
       vpnConfigurations.clear()
 
@@ -112,8 +112,13 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
             val configTCPUrl = ovpnConfigs.firstOrNull { it.contains("tcp=1") }
             val configUDPUrl = ovpnConfigs.firstOrNull { it.contains("udp=1") }
 
-            val configTCP = safeFetchConfig(configTCPUrl)
-            val configUDP = safeFetchConfig(configUDPUrl)
+            val configTCPAsync = async { safeFetchConfig(configTCPUrl) }
+            val configUDPAsync = async { safeFetchConfig(configUDPUrl) }
+
+            val configs = awaitAll(configTCPAsync, configUDPAsync)
+
+            val configTCP = configs[0]
+            val configUDP = configs[1]
 
             if (configTCP == null && configUDP == null) continue
 
