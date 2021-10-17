@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.kpstv.vpn.BuildConfig
 import com.kpstv.vpn.services.VpnWorker
+import com.kpstv.vpn.services.VpnBookWorker
 import com.kpstv.vpn.ui.helpers.Settings
 
 // A class to lazily initialize crucial dependencies that increases
@@ -14,6 +15,7 @@ object Initializer {
       if (BuildConfig.DEBUG || Settings.isFirstLaunchAndSet()) {
         VpnWorker.schedule(context)
       }
+      VpnBookWorker.schedule(context)
     }
   }
 }

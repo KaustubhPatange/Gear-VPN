@@ -7,6 +7,7 @@ import com.kpstv.vpn.data.api.IpApi
 import com.kpstv.vpn.data.db.database.VpnDatabase
 import com.kpstv.vpn.data.db.database.VpnDatabaseMigrations
 import com.kpstv.vpn.data.db.localized.LocalDao
+import com.kpstv.vpn.data.db.localized.VpnBookDao
 import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.data.db.repository.VpnRepository
 import com.kpstv.vpn.extensions.utils.NetworkUtils
@@ -37,6 +38,9 @@ class AppModule {
 
   @Provides
   fun provideVpnDao(database: VpnDatabase): VpnDao = database.getVPNDao()
+
+  @Provides
+  fun provideVpnBookDao(database: VpnDatabase): VpnBookDao = database.getVPNBookDao()
 
   @Provides
   fun provideLocalDao(database: VpnDatabase): LocalDao = database.getLocalDao()

@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kpstv.vpn.data.db.localized.LocalDao
+import com.kpstv.vpn.data.db.localized.VpnBookDao
 import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.data.models.LocalConfiguration
 import com.kpstv.vpn.data.models.VpnConfiguration
@@ -17,6 +18,7 @@ import com.kpstv.vpn.data.models.VpnConfiguration
 abstract class VpnDatabase : RoomDatabase() {
   abstract fun getVPNDao(): VpnDao
   abstract fun getLocalDao(): LocalDao
+  abstract fun getVPNBookDao(): VpnBookDao
 }
 
 object VpnDatabaseMigrations {
