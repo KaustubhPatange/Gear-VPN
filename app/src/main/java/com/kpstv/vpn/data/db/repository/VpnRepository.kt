@@ -5,14 +5,13 @@ import com.kpstv.vpn.data.helpers.VpnGateParser
 import com.kpstv.vpn.data.helpers.VpnBookParser
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.di.app.AppScope
-import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.safeNetworkAccessor
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withTimeout
 import okhttp3.internal.toImmutableList
 import javax.inject.Inject
-import javax.inject.Singleton
-import java.util.*
 
 sealed class VpnLoadState(open val configs: List<VpnConfiguration>) {
   data class Loading(override val configs: List<VpnConfiguration> = emptyList()) :
@@ -22,6 +21,10 @@ sealed class VpnLoadState(open val configs: List<VpnConfiguration>) {
 
   data class Empty(override val configs: List<VpnConfiguration> = emptyList()) :
     VpnLoadState(configs)
+
+  object TimedOutError : VpnLoadState(emptyList())
+
+  fun isError() : Boolean = this is Empty || this is TimedOutError
 }
 
 @AppScope
@@ -34,45 +37,54 @@ class VpnRepository @Inject constructor(
 
   fun fetch(forceNetwork: Boolean = false): Flow<VpnLoadState> = flow {
     safeNetworkAccessor {
-
-      emit(VpnLoadState.Loading())
-
-      val local = fetchFromLocal()
-      if (!forceNetwork && local.isNotEmpty() && !local.first().isExpired()) {
-        // Get from local
-        emit(VpnLoadState.Completed(local))
-      } else {
-        // Parse from network
-        var vpnConfigs = listOf<VpnConfiguration>()
-
-        vpnGateParser.parse(
-          onNewConfigurationAdded = { configs ->
-            vpnConfigs = merge(configs, vpnConfigs)
-            emit(VpnLoadState.Loading(vpnConfigs))
-          },
-          onComplete = { configs ->
-            vpnConfigs = merge(configs, vpnConfigs)
-          }
-        )
-
-        vpnBookParser.parse(
-          onNewConfigurationAdded = { configs ->
-            vpnConfigs = merge(configs, vpnConfigs)
-            emit(VpnLoadState.Loading(vpnConfigs))
-          },
-          onComplete = { configs ->
-            vpnConfigs = merge(configs, vpnConfigs)
-          }
-        )
-
-        if (vpnConfigs.isNotEmpty()) {
-          emit(VpnLoadState.Completed(vpnConfigs))
-          vpnDao.insertAll(vpnConfigs)
-        } else {
-          emit(VpnLoadState.Completed(vpnConfigs))
+      try {
+        withTimeout(1000L * 60 * 4) { // time out after 4 min
+          fetchVPN(forceNetwork = forceNetwork)
         }
-
+      } catch (ex : TimeoutCancellationException) {
+        emit(VpnLoadState.TimedOutError)
       }
+    }
+  }
+
+  private suspend fun FlowCollector<VpnLoadState>.fetchVPN(forceNetwork: Boolean) {
+    emit(VpnLoadState.Loading())
+
+    val local = fetchFromLocal()
+    if (!forceNetwork && local.isNotEmpty() && !local.first().isExpired()) {
+      // Get from local
+      emit(VpnLoadState.Completed(local))
+    } else {
+      // Parse from network
+      var vpnConfigs = listOf<VpnConfiguration>()
+
+      vpnGateParser.parse(
+        onNewConfigurationAdded = { configs ->
+          vpnConfigs = merge(configs, vpnConfigs)
+          emit(VpnLoadState.Loading(vpnConfigs))
+        },
+        onComplete = { configs ->
+          vpnConfigs = merge(configs, vpnConfigs)
+        }
+      )
+
+      vpnBookParser.parse(
+        onNewConfigurationAdded = { configs ->
+          vpnConfigs = merge(configs, vpnConfigs)
+          emit(VpnLoadState.Loading(vpnConfigs))
+        },
+        onComplete = { configs ->
+          vpnConfigs = merge(configs, vpnConfigs)
+        }
+      )
+
+      if (vpnConfigs.isNotEmpty()) {
+        emit(VpnLoadState.Completed(vpnConfigs))
+        vpnDao.insertAll(vpnConfigs)
+      } else {
+        emit(VpnLoadState.Completed(vpnConfigs))
+      }
+
     }
   }
 

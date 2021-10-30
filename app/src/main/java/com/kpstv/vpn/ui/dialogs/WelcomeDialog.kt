@@ -47,7 +47,7 @@ fun WelcomeDialogScreen() {
 @OptIn(ExperimentalComposeUiApi::class, androidx.compose.animation.ExperimentalAnimationApi::class)
 @Composable
 private fun WelcomeDialog() {
-  val navController = findController(key = NavigationRoute.key)
+  val navController = findNavController(key = NavigationRoute.key)
 
   navController.CreateDialog(
     key = WelcomeDialogRoute::class,
@@ -245,9 +245,8 @@ private sealed class WelcomeScreenRoute(val index: Int) : DialogRoute {
   @Parcelize
   object FeatureGearConnect : WelcomeScreenRoute(3)
 
-  companion object {
+  companion object Key : Route.Key<WelcomeScreenRoute> {
     const val totalScreens = 4
-    val key = WelcomeScreenRoute::class
   }
 }
 

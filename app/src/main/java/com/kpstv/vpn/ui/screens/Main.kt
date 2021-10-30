@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
-import com.kpstv.navigation.compose.findController
+import com.kpstv.navigation.compose.findNavController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrl
 import com.kpstv.vpn.extensions.utils.FlagUtils
@@ -271,7 +271,7 @@ private fun SettingsDropdownMenu(
 
   if (LocalInspectionMode.current) return // for preview
 
-  val controller = findController(key = NavigationRoute.key)
+  val controller = findNavController(key = NavigationRoute.key)
 
   AppDropdownMenu(
     title = stringResource(R.string.more_options),

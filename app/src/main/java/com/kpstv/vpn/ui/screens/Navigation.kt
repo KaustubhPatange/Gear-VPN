@@ -36,9 +36,7 @@ sealed interface NavigationRoute : Route {
   @Immutable
   data class About(private val noArg: String = "") : NavigationRoute
 
-  companion object {
-    val key = NavigationRoute::class
-  }
+  companion object Key : Route.Key<NavigationRoute>
 }
 
 private class Load(val refresh: Boolean = false)
@@ -147,7 +145,7 @@ fun NavigationScreen(
               .run { copy(country = context.getString(R.string.import_config_country, country)) })
 
           navController.navigateTo(NavigationRoute.Main()) {
-            popUpTo(NavigationRoute.Main())
+            popUpTo(NavigationRoute.Main::class)
             withAnimation {
               target = Fade
               current = Fade

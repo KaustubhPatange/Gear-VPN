@@ -1,6 +1,6 @@
 package com.kpstv.vpn.ui.screens
 
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,7 +40,6 @@ import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.ui.components.*
-import com.kpstv.vpn.ui.dialogs.EmptyVpnDialog
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.sheets.ProtocolConnectionType
@@ -72,7 +71,7 @@ fun ServerScreen(
     modifier = Modifier.fillMaxSize(),
     state = swipeRefreshState,
     onRefresh = onRefresh,
-    swipeEnabled = (vpnState is VpnLoadState.Completed),
+    swipeEnabled = (vpnState is VpnLoadState.Completed || vpnState.isError()),
     indicator = { state, trigger ->
       SwipeRefreshIndicator(
         state = state,
@@ -150,13 +149,19 @@ fun ServerScreen(
         }
       }
 
-      Header(
-        title = stringResource(R.string.choose_server),
-        onBackButton = onBackButton,
-        actionRow = {
-          HeaderDropdownMenu()
-        }
-      )
+      AnimatedVisibility(
+        visible = !vpnState.isError(),
+        enter = fadeIn() + slideInVertically(),
+        exit = fadeOut() + slideOutVertically()
+      ) {
+        Header(
+          title = stringResource(R.string.choose_server),
+          onBackButton = onBackButton,
+          actionRow = {
+            HeaderDropdownMenu()
+          }
+        )
+      }
 
       Footer(
         modifier = Modifier.align(Alignment.BottomCenter),
@@ -182,7 +187,16 @@ fun ServerScreen(
     }
   )
 
-  EmptyVpnDialog(show = vpnState is VpnLoadState.Empty)
+  AnimatedVisibility(visible = vpnState.isError(), enter = fadeIn()) {
+    val title = when (vpnState) {
+      is VpnLoadState.TimedOutError -> stringResource(R.string.err_server_fetch_timeout)
+      else -> stringResource(R.string.err_something_went_wrong)
+    }
+    Column {
+      Spacer(modifier = Modifier.height(20.dp))
+      ErrorVpnScreen(modifier = Modifier.padding(20.dp), title = title, dismiss = onBackButton)
+    }
+  }
 }
 
 @Composable

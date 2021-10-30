@@ -37,7 +37,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import com.kpstv.navigation.compose.DialogRoute
-import com.kpstv.navigation.compose.findController
+import com.kpstv.navigation.compose.findNavController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.drawableFrom
 import com.kpstv.vpn.ui.components.AutoSizeSingleLineText
@@ -75,7 +75,7 @@ fun AppsDialog(
   viewModel: AppSheetViewModel = viewModel(),
   onDisallowedAppListChanged: () -> Unit
 ) {
-  val controller = findController(key = NavigationRoute.key)
+  val controller = findNavController(key = NavigationRoute.key)
   val context = LocalContext.current
 
   val dialogMode = rememberSaveable { mutableStateOf(DialogMode.Normal) }

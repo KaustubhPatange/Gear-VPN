@@ -72,7 +72,8 @@
     <string name="server_filter_premium">Premium</string>
     <string name="server_filter_free">Free</string>
     <string name="unsupported_op">This operation is not supported by your device.</string>
-    <string name="dialog_empty_vpn_text"><![CDATA[There were some errors fetching VPN servers from VPN Gate & VPN Book.\n\nMake sure these websites correctly open on your device.]]></string>
+    <string name="dialog_error_vpn_text"><![CDATA[There were some errors while fetching VPN servers from VPN Gate (vpngate.net) & VPN Book (vpnbook.com).\n\nMake sure these websites correctly open on your device.]]></string>
+    <string name="dialog_error_vpn_additional_text">Error: %1$s</string>
     <string name="alright">Alright</string>
     <string name="filter_apps">Filter Apps</string>
     <string name="about">About</string>
@@ -113,4 +114,8 @@
     <string name="import_server_tip_text">Connect to any third party OpenVPN servers.</string>
 
     <string name="import_config_country">Custom (%1$s)</string>
+
+    <string name="err_server_fetch_timeout">Server fetch timeout</string>
+    <string name="err_something_went_wrong">Something went wrong</string>
+
 </resources>
