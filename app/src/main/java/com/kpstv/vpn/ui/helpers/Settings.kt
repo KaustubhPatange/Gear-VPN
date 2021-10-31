@@ -124,6 +124,14 @@ object Settings {
     }
   }
 
+  // How To Refresh Tip
+
+  object HowToRefreshTipShown : Setting<Boolean>(dataStore, default = false) {
+    fun set(value: Boolean) {
+      scope.launch { setAsync(value) }
+    }
+  }
+
   // Import server Tip
 
   object ImportServerTipShown : Setting<Boolean>(dataStore, default = false) {

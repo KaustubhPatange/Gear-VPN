@@ -34,6 +34,7 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.kpstv.navigation.compose.findNavController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
@@ -41,6 +42,8 @@ import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.extensions.utils.VpnUtils
 import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.dialogs.HowToRefreshDialog
+import com.kpstv.vpn.ui.dialogs.RefreshDialog
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.sheets.ProtocolConnectionType
@@ -102,7 +105,7 @@ fun ServerScreen(
                   .statusBarsPadding()
                   .height(80.dp)
               )
-              ServerQuickTip()
+              ScreenQuickTips()
               ServerHeader(
                 title = stringResource(R.string.premium_server),
                 premium = true,
@@ -191,9 +194,16 @@ fun ServerScreen(
   AnimatedVisibility(visible = vpnState.isError(), enter = fadeIn()) {
     Column {
       Spacer(modifier = Modifier.height(20.dp))
-      ErrorVpnScreen(modifier = Modifier.padding(20.dp), title = stringResource(R.string.err_something_went_wrong), dismiss = onBackButton)
+      ErrorVpnScreen(
+        modifier = Modifier.padding(20.dp),
+        title = stringResource(R.string.err_something_went_wrong),
+        dismiss = onBackButton
+      )
     }
   }
+
+  // How to refresh VPN servers Dialog
+  HowToRefreshDialog()
 }
 
 @Composable
@@ -400,8 +410,19 @@ private fun getCommonItemSubtext(config: VpnConfiguration): String {
   return if (config.sessions.isEmpty() && config.upTime.isEmpty() && config.speed.isEmpty()) {
     stringResource(R.string.server_subtitle2)
   } else {
-    stringResource(R.string.server_subtitle, config.sessions, config.upTime, VpnUtils.formatVpnGateSpeed(config.speed))
+    stringResource(
+      R.string.server_subtitle,
+      config.sessions,
+      config.upTime,
+      VpnUtils.formatVpnGateSpeed(config.speed)
+    )
   }
+}
+
+@Composable
+private fun ScreenQuickTips() {
+  ServerQuickTip()
+  HowToRefreshQuickTip()
 }
 
 @Composable
@@ -415,6 +436,25 @@ private fun ServerQuickTip() {
     buttonOnClick = {
       Settings.ServerQuickTipShown.set(true)
       context.launchUrlInApp(context.getString(R.string.app_faq_server))
+    }
+  )
+  if (!showTip) {
+    Spacer(modifier = Modifier.height(15.dp))
+  }
+}
+
+@Composable
+private fun HowToRefreshQuickTip() {
+  val navController = findNavController(key = NavigationRoute.key)
+  val serverTipShown by Settings.ServerQuickTipShown.getAsState()
+  val showTip by Settings.HowToRefreshTipShown.getAsState(defaultValue = !LocalInspectionMode.current)
+  QuickTip(
+    message = stringResource(R.string.how_to_refresh_tip_text),
+    visible = !showTip && serverTipShown,
+    buttonText = stringResource(R.string.learn_more),
+    buttonOnClick = {
+      Settings.HowToRefreshTipShown.set(true)
+      navController.showDialog(RefreshDialog)
     }
   )
   if (!showTip) {

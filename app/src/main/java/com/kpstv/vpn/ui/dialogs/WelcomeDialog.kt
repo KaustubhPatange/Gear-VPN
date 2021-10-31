@@ -1,11 +1,8 @@
 package com.kpstv.vpn.ui.dialogs
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
@@ -17,7 +14,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -27,11 +23,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import coil.compose.rememberImagePainter
 import com.kpstv.navigation.compose.*
 import com.kpstv.vpn.R
 import com.kpstv.vpn.ui.components.HeaderButton
 import com.kpstv.vpn.ui.components.ThemeButton
+import com.kpstv.vpn.ui.dialogs.content.FeatureContent
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.screens.NavigationRoute
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
@@ -164,7 +160,7 @@ private fun WelcomeScreen() {
 
 @Composable
 private fun HowToScreen() {
-  FeatureScreen(
+  FeatureContent(
     name = stringResource(R.string.how_to_title),
     gif = R.drawable.how_to,
     description = stringResource(R.string.how_to_desc)
@@ -173,7 +169,7 @@ private fun HowToScreen() {
 
 @Composable
 private fun SplitTunnelScreen() {
-  FeatureScreen(
+  FeatureContent(
     name = stringResource(R.string.feature_title, "Split tunnel"),
     gif = R.drawable.feature_split_tunnel,
     description = stringResource(R.string.feature_split_text)
@@ -182,46 +178,11 @@ private fun SplitTunnelScreen() {
 
 @Composable
 private fun GearConnectScreen() {
-  FeatureScreen(
+  FeatureContent(
     name = stringResource(R.string.feature_title, "Gear Connect"),
     gif = R.drawable.feature_gear_connect,
     description = stringResource(R.string.feature_gear_connect)
   )
-}
-
-@Composable
-private fun FeatureScreen(name: String, @DrawableRes gif: Int, description: String) {
-  Column(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(20.dp)
-  ) {
-    Text(
-      text = name,
-      style = MaterialTheme.typography.h5.copy(fontSize = 22.sp)
-    )
-    Spacer(modifier = Modifier.height(30.dp))
-    Image(
-      modifier = Modifier
-        .fillMaxWidth()
-        .clip(RoundedCornerShape(10.dp))
-        .height(280.dp)
-        .border(
-          width = 1.dp,
-          color = MaterialTheme.colors.secondary,
-          shape = RoundedCornerShape(10.dp)
-        ),
-      contentScale = ContentScale.Crop,
-      painter = rememberImagePainter(gif),
-      contentDescription = "feature-demo"
-    )
-    Spacer(modifier = Modifier.height(30.dp))
-    Text(
-      text = description,
-      color = MaterialTheme.colors.secondary,
-      style = MaterialTheme.typography.h5
-    )
-  }
 }
 
 @Parcelize
