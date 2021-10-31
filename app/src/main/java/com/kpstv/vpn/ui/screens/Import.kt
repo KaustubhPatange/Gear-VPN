@@ -41,7 +41,7 @@ import com.kpstv.vpn.data.models.LocalConfiguration
 import com.kpstv.vpn.extensions.utils.AppUtils.asPassword
 import com.kpstv.vpn.extensions.utils.AppUtils.getFileName
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
-import com.kpstv.vpn.extensions.utils.VpnConfigUtil
+import com.kpstv.vpn.extensions.utils.VpnUtils
 import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
@@ -167,7 +167,7 @@ private fun Profile(changeProfile: (config: LocalConfiguration, save: Boolean) -
   val openDocumentResult =
     rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) result@{ uri ->
       val file = uri ?: return@result
-      if (VpnConfigUtil.verifyConfigData(context, file)) {
+      if (VpnUtils.verifyConfigData(context, file)) {
         fileUri.value = file
       } else {
         fileUri.value = null

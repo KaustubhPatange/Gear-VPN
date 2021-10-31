@@ -13,9 +13,11 @@ import androidx.core.app.TaskStackBuilder
 import androidx.core.content.getSystemService
 import androidx.work.ForegroundInfo
 import com.kpstv.vpn.R
+import com.kpstv.vpn.extensions.getPendingIntentFlags
 import com.kpstv.vpn.recievers.AppBroadcast
 import com.kpstv.vpn.ui.activities.Main
 import com.kpstv.vpn.ui.activities.Splash
+import okhttp3.internal.notify
 
 object Notifications {
   fun init(context: Context) = with(context) {
@@ -35,7 +37,7 @@ object Notifications {
     }
   }
 
-  fun createRefreshNotification(context: Context): ForegroundInfo = with(context) {
+  fun createVpnRefreshNotification(context: Context): ForegroundInfo = with(context) {
     val cancelIntent = AppBroadcast.createPendingIntent(this, AppBroadcast.STOP_REFRESHING)
 
     val builder = NotificationCompat.Builder(this, REFRESH_CHANNEL)
@@ -48,6 +50,23 @@ object Notifications {
       .addAction(R.drawable.ic_baseline_cancel_24, getString(android.R.string.cancel), cancelIntent)
 
     ForegroundInfo(NOTIFICATION_REFRESH, builder.build())
+  }
+
+  fun createVpnRefreshFailedNotification(context: Context) : Unit = with(context) {
+    val openAppIntent = Intent(this, Splash::class.java)
+    val openApp = TaskStackBuilder.create(this).run {
+      addNextIntentWithParentStack(openAppIntent)
+      getPendingIntent(0, openAppIntent.getPendingIntentFlags())
+    }
+
+    val builder = NotificationCompat.Builder(this, REFRESH_CHANNEL)
+      .setContentTitle(getString(R.string.vpn_refresh_failed))
+      .setStyle(NotificationCompat.BigTextStyle().bigText(getString(R.string.vpn_refresh_failed_text)))
+      .setSmallIcon(R.drawable.ic_logo_error)
+      .setPriority(NotificationCompat.PRIORITY_HIGH)
+      .setContentIntent(openApp)
+
+    NotificationManagerCompat.from(this).notify(NOTIFICATION_REFRESH_FAILED, builder.build())
   }
 
   fun createDownloadingNotification(context: Context, progress: Int = -1): Unit = with(context) {
@@ -117,8 +136,9 @@ object Notifications {
   private const val UPDATE_CHANNEL = "refresh_update"
 
   private const val NOTIFICATION_REFRESH = 132
-  private const val NOTIFICATION_UPDATE = 133
-  private const val NOTIFICATION_VPN_ACTION_REQUIRED = 134
-  private const val NOTIFICATION_NO_INTERNET = 135
-  private const val NOTIFICATION_AUTH_FAILED = 136
+  private const val NOTIFICATION_REFRESH_FAILED = 133
+  private const val NOTIFICATION_UPDATE = 134
+  private const val NOTIFICATION_VPN_ACTION_REQUIRED = 135
+  private const val NOTIFICATION_NO_INTERNET = 136
+  private const val NOTIFICATION_AUTH_FAILED = 137
 }

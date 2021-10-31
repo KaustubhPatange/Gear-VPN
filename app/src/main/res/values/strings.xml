@@ -12,6 +12,8 @@
     <string name="channel_common_alert">Common Alert</string>
     <string name="channel_update">Update</string>
     <string name="vpn_refresh">Refreshing VPN lists</string>
+    <string name="vpn_refresh_failed">Refreshing VPN failed</string>
+    <string name="vpn_refresh_failed_text">It seems like there are some issues with VPN Gate &amp; VPN Book servers. Check if these websites work on your device.</string>
     <string name="vpn_update_download">Gear VPN - Downloading updates</string>
 
     <string name="vpn_status">⚠ %1$s</string>
@@ -27,7 +29,7 @@
     <string name="premium_server">Premium servers</string>
     <string name="free_server">Free servers</string>
     <string name="server_ip">● %1$s</string>
-    <string name="server_subtitle">%1$s ● %2$s ● %3$s Mbps</string>
+    <string name="server_subtitle">%1$s ● %2$s ● %3$s</string>
     <string name="server_subtitle2">Unknown</string>
     <string name="main_ip">%1$s ● %2$s</string>
 
@@ -115,7 +117,6 @@
 
     <string name="import_config_country">Custom (%1$s)</string>
 
-    <string name="err_server_fetch_timeout">Server fetch timeout</string>
     <string name="err_something_went_wrong">Something went wrong</string>
 
 </resources>

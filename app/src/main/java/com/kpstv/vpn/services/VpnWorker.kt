@@ -30,7 +30,7 @@ class VpnWorker @AssistedInject constructor(
   private val vpnBookParser = VpnBookParser(networkUtils)
 
   override suspend fun doWork(): Result = CoroutineScope(Dispatchers.IO).async scope@{
-    setForeground(Notifications.createRefreshNotification(appContext))
+    setForeground(Notifications.createVpnRefreshNotification(appContext))
 
     // fetch IP for logging
     try {
@@ -49,6 +49,7 @@ class VpnWorker @AssistedInject constructor(
       dao.insertAll(final)
       Result.success()
     } else {
+      Notifications.createVpnRefreshFailedNotification(appContext)
       Result.failure()
     }
   }.await()

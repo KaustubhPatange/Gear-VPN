@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.kpstv.vpn.extensions.getPendingIntentFlags
 import com.kpstv.vpn.extensions.getRandomInt
 import com.kpstv.vpn.services.VpnWorker
 
@@ -19,8 +20,7 @@ class AppBroadcast : BroadcastReceiver() {
     }
 
     fun createPendingIntent(context: Context, action: String, intent: Intent = createIntent(context, action)): PendingIntent {
-      return PendingIntent.getBroadcast(context, getRandomInt(), intent,
-        if (Build.VERSION.SDK_INT >= 30) PendingIntent.FLAG_IMMUTABLE else 0 or PendingIntent.FLAG_CANCEL_CURRENT)
+      return PendingIntent.getBroadcast(context, getRandomInt(), intent, intent.getPendingIntentFlags())
     }
   }
 

@@ -23,7 +23,14 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
     val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
     Logger.d("Fetching from network: vpngate.net")
-    val vpnResponse = networkUtils.simpleGetRequest("https://www.vpngate.net/")
+    val vpnResponse = withTimeoutOrNull(CallTimeoutMillis) { // TODO:
+      networkUtils.simpleGetRequest("https://www.vpngate.net/")
+    } ?: run {
+      Logger.d("Error: Timed out")
+      onComplete.invoke(vpnConfigurations)
+      return@scope
+    }
+
     if (vpnResponse.isSuccessful) {
 
       val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time
@@ -97,47 +104,50 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
             .sortedByDescending { it.speed.toFloatOrNull() ?: 0f }
         }
       intermediateList.clearAndAdd(list)
-      val premiumCountries = intermediateList.asSequence().groupBy { it.country }.filter { it.value.size > 1 }.map { it.key }.distinct().toMutableList()
+      val premiumCountries =
+        intermediateList.asSequence().groupBy { it.country }.filter { it.value.size > 1 }
+          .map { it.key }.distinct().toMutableList()
 
-      for(item in intermediateList) {
+      for (item in intermediateList) {
         // fetch TCP & UDP configs
         Logger.d("Fetching configs for ${item.country} - ${item.ip}")
-        val configResponse = networkUtils.simpleGetRequest(item.configTCP!!) // configTCP here serves as URL in previous iteration.
-          if (configResponse.isSuccessful) {
-            val configBody = configResponse.getBodyAndClose()
-            val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
-            val ovpnConfigs = hrefElements.filter { it.attr("href").contains(".ovpn") }
-              .map { "https://www.vpngate.net" + it.attr("href") }
+        val configResponse =
+          networkUtils.simpleGetRequest(item.configTCP!!) // configTCP here serves as URL in previous iteration.
+        if (configResponse.isSuccessful) {
+          val configBody = configResponse.getBodyAndClose()
+          val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
+          val ovpnConfigs = hrefElements.filter { it.attr("href").contains(".ovpn") }
+            .map { "https://www.vpngate.net" + it.attr("href") }
 
-            val configTCPUrl = ovpnConfigs.firstOrNull { it.contains("tcp=1") }
-            val configUDPUrl = ovpnConfigs.firstOrNull { it.contains("udp=1") }
+          val configTCPUrl = ovpnConfigs.firstOrNull { it.contains("tcp=1") }
+          val configUDPUrl = ovpnConfigs.firstOrNull { it.contains("udp=1") }
 
-            val configTCPAsync = async { safeFetchConfig(configTCPUrl) }
-            val configUDPAsync = async { safeFetchConfig(configUDPUrl) }
+          val configTCPAsync = async { safeFetchConfig(configTCPUrl) }
+          val configUDPAsync = async { safeFetchConfig(configUDPUrl) }
 
-            val configs = awaitAll(configTCPAsync, configUDPAsync)
+          val configs = awaitAll(configTCPAsync, configUDPAsync)
 
-            val configTCP = configs[0]
-            val configUDP = configs[1]
+          val configTCP = configs[0]
+          val configUDP = configs[1]
 
-            if (configTCP == null && configUDP == null) continue
+          if (configTCP == null && configUDP == null) continue
 
-            Logger.d("Has TCP: ${configTCP != null}, Has UDP: ${configUDP != null}")
+          Logger.d("Has TCP: ${configTCP != null}, Has UDP: ${configUDP != null}")
 
-            val premium = if (premiumCountries.contains(item.country)) {
-              premiumCountries.remove(item.country) // remove item after first use
-              true
-            } else false
+          val premium = if (premiumCountries.contains(item.country)) {
+            premiumCountries.remove(item.country) // remove item after first use
+            true
+          } else false
 
-            vpnConfigurations.add(
-              item.copy(
-                configTCP = configTCP,
-                configUDP = configUDP,
-                premium = premium
-              )
+          vpnConfigurations.add(
+            item.copy(
+              configTCP = configTCP,
+              configUDP = configUDP,
+              premium = premium
             )
-            onNewConfigurationAdded.invoke(formatConfigurations(vpnConfigurations))
-          }
+          )
+          onNewConfigurationAdded.invoke(formatConfigurations(vpnConfigurations))
+        }
       }
     }
 
@@ -185,6 +195,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
   private val list = listOf("Federation", "Republic of")
 
   companion object {
+    private const val CallTimeoutMillis : Long = 1000L * 40
     private val ipRegex = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}".toRegex()
     private val numberRegex = "\\d+".toRegex()
 

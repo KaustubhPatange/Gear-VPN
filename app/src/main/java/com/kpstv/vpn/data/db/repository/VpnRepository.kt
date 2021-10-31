@@ -22,9 +22,7 @@ sealed class VpnLoadState(open val configs: List<VpnConfiguration>) {
   data class Empty(override val configs: List<VpnConfiguration> = emptyList()) :
     VpnLoadState(configs)
 
-  object TimedOutError : VpnLoadState(emptyList())
-
-  fun isError() : Boolean = this is Empty || this is TimedOutError
+  fun isError() : Boolean = this is Empty
 }
 
 @AppScope
@@ -37,13 +35,7 @@ class VpnRepository @Inject constructor(
 
   fun fetch(forceNetwork: Boolean = false): Flow<VpnLoadState> = flow {
     safeNetworkAccessor {
-      try {
-        withTimeout(1000L * 60 * 4) { // time out after 4 min
-          fetchVPN(forceNetwork = forceNetwork)
-        }
-      } catch (ex : TimeoutCancellationException) {
-        emit(VpnLoadState.TimedOutError)
-      }
+      fetchVPN(forceNetwork = forceNetwork)
     }
   }
 
@@ -82,7 +74,7 @@ class VpnRepository @Inject constructor(
         emit(VpnLoadState.Completed(vpnConfigs))
         vpnDao.insertAll(vpnConfigs)
       } else {
-        emit(VpnLoadState.Completed(vpnConfigs))
+        emit(VpnLoadState.Empty())
       }
 
     }

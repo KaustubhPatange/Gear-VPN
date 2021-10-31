@@ -37,7 +37,14 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
     }
 
     Logger.d("Fetching from network: vpnbook.com")
-    val vpnBookResponse = networkUtils.simpleGetRequest("https://www.vpnbook.com/")
+    val vpnBookResponse = withTimeoutOrNull(CallTimeoutMillis) {
+      networkUtils.simpleGetRequest("https://www.vpnbook.com/")
+    } ?: run {
+      Logger.d("Error: Timed out")
+      onComplete.invoke(vpnConfigurations)
+      return
+    }
+
     if (vpnBookResponse.isSuccessful) {
 
       val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time
@@ -149,6 +156,7 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
   }
 
   private companion object {
+    private const val CallTimeoutMillis : Long = 1000L * 40
     private const val SettingsUrl = "https://raw.githubusercontent.com/KaustubhPatange/Gear-VPN/master/settings.json"
 
     val ipRegex = "remote\\s?([\\d.]+)\\s?\\d+".toRegex()

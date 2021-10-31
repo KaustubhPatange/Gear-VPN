@@ -39,6 +39,7 @@ import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
 import com.kpstv.vpn.extensions.utils.FlagUtils
+import com.kpstv.vpn.extensions.utils.VpnUtils
 import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
@@ -188,13 +189,9 @@ fun ServerScreen(
   )
 
   AnimatedVisibility(visible = vpnState.isError(), enter = fadeIn()) {
-    val title = when (vpnState) {
-      is VpnLoadState.TimedOutError -> stringResource(R.string.err_server_fetch_timeout)
-      else -> stringResource(R.string.err_something_went_wrong)
-    }
     Column {
       Spacer(modifier = Modifier.height(20.dp))
-      ErrorVpnScreen(modifier = Modifier.padding(20.dp), title = title, dismiss = onBackButton)
+      ErrorVpnScreen(modifier = Modifier.padding(20.dp), title = stringResource(R.string.err_something_went_wrong), dismiss = onBackButton)
     }
   }
 }
@@ -403,7 +400,7 @@ private fun getCommonItemSubtext(config: VpnConfiguration): String {
   return if (config.sessions.isEmpty() && config.upTime.isEmpty() && config.speed.isEmpty()) {
     stringResource(R.string.server_subtitle2)
   } else {
-    stringResource(R.string.server_subtitle, config.sessions, config.upTime, config.speed)
+    stringResource(R.string.server_subtitle, config.sessions, config.upTime, VpnUtils.formatVpnGateSpeed(config.speed))
   }
 }
 
