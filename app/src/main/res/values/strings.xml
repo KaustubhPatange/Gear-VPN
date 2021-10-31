@@ -121,5 +121,6 @@
     <string name="how_to_refresh_tip_text">Pull down to refresh VPN server list.</string>
     <string name="dialog_how_to_refresh_title">How to refresh servers</string>
     <string name="dialog_how_to_refresh_description"><![CDATA[Pull down from the top & release to refresh.]]></string>
+    <string name="dialog_vpn_profile_error">Error during connection</string>
 
 </resources>

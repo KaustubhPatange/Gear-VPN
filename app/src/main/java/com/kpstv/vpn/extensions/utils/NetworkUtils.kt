@@ -10,6 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.IOException
 import java.net.ProtocolException
+import java.net.SocketException
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -36,6 +37,8 @@ class NetworkUtils @Inject constructor() {
         val data = body?.string()
         body?.close()
         return data
+      } catch (e: SocketException) {
+        Logger.w(e, "Socket exception: ${e.message}")
       } catch (e: ProtocolException) {
         Logger.w(e, "Protocol exception: ${e.message}")
       }

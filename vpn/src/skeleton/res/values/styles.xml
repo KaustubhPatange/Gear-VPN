@@ -7,7 +7,7 @@
 
     <style name="blinkt.baseTheme" parent="android:Theme.DeviceDefault.Light" />
 
-    <style name="blinkt.dialog" parent="android:Theme.DeviceDefault.Light.Dialog" />
+    <style name="blinkt.dialog" parent="android:Theme.DeviceDefault.Dialog" />
 
 
     <style name="Theme.CreateShortCut" parent="android:Theme.DeviceDefault.DialogWhenLarge" />

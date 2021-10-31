@@ -5,6 +5,7 @@ import android.content.*
 import android.graphics.Color
 import android.net.VpnService
 import android.os.IBinder
+import android.os.RemoteException
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.kpstv.bindings.AutoGenerateConverter
 import com.kpstv.bindings.ConverterType
@@ -13,6 +14,7 @@ import com.kpstv.vpn.extensions.asShared
 import com.kpstv.vpn.extensions.asVpnConfig
 import de.blinkt.openvpn.DisconnectVPNActivity
 import de.blinkt.openvpn.OpenVpnApi
+import de.blinkt.openvpn.R
 import de.blinkt.openvpn.core.OpenVPNService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull

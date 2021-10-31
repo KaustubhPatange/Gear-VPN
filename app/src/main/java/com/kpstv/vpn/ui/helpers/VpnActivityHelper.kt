@@ -1,26 +1,19 @@
 package com.kpstv.vpn.ui.helpers
 
 import android.app.Activity
-import android.content.*
-import android.net.VpnService
-import android.os.IBinder
+import android.content.Context
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import com.kpstv.vpn.R
-import com.kpstv.vpn.extensions.asVpnConfig
 import com.kpstv.vpn.extensions.utils.Notifications
 import com.kpstv.vpn.ui.viewmodels.VpnViewModel
-import de.blinkt.openvpn.OpenVpnApi
-import de.blinkt.openvpn.core.OpenVPNService
 import es.dmoral.toasty.Toasty
-import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
 
 class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(activity, activity.lifecycleScope) {
   private val vpnViewModel by activity.viewModels<VpnViewModel>()
@@ -93,7 +86,8 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
 
   override fun onStartVpnFailed(exception: Exception) {
     exception.printStackTrace()
-    Toasty.error(activity, activity.getString(R.string.vpn_error, exception.message)).show()
+    vpnViewModel.dispatchConnectionState(VpnConnectionStatus.Disconnected())
+    showVpnErrorDialog(activity, exception)
   }
 
   override fun onStopVpnFailed(exception: Exception) {
@@ -125,5 +119,13 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
     override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
       return resultCode == Activity.RESULT_OK
     }
+  }
+
+  private fun showVpnErrorDialog(context: Context, exception: Exception) {
+    android.app.AlertDialog.Builder(context, R.style.blinkt_dialog)
+      .setTitle(context.getString(R.string.dialog_vpn_profile_error))
+      .setMessage(exception.message)
+      .setPositiveButton(context.getString(R.string.alright), null)
+      .show()
   }
 }

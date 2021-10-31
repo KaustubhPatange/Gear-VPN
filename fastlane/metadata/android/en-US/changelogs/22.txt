@@ -1,0 +1,5 @@
+Added: Tip for how to refresh VPN servers.
+Improved: Server refresh timeout logic.
+Fixed: Socket error when parsing body.
+Fixed: Notification exception when setting category.
+Fixed: Exceptions when connecting to an invalid profile.
