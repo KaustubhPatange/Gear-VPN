@@ -46,7 +46,7 @@ See [Contributing Guidelines](CONTRIBUTING.md).
 
 ## License
 
-- [The Apache License Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+- [The GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.txt)
 
 ```
 Copyright 2021 Kaustubh Patange
