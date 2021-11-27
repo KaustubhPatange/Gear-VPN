@@ -11,7 +11,9 @@ import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import java.io.*
 import java.net.ConnectException
+import java.net.SocketTimeoutException
 import java.net.URL
+import java.net.URLConnection
 import java.util.*
 import java.util.zip.ZipInputStream
 import javax.net.ssl.SSLException
@@ -75,7 +77,10 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
 
         /* Patch to fix any SSL or interrupting connection issues */
         val bytes = try {
-          val stream = URL(url).openStream()
+          val urlConnection = URL(url).openConnection()
+          urlConnection.connectTimeout = 15 * 1000
+          urlConnection.readTimeout = 30 * 1000
+          val stream = urlConnection.getInputStream()
           stream.run {
             val bytes = stream.readBytes()
             close()
@@ -84,6 +89,8 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
         } catch (e : SSLException) {
           continue // skip
         } catch (e : ConnectException) {
+          continue // skip
+        } catch (e : SocketTimeoutException) {
           continue // skip
         }
 

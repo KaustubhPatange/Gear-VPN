@@ -26,11 +26,13 @@ class VpnWorker @AssistedInject constructor(
   networkUtils: NetworkUtils,
 ) : CoroutineWorker(appContext, workerParams) {
 
-  private val openApiParser = VpnGateParser(networkUtils)
+  private val vpnGateParser = VpnGateParser(networkUtils)
   private val vpnBookParser = VpnBookParser(networkUtils)
 
   override suspend fun doWork(): Result = CoroutineScope(Dispatchers.IO).async scope@{
     setForeground(Notifications.createVpnRefreshNotification(appContext))
+
+    Logger.d("Fetching from Worker")
 
     // fetch IP for logging
     try {
@@ -38,10 +40,14 @@ class VpnWorker @AssistedInject constructor(
       Logger.d("IP Info: ${ipData.country}, ${ipData.city}, ${ipData.region}")
     } catch (_ : Exception) { }
 
-    val openListAsync = async { openApiParser.parse() }
-    val vpnListAsync = async { vpnBookParser.parse() }
+    val vpnGateListAsync = async(start = CoroutineStart.LAZY) { vpnGateParser.parse() }
+    val vpnBookListAsync = async(start = CoroutineStart.LAZY) { vpnBookParser.parse() }
 
-    val configList = awaitAll(openListAsync, vpnListAsync)
+    val configList = try {
+      awaitAll(vpnGateListAsync, vpnBookListAsync)
+    } catch (_ : Exception) {
+      return@scope createFailureResult()
+    }
 
     val final = VpnRepository.merge(configList[0], configList[1])
 
@@ -49,10 +55,14 @@ class VpnWorker @AssistedInject constructor(
       dao.insertAll(final)
       Result.success()
     } else {
-      Notifications.createVpnRefreshFailedNotification(appContext)
-      Result.failure()
+      createFailureResult()
     }
   }.await()
+
+  private fun createFailureResult() : Result {
+    Notifications.createVpnRefreshFailedNotification(appContext)
+    return Result.failure()
+  }
 
   @AssistedFactory
   interface Factory : DaggerWorkerFactory<VpnWorker>

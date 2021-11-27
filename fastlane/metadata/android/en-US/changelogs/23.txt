@@ -1,0 +1,4 @@
+Fixed: Crash when requesting permission for VPN connection.
+Fixed: Crashes due to empty response body for requests.
+Fixed: "Refresh Service" auto dispose when crash happens.
+Fixed: Issues where socket timeout occurs when fetching VPN servers.
