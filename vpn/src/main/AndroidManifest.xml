@@ -12,6 +12,13 @@
             android:noHistory="true"
             android:taskAffinity=".DisconnectVPN"
             android:theme="@style/blinkt.dialog" />
+        <activity android:name=".api.ConfirmDialog"
+            android:theme="@style/blinkt"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <service
             android:name="de.blinkt.openvpn.core.OpenVPNService"
             android:exported="false"

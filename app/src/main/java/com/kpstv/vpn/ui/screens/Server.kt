@@ -99,7 +99,7 @@ fun ServerScreen(
       ) {
         itemsIndexed(vpnState.configs) { index, item ->
           if (index == 0) {
-            key(index) {
+            key("header$index") {
               Spacer(
                 modifier = Modifier
                   .statusBarsPadding()
@@ -116,7 +116,7 @@ fun ServerScreen(
             }
           }
           if (index == freeServerIndex) {
-            key(freeServerIndex) {
+            key("freeServerIndex$index") {
               Spacer(modifier = Modifier.height(15.dp))
               ServerHeader(
                 title = stringResource(R.string.free_server),
@@ -142,7 +142,7 @@ fun ServerScreen(
           }
 
           if (index == vpnState.configs.size - 1) {
-            key(index) {
+            key("endSpacer$index") {
               Spacer(
                 modifier = Modifier
                   .navigationBarsPadding()

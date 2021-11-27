@@ -36,7 +36,11 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
       val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time
       val expiredTime = DateUtils.format(offsetDateTime).toLong()
 
-      val body = vpnResponse.getBodyAndClose()
+      val body = vpnResponse.getBodyAndClose() ?: run {
+        Logger.d("Error: Body is null")
+        onComplete.invoke(formatConfigurations(vpnConfigurations))
+        return@scope
+      }
 
       val doc = Jsoup.parse(body)
 
@@ -111,10 +115,9 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
       for (item in intermediateList) {
         // fetch TCP & UDP configs
         Logger.d("Fetching configs for ${item.country} - ${item.ip}")
-        val configResponse =
-          networkUtils.simpleGetRequest(item.configTCP!!) // configTCP here serves as URL in previous iteration.
+        val configResponse = networkUtils.simpleGetRequest(item.configTCP!!) // configTCP here serves as URL in previous iteration.
         if (configResponse.isSuccessful) {
-          val configBody = configResponse.getBodyAndClose()
+          val configBody = configResponse.getBodyAndClose() ?: continue
           val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
           val ovpnConfigs = hrefElements.filter { it.attr("href").contains(".ovpn") }
             .map { "https://www.vpngate.net" + it.attr("href") }

@@ -2,7 +2,7 @@ buildscript {
     ext {
         versions = [
                 "compose": "1.0.4",
-                "compose_tool": "1.0.4", // downgrade due to error "androidx.compose.ui.tooling.preview.PreviewActivity is not an Activity subclass or alias"
+                "compose_tool": "1.0.4",
                 "kotlin": "1.5.31",
                 "gradlePlugin": "7.2.0-alpha03",
         ]

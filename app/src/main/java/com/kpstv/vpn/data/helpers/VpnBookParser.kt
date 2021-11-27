@@ -10,9 +10,11 @@ import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import java.io.*
+import java.net.ConnectException
 import java.net.URL
 import java.util.*
 import java.util.zip.ZipInputStream
+import javax.net.ssl.SSLException
 import kotlin.coroutines.resume
 
 class VpnBookParser(private val networkUtils: NetworkUtils) {
@@ -50,7 +52,11 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
       val offsetDateTime = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 7) }.time
       val expiredTime = DateUtils.format(offsetDateTime).toLong()
 
-      val body = vpnBookResponse.getBodyAndClose()
+      val body = vpnBookResponse.getBodyAndClose() ?: run {
+        Logger.d("Error: Body is null")
+        onComplete.invoke(vpnConfigurations)
+        return
+      }
 
       val doc = Jsoup.parse(body)
 
@@ -67,9 +73,19 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
 
         Logger.d("Download configs for $name")
 
-        val stream = URL(url).openStream()
-        val bytes = stream.readBytes()
-        stream.close()
+        /* Patch to fix any SSL or interrupting connection issues */
+        val bytes = try {
+          val stream = URL(url).openStream()
+          stream.run {
+            val bytes = stream.readBytes()
+            close()
+            bytes
+          }
+        } catch (e : SSLException) {
+          continue // skip
+        } catch (e : ConnectException) {
+          continue // skip
+        }
 
         val zipStream = ZipInputStream(ByteArrayInputStream(bytes))
 
