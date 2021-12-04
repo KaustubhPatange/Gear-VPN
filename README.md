@@ -44,6 +44,10 @@ See [Contributing Guidelines](CONTRIBUTING.md).
 - Some images & icons (except logo) are from [Icons8](https://icons8.com/).
 - Rounded country flags are fetched from [countryflags.com](http://countryflags.com/).
 
+## Partnership
+
+If you are someone who host VPN servers or want to create your own VPN app based on Gear VPN, contact me at developerkp16@gmail.com. For more details check [here](https://github.com/KaustubhPatange/Gear-VPN/wiki/Forks).
+
 ## License
 
 - [The GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.txt)
