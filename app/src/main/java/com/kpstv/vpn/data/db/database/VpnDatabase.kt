@@ -19,6 +19,8 @@ abstract class VpnDatabase : RoomDatabase() {
   abstract fun getVPNDao(): VpnDao
   abstract fun getLocalDao(): LocalDao
   abstract fun getVPNBookDao(): VpnBookDao
+
+  companion object { const val DB_NAME = "vpn.db" }
 }
 
 object VpnDatabaseMigrations {

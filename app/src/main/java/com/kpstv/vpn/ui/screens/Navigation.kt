@@ -14,6 +14,7 @@ import com.kpstv.vpn.ui.components.rememberBottomSheetState
 import com.kpstv.vpn.ui.dialogs.WelcomeDialogScreen
 import com.kpstv.vpn.ui.helpers.BillingHelper
 import com.kpstv.vpn.ui.sheets.PremiumBottomSheet
+import com.kpstv.vpn.ui.viewmodels.FlagViewModel
 import com.kpstv.vpn.ui.viewmodels.VpnViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -45,7 +46,8 @@ private class Load(val refresh: Boolean = false)
 fun NavigationScreen(
   navigator: ComposeNavigator,
   billingHelper: BillingHelper,
-  viewModel: VpnViewModel = viewModel()
+  viewModel: VpnViewModel = viewModel(),
+  flagViewModel: FlagViewModel = viewModel()
 ) {
   val context = LocalContext.current
   val shouldRefresh = remember { mutableStateOf(Load(), policy = referentialEqualityPolicy()) }
@@ -87,6 +89,7 @@ fun NavigationScreen(
         publicIp = location.value?.query,
         configuration = currentConfig.value,
         connectivityStatus = connectivityStatus.value,
+        getFlagUrl = flagViewModel::getFlagUrlByCountry,
         onToChangeServer = {
           navController.navigateTo(NavigationRoute.Server()) {
             withAnimation {

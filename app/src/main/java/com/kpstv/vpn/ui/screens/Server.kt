@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
@@ -51,6 +52,9 @@ import com.kpstv.vpn.ui.sheets.ProtocolSheet
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.theme.goldenYellow
+import com.kpstv.vpn.ui.viewmodels.FlagViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -61,6 +65,7 @@ fun ServerScreen(
   onImportButton: () -> Unit = {},
   onPremiumClick: () -> Unit = {},
   isPremiumUnlocked: Boolean = false,
+  flagViewModel: FlagViewModel = viewModel(),
   onItemClick: (VpnConfiguration, VpnConfig.ConnectionType) -> Unit,
 ) {
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
@@ -133,6 +138,7 @@ fun ServerScreen(
                 config = item,
                 isPremiumUnlocked = isPremiumUnlocked,
                 onPremiumClick = onPremiumClick,
+                getFlagUrl = flagViewModel::getFlagUrlByCountry,
                 onClick = { config ->
                   vpnConfig.value = config
                   protocolBottomSheetState.show()
@@ -319,6 +325,7 @@ private fun ServerHeader(
 private fun CommonItem(
   config: VpnConfiguration,
   isPremiumUnlocked: Boolean,
+  getFlagUrl: (String) -> Flow<String>,
   onPremiumClick: () -> Unit = {},
   onClick: (VpnConfiguration) -> Unit
 ) {
@@ -332,8 +339,6 @@ private fun CommonItem(
         color = if (config.premium) goldenYellow else dotColor.copy(alpha = 0.7f),
         shape = RoundedCornerShape(10.dp)
       )
-//      .wrapContentHeight()
-//      .height(65.dp)
       .clickable(
         onClick = {
           if (config.premium && !isPremiumUnlocked) {
@@ -346,9 +351,10 @@ private fun CommonItem(
       .fillMaxWidth()
       .padding(7.dp)
   ) {
+    val flagUrl by getFlagUrl(config.country).collectAsState(initial = "")
     Image(
       painter = rememberImagePainter(
-        FlagUtils.getOrNull(config.country) ?: "",
+        data = flagUrl,
         builder = {
           placeholder(R.drawable.unknown)
           crossfade(true)
@@ -476,8 +482,9 @@ fun PreviewCommonItem() {
   CommonPreviewTheme {
     CommonItem(
       config = createTestConfiguration(),
+      getFlagUrl = { flowOf("") },
       isPremiumUnlocked = true,
-      onClick = {}
+      onClick = {},
     )
   }
 }
@@ -488,6 +495,7 @@ fun PreviewCommonItemPremium() {
   CommonPreviewTheme {
     CommonItem(
       config = createTestConfiguration().copy(premium = true),
+      getFlagUrl = { flowOf("") },
       isPremiumUnlocked = false,
       onClick = {}
     )

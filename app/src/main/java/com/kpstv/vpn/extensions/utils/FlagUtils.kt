@@ -88,7 +88,9 @@ object FlagUtils {
       "Slovenia": "https://cdn.countryflags.com/thumbs/slovenia/flag-round-250.png",
       "Kazakhstan": "https://cdn.countryflags.com/thumbs/kazakhstan/flag-round-250.png",
       "Myanmar": "https://cdn.countryflags.com/thumbs/myanmar/flag-round-250.png",
-      "Pakistan": "https://cdn.countryflags.com/thumbs/pakistan/flag-round-250.png"
+      "Pakistan": "https://cdn.countryflags.com/thumbs/pakistan/flag-round-250.png",
+      "Bulgaria": "https://cdn.countryflags.com/thumbs/bulgaria/flag-round-250.png",
+      "United Arab Emirates": "https://cdn.countryflags.com/thumbs/united-arab-emirates/flag-round-250.png"
     }
   """
   private val flagObject = JSONObject(FlagJson)

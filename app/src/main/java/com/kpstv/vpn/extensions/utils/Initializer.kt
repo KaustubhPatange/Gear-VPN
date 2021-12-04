@@ -3,6 +3,7 @@ package com.kpstv.vpn.extensions.utils
 import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.kpstv.vpn.BuildConfig
+import com.kpstv.vpn.services.FlagWorker
 import com.kpstv.vpn.services.VpnWorker
 import com.kpstv.vpn.services.VpnBookWorker
 import com.kpstv.vpn.ui.helpers.Settings
@@ -16,6 +17,7 @@ object Initializer {
         VpnWorker.schedule(context)
       }
       VpnBookWorker.schedule(context)
+      FlagWorker.schedule(context)
     }
   }
 }

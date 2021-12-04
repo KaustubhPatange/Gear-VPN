@@ -1,6 +1,7 @@
 package com.kpstv.vpn.di.service.worker
 
 import androidx.work.ListenableWorker
+import com.kpstv.vpn.services.FlagWorker
 import com.kpstv.vpn.services.VpnWorker
 import com.kpstv.vpn.services.VpnBookWorker
 import dagger.Binds
@@ -18,4 +19,9 @@ abstract class WorkerModule {
   @IntoMap
   @WorkerKey(VpnBookWorker::class)
   abstract fun bindVpnBookPasswordWorker(f: VpnBookWorker.Factory) : DaggerWorkerFactory<out ListenableWorker>
+
+  @Binds
+  @IntoMap
+  @WorkerKey(FlagWorker::class)
+  abstract fun bindFlagWorker(f: FlagWorker.Factory) : DaggerWorkerFactory<out ListenableWorker>
 }

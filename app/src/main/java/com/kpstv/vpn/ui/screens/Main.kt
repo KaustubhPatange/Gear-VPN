@@ -42,6 +42,7 @@ import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.cyanDark
 import com.kpstv.vpn.ui.theme.greenColorDark
 import com.kpstv.vpn.ui.theme.purpleColor
+import kotlinx.coroutines.flow.*
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -49,6 +50,7 @@ fun MainScreen(
   publicIp: String?,
   configuration: VpnConfig = VpnConfig.createEmpty(),
   connectivityStatus: ConnectivityStatus = ConnectivityStatus.NONE,
+  getFlagUrl: (country: String) -> Flow<String>,
   onToChangeServer: () -> Unit,
   onToAboutScreen: () -> Unit,
   onConnectClick: () -> Unit,
@@ -148,9 +150,11 @@ fun MainScreen(
         .padding(10.dp)
     ) {
       if (!configuration.country.startsWith("Custom")) {
+
+        val flagUrl = getFlagUrl(configuration.country).collectAsState(initial = "")
+
         Image(
-          painter = rememberImagePainter(
-            FlagUtils.getOrNull(configuration.country) ?: "",
+          painter = rememberImagePainter(flagUrl.value,
             builder = {
               placeholder(R.drawable.unknown)
               crossfade(true)
@@ -306,6 +310,7 @@ fun PreviewStartScreen() {
   CommonPreviewTheme {
     MainScreen(
       publicIp = "104.156.232.238",
+      getFlagUrl = { MutableStateFlow("") },
       onToChangeServer = {},
       onToAboutScreen = {},
       onDisallowedAppListChanged = {},

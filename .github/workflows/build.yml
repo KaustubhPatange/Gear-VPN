@@ -6,11 +6,13 @@ on:
     paths-ignore:
       - "README.md"
       - "settings.json"
+      - "flags.json"
       - "art/**"
   pull_request:
     paths-ignore:
       - "README.md"
       - "settings.json"
+      - "flags.json"
       - "art/**"
 jobs:
   buildJob:

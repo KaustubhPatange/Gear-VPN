@@ -3,9 +3,12 @@ package com.kpstv.vpn.di.app
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import com.kpstv.vpn.data.api.FlagApi
 import com.kpstv.vpn.data.api.IpApi
+import com.kpstv.vpn.data.db.database.FlagDatabase
 import com.kpstv.vpn.data.db.database.VpnDatabase
 import com.kpstv.vpn.data.db.database.VpnDatabaseMigrations
+import com.kpstv.vpn.data.db.localized.FlagDao
 import com.kpstv.vpn.data.db.localized.LocalDao
 import com.kpstv.vpn.data.db.localized.VpnBookDao
 import com.kpstv.vpn.data.db.localized.VpnDao
@@ -21,14 +24,14 @@ class AppModule {
   @Provides
   fun provideApplicationContext(application: Application): Context = application.applicationContext
 
-  /* Database */
+  /* VPN Database */
 
   @Provides
-  fun provideDatabase(@AppContext context: Context): VpnDatabase {
+  fun provideVPNDatabase(@AppContext context: Context): VpnDatabase {
     return Room.databaseBuilder(
       context,
       VpnDatabase::class.java,
-      "vpn.db"
+      VpnDatabase.DB_NAME
     )
       .addMigrations(VpnDatabaseMigrations.MIGRATION_1_2)
       .fallbackToDestructiveMigration()
@@ -45,9 +48,22 @@ class AppModule {
   @Provides
   fun provideLocalDao(database: VpnDatabase): LocalDao = database.getLocalDao()
 
+  /* Flag Database */
+
   @Provides
-  fun provideVpnRepository(vpnDao: VpnDao, networkUtils: NetworkUtils): VpnRepository =
-    VpnRepository(vpnDao, networkUtils)
+  fun provideFlagDatabase(@AppContext context: Context): FlagDatabase {
+    return Room.databaseBuilder(
+      context,
+      FlagDatabase::class.java,
+      FlagDatabase.DB_NAME
+    )
+      .fallbackToDestructiveMigration()
+      .fallbackToDestructiveMigrationOnDowngrade()
+      .build()
+  }
+
+  @Provides
+  fun provideFlagDao(database: FlagDatabase): FlagDao = database.getFlagDao()
 
   /* Networking */
 
@@ -60,5 +76,13 @@ class AppModule {
       .baseUrl(IpApi.API)
       .build()
       .create(IpApi::class.java)
+  }
+
+  @Provides
+  fun provideFlagApi(networkUtils: NetworkUtils): FlagApi {
+    return networkUtils.getRetrofitBuilder()
+      .baseUrl(FlagApi.API)
+      .build()
+      .create(FlagApi::class.java)
   }
 }
