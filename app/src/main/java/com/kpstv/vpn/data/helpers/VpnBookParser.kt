@@ -92,6 +92,8 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
           continue // skip
         } catch (e : SocketTimeoutException) {
           continue // skip
+        } catch (e: FileNotFoundException) {
+          continue // skip, fixed: Issue where file does not exist for a temporary period.
         }
 
         val zipStream = ZipInputStream(ByteArrayInputStream(bytes))

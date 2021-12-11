@@ -29,7 +29,7 @@ class VpnWorker @AssistedInject constructor(
   private val vpnGateParser = VpnGateParser(networkUtils)
   private val vpnBookParser = VpnBookParser(networkUtils)
 
-  override suspend fun doWork(): Result = CoroutineScope(Dispatchers.IO).async scope@{
+  override suspend fun doWork(): Result = supervisorScope scope@{
     setForeground(Notifications.createVpnRefreshNotification(appContext))
 
     Logger.d("Fetching from Worker")
@@ -45,7 +45,8 @@ class VpnWorker @AssistedInject constructor(
 
     val configList = try {
       awaitAll(vpnGateListAsync, vpnBookListAsync)
-    } catch (_ : Exception) {
+    } catch (e : Exception) {
+      Logger.w(e, "Failed to fetch VPN servers from Worker")
       return@scope createFailureResult()
     }
 
@@ -57,7 +58,7 @@ class VpnWorker @AssistedInject constructor(
     } else {
       createFailureResult()
     }
-  }.await()
+  }
 
   private fun createFailureResult() : Result {
     Notifications.createVpnRefreshFailedNotification(appContext)
