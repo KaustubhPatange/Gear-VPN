@@ -77,6 +77,7 @@ class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(act
   }
 
   override fun onConnectivityStatusChanged(status: VpnConnectionStatus) {
+    super.onConnectivityStatusChanged(status)
     vpnViewModel.dispatchConnectionState(status)
   }
 

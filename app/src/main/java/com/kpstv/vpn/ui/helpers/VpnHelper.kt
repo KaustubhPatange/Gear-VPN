@@ -1,20 +1,19 @@
 package com.kpstv.vpn.ui.helpers
 
-import android.app.ActivityManager
 import android.content.*
 import android.graphics.Color
 import android.net.VpnService
 import android.os.IBinder
-import android.os.RemoteException
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.kpstv.bindings.AutoGenerateConverter
 import com.kpstv.bindings.ConverterType
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.asShared
 import com.kpstv.vpn.extensions.asVpnConfig
+import com.kpstv.vpn.logging.Logger
+import com.squareup.moshi.JsonClass
 import de.blinkt.openvpn.DisconnectVPNActivity
 import de.blinkt.openvpn.OpenVpnApi
-import de.blinkt.openvpn.R
 import de.blinkt.openvpn.core.OpenVPNService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
@@ -77,7 +76,14 @@ open class VpnHelper(
   /**
    * Called when the vpn connectivity status changes which is broadcasted from broadcast receiver.
    */
-  open fun onConnectivityStatusChanged(status: VpnConnectionStatus) {}
+  open fun onConnectivityStatusChanged(status: VpnConnectionStatus) {
+    if (status is VpnConnectionStatus.Connected) {
+      lifecycleScope.launch {
+        val total = ReviewSettings.incrementVpnConnectCount()
+        Logger.d("Incrementing Connection count ($total)")
+      }
+    }
+  }
 
   open fun onStartVpnFailed(exception: Exception) {}
 
@@ -253,6 +259,7 @@ open class VpnHelper(
 }
 
 @AutoGenerateConverter(using = ConverterType.MOSHI)
+@JsonClass(generateAdapter = true)
 data class VpnConfig(
   val username: String?,
   val password: String?,

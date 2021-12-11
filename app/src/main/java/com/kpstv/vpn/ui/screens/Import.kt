@@ -8,7 +8,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -38,11 +37,15 @@ import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.models.LocalConfiguration
+import com.kpstv.vpn.extensions.clickableNoIndication
 import com.kpstv.vpn.extensions.utils.AppUtils.asPassword
 import com.kpstv.vpn.extensions.utils.AppUtils.getFileName
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
 import com.kpstv.vpn.extensions.utils.VpnUtils
-import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.components.AnimatedSwipeDismiss
+import com.kpstv.vpn.ui.components.Header
+import com.kpstv.vpn.ui.components.QuickTip
+import com.kpstv.vpn.ui.components.ThemeButton
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
@@ -319,9 +322,7 @@ private fun ProfileColumn(
     Spacer(modifier = Modifier.height(25.dp))
 
     Row(
-      modifier = Modifier.clickable(
-        indication = null,
-        interactionSource = remember { MutableInteractionSource() },
+      modifier = Modifier.clickableNoIndication(
         onClick = { onSaveProfileChanged.invoke(!saveProfile) }
       )) {
       Checkbox(

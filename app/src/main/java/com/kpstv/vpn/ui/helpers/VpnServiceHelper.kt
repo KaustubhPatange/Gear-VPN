@@ -38,6 +38,7 @@ class VpnServiceHelper(private val service: Service) : VpnHelper(service) {
   }
 
   override fun onConnectivityStatusChanged(status: VpnConnectionStatus) {
+    super.onConnectivityStatusChanged(status)
     connectionStatusStateFlow.tryEmit(status)
   }
 

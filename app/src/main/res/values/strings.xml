@@ -62,7 +62,6 @@
     <string name="premium_expired">Your premium subscription has expired</string>
     <string name="vpn_timeout">VPN connect timeout, try again!</string>
 
-    <string name="google_play_page">https://play.google.com/store/apps/details?id=com.kpstv.vpn</string>
     <string name="max_premium">Maximum limit reached! Buy premium to unlock.</string>
     <string name="restart_maybe">If premium didn\'t unlock, try restarting app.</string>
 
@@ -119,8 +118,16 @@
 
     <string name="err_something_went_wrong">Something went wrong</string>
     <string name="how_to_refresh_tip_text">Pull down to refresh VPN server list.</string>
+
     <string name="dialog_how_to_refresh_title">How to refresh servers</string>
     <string name="dialog_how_to_refresh_description"><![CDATA[Pull down from the top & release to refresh.]]></string>
     <string name="dialog_vpn_profile_error">Error during connection</string>
+
+    <string name="rate_dialog_title">Rate Gear VPN app</string>
+    <string name="rate_dialog_text"><![CDATA[If you like the app let us know so that we can grow & reach more audience.]]></string>
+    <string name="rate_dialog_later">LATER</string>
+    <string name="rate_dialog_review">REVIEW</string>
+    <string name="rate_dialog_already_reviewed">I\'ve already reviewed the app.</string>
+    <string name="rate_dialog_ignore">We won\'t show this dialog again</string>
 
 </resources>

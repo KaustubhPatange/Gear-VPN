@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -32,7 +31,6 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.navigation.compose.findNavController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrl
-import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.extensions.utils.NetworkMonitor
 import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.dialogs.AppsDialog
@@ -93,7 +91,7 @@ fun MainScreen(
           .padding(top = 5.dp)
           .pointerInput(Unit) {
             detectTapGestures(
-              onLongPress = { context.launchUrl(context.getString(R.string.google_play_page)) }
+              onLongPress = { context.launchUrl(context.getString(R.string.app_google_play)) }
             )
           },
         style = MaterialTheme.typography.h4

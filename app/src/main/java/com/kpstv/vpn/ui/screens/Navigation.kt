@@ -11,6 +11,8 @@ import com.kpstv.vpn.extensions.SlideTop
 import com.kpstv.vpn.extensions.asVpnConfig
 import com.kpstv.vpn.ui.components.ConnectionStatusBox
 import com.kpstv.vpn.ui.components.rememberBottomSheetState
+import com.kpstv.vpn.ui.dialogs.ReviewDialog
+import com.kpstv.vpn.ui.dialogs.ReviewDialogScreen
 import com.kpstv.vpn.ui.dialogs.WelcomeDialogScreen
 import com.kpstv.vpn.ui.helpers.BillingHelper
 import com.kpstv.vpn.ui.sheets.PremiumBottomSheet
@@ -177,5 +179,8 @@ fun NavigationScreen(
 
     /* Welcome Dialog */
     WelcomeDialogScreen()
+
+    /* Review Dialog */
+    ReviewDialogScreen()
   }
 }

@@ -24,6 +24,8 @@ object Settings {
   )
   private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
+  val store: DataStore<Preferences> get() = dataStore
+
   fun init(context: Context) {
     dataStore = PreferenceDataStoreFactory.create(
       produceFile = { context.preferencesDataStoreFile(SETTINGS_PB) },
@@ -141,8 +143,10 @@ object Settings {
   }
 
   abstract class Setting<T : Any>(private val dataStore: DataStore<Preferences>, private val default: T) {
-    open val name: String get() = this::class.javaObjectType.name
-    open fun keyProvider(): Preferences.Key<out Any> {
+    protected val scope: CoroutineScope = Settings.scope
+
+    protected open val name: String get() = this::class.javaObjectType.name
+    protected open fun keyProvider(): Preferences.Key<out Any> {
       return when(default) {
         is Boolean -> booleanPreferencesKey(name)
         is String -> stringPreferencesKey(name)
