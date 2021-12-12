@@ -1,0 +1,4 @@
+Added: Review dialog for users to review the app at the appropriate time.
+Improved: Country flags will now be fetched through an API.
+Fixed: Crashes in vpnbook.com parsing where file is not available temporarily.
+Fixed: Major crash in worker when servers are updated in background.

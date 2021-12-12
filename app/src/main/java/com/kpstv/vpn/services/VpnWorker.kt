@@ -76,7 +76,7 @@ class VpnWorker @AssistedInject constructor(
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
-      val request = PeriodicWorkRequestBuilder<VpnWorker>(7, TimeUnit.HOURS, 5, TimeUnit.MINUTES)
+      val request = PeriodicWorkRequestBuilder<VpnWorker>(6, TimeUnit.HOURS, 5, TimeUnit.MINUTES)
         .setConstraints(constraints)
         .build()
 

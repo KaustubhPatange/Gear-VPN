@@ -18,12 +18,12 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
   suspend fun parse(
     onNewConfigurationAdded: suspend (snapshot: List<VpnConfiguration>) -> Unit = {},
     onComplete: suspend (snapshot: List<VpnConfiguration>) -> Unit
-  ): Unit = coroutineScope scope@{
+  ): Unit = supervisorScope scope@{
 
     val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
     Logger.d("Fetching from network: vpngate.net")
-    val vpnResponse = withTimeoutOrNull(CallTimeoutMillis) { // TODO:
+    val vpnResponse = withTimeoutOrNull(CallTimeoutMillis) {
       networkUtils.simpleGetRequest("https://www.vpngate.net/")
     } ?: run {
       Logger.d("Error: Timed out")
