@@ -17,11 +17,10 @@ import com.kpstv.vpn.extensions.getPendingIntentFlags
 import com.kpstv.vpn.recievers.AppBroadcast
 import com.kpstv.vpn.ui.activities.Main
 import com.kpstv.vpn.ui.activities.Splash
-import okhttp3.internal.notify
 
 object Notifications {
   fun init(context: Context) = with(context) {
-    if (Build.VERSION.SDK_INT >= 28) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val notificationManager = getSystemService<NotificationManager>()!!
       notificationManager.createNotificationChannel(
         NotificationChannel(REFRESH_CHANNEL, getString(R.string.channel_refresh), NotificationManager.IMPORTANCE_LOW)

@@ -8,12 +8,12 @@ import com.kpstv.vpn.logging.Logger
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
 import kotlinx.coroutines.*
+import okhttp3.Response
 import org.jsoup.Jsoup
 import java.io.*
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.URL
-import java.net.URLConnection
 import java.util.*
 import java.util.zip.ZipInputStream
 import javax.net.ssl.SSLException
@@ -31,20 +31,33 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
     var password = "e7x76mc"
 
     Logger.d("Fetching credentials for vpnbook.com")
-    val appSettingResponse = networkUtils.simpleGetRequest(SettingsUrl)
-    if (appSettingResponse.isSuccessful) {
-      val content = appSettingResponse.getBodyAndClose()
-      AppSettingsConverter.fromStringToAppSettings(content)?.let { converter ->
-        username = converter.vpnbook.username
-        password = converter.vpnbook.password
+    val appSettingResult = networkUtils.simpleGetRequest(SettingsUrl)
+    appSettingResult.fold(
+      onSuccess = { response ->
+        if (response.isSuccessful) {
+          val content = response.getBodyAndClose()
+          AppSettingsConverter.fromStringToAppSettings(content)?.let { converter ->
+            username = converter.vpnbook.username
+            password = converter.vpnbook.password
+          }
+        }
+      },
+      onFailure = { exception ->
+        Logger.w(exception, "Couldn't parse appsettings")
+        onComplete(vpnConfigurations)
+        return
       }
-    }
+    )
 
     Logger.d("Fetching from network: vpnbook.com")
-    val vpnBookResponse = withTimeoutOrNull(CallTimeoutMillis) {
-      networkUtils.simpleGetRequest("https://www.vpnbook.com/")
+    val vpnBookResponse : Response = withTimeoutOrNull(CallTimeoutMillis) {
+      val result = networkUtils.simpleGetRequest("https://www.vpnbook.com/")
+      if (result.isFailure) {
+        Logger.w(result.exceptionOrNull(), "Couldn't connect to vpnbook.com")
+      }
+      result.getOrNull()
     } ?: run {
-      Logger.d("Error: Timed out")
+      Logger.w(Exception("Timeout error"), "Error: Vpnbook Timed out")
       onComplete.invoke(vpnConfigurations)
       return
     }

@@ -1,0 +1,2 @@
+Fixed: Notification not showing on some device due to missing channel.
+Fixed: Socket exception on vpnbook & vpngate parser to avoid fatal crash.

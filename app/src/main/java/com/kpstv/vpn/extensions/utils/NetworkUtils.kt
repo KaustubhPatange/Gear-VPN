@@ -74,19 +74,19 @@ class NetworkUtils @Inject constructor() {
     return client.build()
   }
 
-  suspend fun simpleGetRequest(url: String): Response =
+  suspend fun simpleGetRequest(url: String): Result<Response> =
     getHttpClient().newCall(Request.Builder().url(url).build()).await()
 
-  private suspend fun Call.await(): Response {
+  private suspend fun Call.await(): Result<Response> {
     return suspendCancellableCoroutine { continuation ->
       enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
           if (continuation.isCancelled) return
-          continuation.resumeWithException(e) // re-throw exception at the last suspension point
+          continuation.resume(Result.failure(e)) // Resume safely
         }
 
         override fun onResponse(call: Call, response: Response) {
-          continuation.resume(response)
+          continuation.resume(Result.success(response))
         }
       })
       continuation.invokeOnCancellation {

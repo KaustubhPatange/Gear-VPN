@@ -23,8 +23,8 @@ class VpnBookWorker @AssistedInject constructor(
   override suspend fun doWork(): Result {
     Logger.d("Trying to update credentials for vpnbook.com")
 
-    val appSettingResponse = networkUtils.simpleGetRequest(SettingsUrl)
-    if (appSettingResponse.isSuccessful) {
+    val appSettingResponse = networkUtils.simpleGetRequest(SettingsUrl).getOrNull()
+    if (appSettingResponse?.isSuccessful == true) {
       val content = appSettingResponse.getBodyAndClose()
       AppSettingsConverter.fromStringToAppSettings(content)?.let { converter ->
         dao.safeUpdate(username = converter.vpnbook.username, password = converter.vpnbook.password)

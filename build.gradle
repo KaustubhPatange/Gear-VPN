@@ -7,8 +7,8 @@ buildscript {
                 "gradlePlugin": "7.2.0-alpha03",
         ]
         app = [
-                "versionCode": 24,
-                "versionName": "1.0 (24)"
+                "versionCode": 25,
+                "versionName": "1.0 (25)"
         ]
     }
     repositories {

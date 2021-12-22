@@ -24,7 +24,7 @@ object FlagUtils {
   private const val FlagJson: String = """
     {
       "Korea": "https://cdn.countryflags.com/thumbs/south-korea/flag-round-250.png",
-      "United States": "https://cdn1.iconfinder.com/data/icons/flags-of-the-world-2/128/united-states-circle-256.png",
+      "United States": "https://cdn.countryflags.com/thumbs/united-states-of-america/flag-round-250.png",
       "United Kingdom": "https://image.flaticon.com/icons/png/512/197/197374.png",
       "Japan": "https://image.flaticon.com/icons/png/512/197/197604.png",
       "Malaysia": "https://image.flaticon.com/icons/png/512/197/197581.png",

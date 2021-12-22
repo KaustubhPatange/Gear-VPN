@@ -24,7 +24,11 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
 
     Logger.d("Fetching from network: vpngate.net")
     val vpnResponse = withTimeoutOrNull(CallTimeoutMillis) {
-      networkUtils.simpleGetRequest("https://www.vpngate.net/")
+      val result = networkUtils.simpleGetRequest("https://www.vpngate.net/")
+      if (result.isFailure) {
+        Logger.w(result.exceptionOrNull(), "Couldn't connect to vpngate.net")
+      }
+      result.getOrNull()
     } ?: run {
       Logger.d("Error: Timed out")
       onComplete.invoke(vpnConfigurations)
@@ -115,8 +119,8 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
       for (item in intermediateList) {
         // fetch TCP & UDP configs
         Logger.d("Fetching configs for ${item.country} - ${item.ip}")
-        val configResponse = networkUtils.simpleGetRequest(item.configTCP!!) // configTCP here serves as URL in previous iteration.
-        if (configResponse.isSuccessful) {
+        val configResponse = networkUtils.simpleGetRequest(item.configTCP!!).getOrNull() // configTCP here serves as URL in previous iteration.
+        if (configResponse?.isSuccessful == true) {
           val configBody = configResponse.getBodyAndClose() ?: continue
           val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
           val ovpnConfigs = hrefElements.filter { it.attr("href").contains(".ovpn") }
@@ -161,8 +165,8 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
 
   private suspend fun safeFetchConfig(configUrl: String?): String? {
     configUrl?.let { url ->
-      val response = networkUtils.simpleGetRequest(url)
-      if (response.isSuccessful) {
+      val response = networkUtils.simpleGetRequest(url).getOrNull()
+      if (response?.isSuccessful == true) {
         return response.getBodyAndClose()
       }
     }
