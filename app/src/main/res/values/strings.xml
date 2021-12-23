@@ -129,5 +129,8 @@
     <string name="rate_dialog_review">REVIEW</string>
     <string name="rate_dialog_already_reviewed">I\'ve already reviewed the app.</string>
     <string name="rate_dialog_ignore">We won\'t show this dialog again</string>
+    <string name="report_button">SEND FEEDBACK OR REPORT ISSUES</string>
+    <string name="report_message">You will need an account on github.com to submit feature request or bug report.</string>
+    <string name="github_url">https://github.com</string>
 
 </resources>
