@@ -9,16 +9,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -40,7 +38,6 @@ import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
-import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.extensions.utils.VpnUtils
 import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.dialogs.HowToRefreshDialog
@@ -49,9 +46,7 @@ import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.sheets.ProtocolConnectionType
 import com.kpstv.vpn.ui.sheets.ProtocolSheet
-import com.kpstv.vpn.ui.theme.CommonPreviewTheme
-import com.kpstv.vpn.ui.theme.dotColor
-import com.kpstv.vpn.ui.theme.goldenYellow
+import com.kpstv.vpn.ui.theme.*
 import com.kpstv.vpn.ui.viewmodels.FlagViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -61,7 +56,7 @@ import kotlinx.coroutines.flow.flowOf
 fun ServerScreen(
   vpnState: VpnLoadState,
   onBackButton: () -> Unit = {},
-  onRefresh: () -> Unit = {},
+  onForceRefresh: () -> Unit = {},
   onImportButton: () -> Unit = {},
   onPremiumClick: () -> Unit = {},
   isPremiumUnlocked: Boolean = false,
@@ -79,7 +74,7 @@ fun ServerScreen(
   SwipeRefresh(
     modifier = Modifier.fillMaxSize(),
     state = swipeRefreshState,
-    onRefresh = onRefresh,
+    onRefresh = onForceRefresh,
     swipeEnabled = (vpnState is VpnLoadState.Completed || vpnState.isError()),
     indicator = { state, trigger ->
       SwipeRefreshIndicator(
@@ -109,6 +104,10 @@ fun ServerScreen(
                 modifier = Modifier
                   .statusBarsPadding()
                   .height(80.dp)
+              )
+              RefreshInterruptBanner(
+                visible = vpnState is VpnLoadState.Interrupt,
+                onRefresh = onForceRefresh,
               )
               ScreenQuickTips()
               ServerHeader(
@@ -197,13 +196,14 @@ fun ServerScreen(
     }
   )
 
-  AnimatedVisibility(visible = vpnState.isError(), enter = fadeIn()) {
+  AnimatedVisibility(visible = vpnState.isError(), enter = fadeIn(), exit = fadeOut()) {
     Column {
       Spacer(modifier = Modifier.height(20.dp))
       ErrorVpnScreen(
         modifier = Modifier.padding(20.dp),
         title = stringResource(R.string.err_something_went_wrong),
-        dismiss = onBackButton
+        onDismiss = onBackButton,
+        onRefresh = onForceRefresh
       )
     }
   }
@@ -426,6 +426,27 @@ private fun getCommonItemSubtext(config: VpnConfiguration): String {
 }
 
 @Composable
+fun RefreshInterruptBanner(visible: Boolean, onRefresh: () -> Unit) {
+  QuickTip(
+    message = stringResource(R.string.error_vpn_refresh),
+    visible = visible,
+    cardColor = MaterialTheme.colors.error,
+    textColor = Color.White,
+    button = {
+      Button(
+        onClick = onRefresh,
+        colors = ButtonDefaults.buttonColors(backgroundColor = GearVPNTheme.colors.errorButton)
+      ) {
+        Text(text = stringResource(R.string.error_btn_refresh), color = Color.White)
+      }
+    }
+  )
+  if (visible) {
+    Spacer(modifier = Modifier.height(15.dp))
+  }
+}
+
+@Composable
 private fun ScreenQuickTips() {
   ServerQuickTip()
   HowToRefreshQuickTip()
@@ -438,10 +459,14 @@ private fun ServerQuickTip() {
   QuickTip(
     message = stringResource(R.string.server_tip_text),
     visible = !showTip,
-    buttonText = stringResource(R.string.learn_more),
-    buttonOnClick = {
-      Settings.ServerQuickTipShown.set(true)
-      context.launchUrlInApp(context.getString(R.string.app_faq_server))
+    button = {
+      ThemeButton(
+        onClick = {
+          Settings.ServerQuickTipShown.set(true)
+          context.launchUrlInApp(context.getString(R.string.app_faq_server))
+        },
+        text = stringResource(R.string.learn_more)
+      )
     }
   )
   if (!showTip) {
@@ -457,10 +482,14 @@ private fun HowToRefreshQuickTip() {
   QuickTip(
     message = stringResource(R.string.how_to_refresh_tip_text),
     visible = !showTip && serverTipShown,
-    buttonText = stringResource(R.string.learn_more),
-    buttonOnClick = {
-      Settings.HowToRefreshTipShown.set(true)
-      navController.showDialog(RefreshDialog)
+    button = {
+      ThemeButton(
+        onClick = {
+          Settings.HowToRefreshTipShown.set(true)
+          navController.showDialog(RefreshDialog)
+        },
+        text = stringResource(R.string.learn_more)
+      )
     }
   )
   if (!showTip) {
@@ -527,6 +556,17 @@ fun PreviewServerHeaders() {
 fun PreviewServerQuickTip() {
   CommonPreviewTheme {
     ServerQuickTip()
+  }
+}
+
+@Preview
+@Composable
+fun PreviewRefreshInterruptBanner() {
+  CommonPreviewTheme {
+    RefreshInterruptBanner(
+      visible = true,
+      onRefresh = {}
+    )
   }
 }
 

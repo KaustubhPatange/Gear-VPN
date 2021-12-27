@@ -1,15 +1,12 @@
 package com.kpstv.vpn.ui.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,12 +17,12 @@ import com.kpstv.vpn.R
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 
 @Composable
-fun ErrorVpnScreen(modifier: Modifier = Modifier, title: String, dismiss: () -> Unit) {
-  ErrorContent(modifier = modifier, title = title, dismiss = dismiss)
+fun ErrorVpnScreen(modifier: Modifier = Modifier, title: String, onDismiss: () -> Unit, onRefresh: () -> Unit) {
+  ErrorContent(modifier = modifier, title = title, onDismiss = onDismiss, onRefresh = onRefresh)
 }
 
 @Composable
-private fun ErrorContent(modifier: Modifier = Modifier, title: String, dismiss: () -> Unit) {
+private fun ErrorContent(modifier: Modifier = Modifier, title: String, onDismiss: () -> Unit, onRefresh: () -> Unit) {
   Column(
     modifier = modifier,
     horizontalAlignment = Alignment.CenterHorizontally,
@@ -55,12 +52,20 @@ private fun ErrorContent(modifier: Modifier = Modifier, title: String, dismiss: 
       textAlign = TextAlign.Center
     )
     Spacer(modifier = Modifier.height(25.dp))
-    HeaderButton(
-      icon = R.drawable.ic_baseline_arrow_back_24,
-      contentDescription = "dismiss",
-      tooltip = "Dismiss",
-      onClick = dismiss
-    )
+    Row {
+      HeaderButton(
+        icon = R.drawable.ic_baseline_arrow_back_24,
+        contentDescription = "dismiss",
+        tooltip = stringResource(R.string.error_btn_dismiss),
+        onClick = onDismiss
+      )
+      HeaderButton(
+        icon = R.drawable.ic_baseline_refresh_24,
+        contentDescription = "refresh",
+        tooltip = stringResource(R.string.error_btn_refresh),
+        onClick = onRefresh
+      )
+    }
   }
 }
 
@@ -68,6 +73,10 @@ private fun ErrorContent(modifier: Modifier = Modifier, title: String, dismiss: 
 @Composable
 fun PreviewErrorContent() {
   CommonPreviewTheme {
-    ErrorContent(title = "Something went wrong") {}
+    ErrorContent(
+      title = "Something went wrong",
+      onDismiss = {},
+      onRefresh = {}
+    )
   }
 }

@@ -5,6 +5,9 @@ import androidx.compose.material.Surface
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
   primary = primaryColor,
@@ -31,10 +34,30 @@ private val LightColorPalette = lightColors(
   */
 )
 
+interface Attrs {
+  val errorButton: Color
+}
+
+private class DarkAttrsColor : Attrs {
+  override val errorButton: Color = Color(0xFFBB2020)
+}
+
+private class GearVPNColors {
+  val defaults @Composable get() = MaterialTheme.colors
+  val custom @Composable get() : Attrs = LocalGearVPNColors.current
+}
+
+private val LocalGearVPNColors = staticCompositionLocalOf<Attrs> { DarkAttrsColor() }
+
+object GearVPNTheme {
+  val colors @Composable get() = LocalGearVPNColors.current
+}
+
 @Composable
 fun ComposeTestTheme(
 //    darkTheme: Boolean = isSystemInDarkTheme(),
-  content: @Composable() () -> Unit
+  attrsColor: Attrs = DarkAttrsColor(),
+  content: @Composable () -> Unit,
 ) {
   /*val colors = if (darkTheme) {
       DarkColorPalette
@@ -45,9 +68,12 @@ fun ComposeTestTheme(
   MaterialTheme(
     colors = DarkColorPalette,
     typography = Typography,
-    shapes = Shapes,
-    content = content
-  )
+    shapes = Shapes
+  ) {
+    CompositionLocalProvider(LocalGearVPNColors provides attrsColor) {
+      content()
+    }
+  }
 }
 
 @Composable

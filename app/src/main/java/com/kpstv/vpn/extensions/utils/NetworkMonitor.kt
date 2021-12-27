@@ -7,17 +7,22 @@ import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
 import android.net.NetworkRequest
 import com.kpstv.vpn.logging.Logger
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.net.InetSocketAddress
 import javax.net.SocketFactory
+import kotlin.reflect.KClass
 
-suspend inline fun safeNetworkAccessor(crossinline onConnectionRestored: suspend () -> Unit) {
+suspend fun safeNetworkAccessor(vararg excludeExceptions: KClass<out Exception>, onConnectionRestored: suspend () -> Unit) {
+
+  fun rethrow(e: IOException) {
+    if (e::class in excludeExceptions) throw e
+  }
+
   try {
     onConnectionRestored()
   } catch (e: IOException) {
+    rethrow(e)
     delay(1000) // delay for network manager to update it's internal status.
     Logger.d("Crash: Network status: ${NetworkMonitor.connection.value}")
     if (!NetworkMonitor.connection.value) {
@@ -27,6 +32,7 @@ suspend inline fun safeNetworkAccessor(crossinline onConnectionRestored: suspend
             Logger.d("Restoring")
             onConnectionRestored()
           } catch (e: IOException) {
+            rethrow(e)
             Logger.d("Failed again")
           }
         }
@@ -44,12 +50,24 @@ object NetworkMonitor {
   private val connectionStateFlow = MutableStateFlow(false)
   val connection = connectionStateFlow.asStateFlow()
 
+  private var isInitialized: Boolean = false
+
+  fun isConnected() : Boolean = if (!isInitialized) true else connection.value
+
   fun init(applicationContext: Context) {
     connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    connectivityManager.registerNetworkCallback(
-      NetworkRequest.Builder().addCapability(NET_CAPABILITY_INTERNET).build(),
-      networkCallback
-    )
+    try {
+      connectivityManager.registerNetworkCallback(
+        NetworkRequest.Builder().addCapability(NET_CAPABILITY_INTERNET).build(),
+        networkCallback
+      )
+    } catch (e: SecurityException) {
+      // java.lang.SecurityException: Package does not belong to xxx
+      // https://issuetracker.google.com/issues/175055271
+
+      // Fake network connection in such case
+      connectionStateFlow.tryEmit(true)
+    }
   }
 
   // forcefully fire network changes
@@ -71,11 +89,12 @@ object NetworkMonitor {
         CoroutineScope(Dispatchers.IO + job).launch {
           val hasInternet = execute(network.socketFactory)
           if(hasInternet){
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
               networks.add(network)
               fireNetworkChanges()
             }
           }
+          isInitialized = true
         }
       }
     }

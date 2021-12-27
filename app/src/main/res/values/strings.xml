@@ -132,5 +132,8 @@
     <string name="report_button">SEND FEEDBACK OR REPORT ISSUES</string>
     <string name="report_message">You will need an account on github.com to submit feature request or bug report.</string>
     <string name="github_url">https://github.com</string>
+    <string name="error_btn_dismiss">Dismiss</string>
+    <string name="error_btn_refresh">Refresh</string>
+    <string name="error_vpn_refresh">Error while refreshing VPN due to network interruption.</string>
 
 </resources>

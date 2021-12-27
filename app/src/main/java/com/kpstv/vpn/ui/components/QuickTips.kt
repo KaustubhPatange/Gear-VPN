@@ -9,14 +9,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kpstv.vpn.R
-import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
-import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import java.util.*
@@ -26,9 +22,10 @@ import java.util.*
 fun QuickTip(
   message: String,
   visible: Boolean,
-  buttonText: String,
   modifier: Modifier = Modifier,
-  buttonOnClick: () -> Unit,
+  cardColor: Color = dotColor,
+  textColor: Color = MaterialTheme.colors.background,
+  button: @Composable () -> Unit
 ) {
   AnimatedVisibility(
     visible = visible,
@@ -36,7 +33,7 @@ fun QuickTip(
     exit = fadeOut() + shrinkVertically()
   ) {
     Card(
-      backgroundColor = dotColor,
+      backgroundColor = cardColor,
       shape = RoundedCornerShape(5.dp),
       elevation = 3.dp
     ) {
@@ -46,18 +43,23 @@ fun QuickTip(
             modifier = Modifier.weight(1f),
             text = message,
             style = MaterialTheme.typography.h5.copy(fontSize = 15.sp),
-            color = MaterialTheme.colors.background
+            color = textColor
           )
           Spacer(modifier = Modifier.width(10.dp))
-          ThemeButton(
-            onClick = buttonOnClick,
-            text = buttonText.uppercase(Locale.ROOT),
-            fontSize = 12.sp
-          )
+          button()
         }
       }
     }
   }
+}
+
+@Composable
+fun QuickTipDefaultButton(buttonText: String, buttonOnClick: () -> Unit) {
+  ThemeButton(
+    onClick = buttonOnClick,
+    text = buttonText.uppercase(Locale.ROOT),
+    fontSize = 12.sp
+  )
 }
 
 @Composable
@@ -70,8 +72,12 @@ fun PreviewQuickTip() {
         modifier = Modifier.fillMaxWidth(),
         message = "This is a small quick tip.",
         visible = !showTip,
-        buttonText = "Learn more",
-        buttonOnClick = { showTip = true }
+        button = {
+          ThemeButton(
+            onClick = { showTip = true },
+            text = "Learn more"
+          )
+        }
       )
     }
   }
@@ -87,8 +93,12 @@ fun PreviewQuickTipLongText() {
         modifier = Modifier.fillMaxWidth(),
         message = "This is a small quick tip & here are some extra text that should get this to next line.",
         visible = !showTip,
-        buttonText = "More",
-        buttonOnClick = { showTip = true }
+        button = {
+          ThemeButton(
+            onClick = { showTip = true },
+            text =  "More"
+          )
+        }
       )
     }
   }

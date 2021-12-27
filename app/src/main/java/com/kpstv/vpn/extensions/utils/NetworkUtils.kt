@@ -44,6 +44,13 @@ class NetworkUtils @Inject constructor() {
       }
       return null
     }
+
+    // This will help us to catch IOException for safeNetworkAccessor
+    fun Result<Response>.getOrThrowIO() : Response? {
+      val exception = exceptionOrNull()
+      if (exception is IOException) throw exception
+      return getOrNull()
+    }
   }
 
   fun getRetrofitBuilder(): Retrofit.Builder {
@@ -55,9 +62,9 @@ class NetworkUtils @Inject constructor() {
 
   fun getHttpBuilder(): OkHttpClient.Builder {
     return OkHttpClient.Builder()
-      .connectTimeout(0, TimeUnit.MINUTES)
-      .readTimeout(0, TimeUnit.MINUTES)
-      .callTimeout(0, TimeUnit.MINUTES)
+      .connectTimeout(40, TimeUnit.SECONDS)
+      .readTimeout(40, TimeUnit.SECONDS)
+      .callTimeout(40, TimeUnit.SECONDS)
   }
 
   /**

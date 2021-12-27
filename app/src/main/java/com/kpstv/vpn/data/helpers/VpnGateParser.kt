@@ -6,6 +6,7 @@ import com.kpstv.vpn.extensions.clearAndAdd
 import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
+import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getOrThrowIO
 import com.kpstv.vpn.logging.Logger
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
@@ -28,7 +29,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
       if (result.isFailure) {
         Logger.w(result.exceptionOrNull(), "Couldn't connect to vpngate.net")
       }
-      result.getOrNull()
+      result.getOrThrowIO()
     } ?: run {
       Logger.d("Error: Timed out")
       onComplete.invoke(vpnConfigurations)
@@ -119,7 +120,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
       for (item in intermediateList) {
         // fetch TCP & UDP configs
         Logger.d("Fetching configs for ${item.country} - ${item.ip}")
-        val configResponse = networkUtils.simpleGetRequest(item.configTCP!!).getOrNull() // configTCP here serves as URL in previous iteration.
+        val configResponse = networkUtils.simpleGetRequest(item.configTCP!!).getOrThrowIO() // configTCP here serves as URL in previous iteration.
         if (configResponse?.isSuccessful == true) {
           val configBody = configResponse.getBodyAndClose() ?: continue
           val hrefElements = Jsoup.parse(configBody).getElementsByAttribute("href")
@@ -165,7 +166,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
 
   private suspend fun safeFetchConfig(configUrl: String?): String? {
     configUrl?.let { url ->
-      val response = networkUtils.simpleGetRequest(url).getOrNull()
+      val response = networkUtils.simpleGetRequest(url).getOrThrowIO()
       if (response?.isSuccessful == true) {
         return response.getBodyAndClose()
       }

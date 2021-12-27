@@ -46,6 +46,7 @@ import com.kpstv.vpn.ui.components.AnimatedSwipeDismiss
 import com.kpstv.vpn.ui.components.Header
 import com.kpstv.vpn.ui.components.QuickTip
 import com.kpstv.vpn.ui.components.ThemeButton
+import com.kpstv.vpn.ui.dialogs.RefreshDialog
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
@@ -430,10 +431,14 @@ private fun ImportServerQuickTip() {
     QuickTip(
       message = stringResource(R.string.import_server_tip_text),
       visible = !showTip,
-      buttonText = stringResource(R.string.learn_more),
-      buttonOnClick = {
-        Settings.ImportServerTipShown.set(true)
-        context.launchUrlInApp(context.getString(R.string.app_import_server))
+      button = {
+        ThemeButton(
+          onClick = {
+            Settings.ImportServerTipShown.set(true)
+            context.launchUrlInApp(context.getString(R.string.app_import_server))
+          },
+          text = stringResource(R.string.learn_more)
+        )
       }
     )
   }

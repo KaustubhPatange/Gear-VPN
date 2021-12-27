@@ -1,16 +1,18 @@
 package com.kpstv.vpn.data.db.repository
 
 import com.kpstv.vpn.data.db.localized.VpnDao
-import com.kpstv.vpn.data.helpers.VpnGateParser
 import com.kpstv.vpn.data.helpers.VpnBookParser
+import com.kpstv.vpn.data.helpers.VpnGateParser
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.di.app.AppScope
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.safeNetworkAccessor
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withTimeout
+import com.kpstv.vpn.logging.Logger
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.flow
 import okhttp3.internal.toImmutableList
+import java.io.InterruptedIOException
 import javax.inject.Inject
 
 sealed class VpnLoadState(open val configs: List<VpnConfiguration>) {
@@ -22,7 +24,9 @@ sealed class VpnLoadState(open val configs: List<VpnConfiguration>) {
   data class Empty(override val configs: List<VpnConfiguration> = emptyList()) :
     VpnLoadState(configs)
 
-  fun isError() : Boolean = this is Empty
+  data class Interrupt(override val configs: List<VpnConfiguration>) : VpnLoadState(configs)
+
+  fun isError(): Boolean = this is Empty
 }
 
 @AppScope
@@ -34,7 +38,7 @@ class VpnRepository @Inject constructor(
   private val vpnBookParser: VpnBookParser = VpnBookParser(networkUtils)
 
   fun fetch(forceNetwork: Boolean = false): Flow<VpnLoadState> = flow {
-    safeNetworkAccessor {
+    safeNetworkAccessor(excludeExceptions = arrayOf(InterruptedIOException::class)) {
       fetchVPN(forceNetwork = forceNetwork)
     }
   }
@@ -50,25 +54,34 @@ class VpnRepository @Inject constructor(
       // Parse from network
       var vpnConfigs = listOf<VpnConfiguration>()
 
-      vpnGateParser.parse(
-        onNewConfigurationAdded = { configs ->
-          vpnConfigs = merge(configs, vpnConfigs)
-          emit(VpnLoadState.Loading(vpnConfigs))
-        },
-        onComplete = { configs ->
-          vpnConfigs = merge(configs, vpnConfigs)
-        }
-      )
+      try {
+        vpnGateParser.parse(
+          onNewConfigurationAdded = { configs ->
+            vpnConfigs = merge(configs, vpnConfigs)
+            emit(VpnLoadState.Loading(vpnConfigs))
+          },
+          onComplete = { configs ->
+            vpnConfigs = merge(configs, vpnConfigs)
+          }
+        )
 
-      vpnBookParser.parse(
-        onNewConfigurationAdded = { configs ->
-          vpnConfigs = merge(configs, vpnConfigs)
-          emit(VpnLoadState.Loading(vpnConfigs))
-        },
-        onComplete = { configs ->
-          vpnConfigs = merge(configs, vpnConfigs)
-        }
-      )
+        vpnBookParser.parse(
+          onNewConfigurationAdded = { configs ->
+            vpnConfigs = merge(configs, vpnConfigs)
+            emit(VpnLoadState.Loading(vpnConfigs))
+          },
+          onComplete = { configs ->
+            vpnConfigs = merge(configs, vpnConfigs)
+          }
+        )
+      } catch (e: InterruptedIOException) {
+        Logger.d("Warning: OkHttp client interrupted")
+        if (vpnConfigs.isEmpty())
+          emit(VpnLoadState.Empty())
+        else
+          emit(VpnLoadState.Interrupt(vpnConfigs))
+        return
+      }
 
       if (vpnConfigs.isNotEmpty()) {
         emit(VpnLoadState.Completed(vpnConfigs))

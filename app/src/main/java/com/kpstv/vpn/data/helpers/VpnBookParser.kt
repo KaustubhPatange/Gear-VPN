@@ -7,6 +7,7 @@ import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.logging.Logger
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
+import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getOrThrowIO
 import kotlinx.coroutines.*
 import okhttp3.Response
 import org.jsoup.Jsoup
@@ -28,7 +29,7 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
     val vpnConfigurations = arrayListOf<VpnConfiguration>()
 
     var username = "vpnbook"
-    var password = "e7x76mc"
+    var password = "ct36a3k"
 
     Logger.d("Fetching credentials for vpnbook.com")
     val appSettingResult = networkUtils.simpleGetRequest(SettingsUrl)
@@ -55,7 +56,7 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
       if (result.isFailure) {
         Logger.w(result.exceptionOrNull(), "Couldn't connect to vpnbook.com")
       }
-      result.getOrNull()
+      result.getOrThrowIO()
     } ?: run {
       Logger.w(Exception("Timeout error"), "Error: Vpnbook Timed out")
       onComplete.invoke(vpnConfigurations)

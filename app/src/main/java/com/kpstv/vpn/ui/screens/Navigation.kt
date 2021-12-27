@@ -11,7 +11,6 @@ import com.kpstv.vpn.extensions.SlideTop
 import com.kpstv.vpn.extensions.asVpnConfig
 import com.kpstv.vpn.ui.components.ConnectionStatusBox
 import com.kpstv.vpn.ui.components.rememberBottomSheetState
-import com.kpstv.vpn.ui.dialogs.ReviewDialog
 import com.kpstv.vpn.ui.dialogs.ReviewDialogScreen
 import com.kpstv.vpn.ui.dialogs.WelcomeDialogScreen
 import com.kpstv.vpn.ui.helpers.BillingHelper
@@ -123,7 +122,7 @@ fun NavigationScreen(
       is NavigationRoute.Server -> ServerScreen(
         vpnState = vpnLoadState.value,
         onBackButton = { navController.goBack() },
-        onRefresh = {
+        onForceRefresh = {
           vpnCollectJob.cancel()
           shouldRefresh.value = Load(refresh = true)
         },
