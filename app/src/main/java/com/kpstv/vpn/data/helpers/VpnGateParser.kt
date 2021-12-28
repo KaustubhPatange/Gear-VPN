@@ -11,7 +11,6 @@ import com.kpstv.vpn.logging.Logger
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import java.util.*
-import kotlin.coroutines.resume
 
 class VpnGateParser(private val networkUtils: NetworkUtils) {
 
@@ -176,18 +175,12 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
 
   // Implementation of direct snapshot for getting all configurations.
   @WorkerThread
-  suspend fun parse(): List<VpnConfiguration> = suspendCancellableCoroutine { continuation ->
-    val job = SupervisorJob()
-    CoroutineScope(Dispatchers.IO + job).launch scope@{
-      parse(
-        onNewConfigurationAdded = {
-          if (continuation.isCancelled) {
-            job.cancel()
-          }
-        },
-        onComplete = continuation::resume
-      )
-    }
+  suspend fun parse(): List<VpnConfiguration> {
+    var vpnConfigs : List<VpnConfiguration> = emptyList()
+    parse(
+      onComplete = { vpnConfigs = it }
+    )
+    return vpnConfigs
   }
 
   private fun formatConfigurations(list: List<VpnConfiguration>): List<VpnConfiguration> {

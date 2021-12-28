@@ -13,12 +13,12 @@ import okhttp3.Response
 import org.jsoup.Jsoup
 import java.io.*
 import java.net.ConnectException
+import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.util.*
 import java.util.zip.ZipInputStream
 import javax.net.ssl.SSLException
-import kotlin.coroutines.resume
 
 class VpnBookParser(private val networkUtils: NetworkUtils) {
 
@@ -104,6 +104,8 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
           continue // skip
         } catch (e : ConnectException) {
           continue // skip
+        } catch (e: SocketException) {
+          continue // skip
         } catch (e : SocketTimeoutException) {
           continue // skip
         } catch (e: FileNotFoundException) {
@@ -180,18 +182,12 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
 
   // Implementation of direct snapshot for getting all configurations.
   @WorkerThread
-  suspend fun parse(): List<VpnConfiguration> = suspendCancellableCoroutine { continuation ->
-    val job = SupervisorJob()
-    CoroutineScope(Dispatchers.IO + job).launch scope@{
-      parse(
-        onNewConfigurationAdded = {
-          if (continuation.isCancelled) {
-            job.cancel()
-          }
-        },
-        onComplete = continuation::resume
-      )
-    }
+  suspend fun parse(): List<VpnConfiguration> {
+    var vpnConfigs : List<VpnConfiguration> = emptyList()
+    parse(
+      onComplete = { vpnConfigs = it }
+    )
+    return vpnConfigs
   }
 
   private companion object {

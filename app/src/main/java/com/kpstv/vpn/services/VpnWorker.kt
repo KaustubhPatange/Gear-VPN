@@ -5,8 +5,8 @@ import androidx.work.*
 import com.kpstv.vpn.data.api.IpApi
 import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.data.db.repository.VpnRepository
-import com.kpstv.vpn.data.helpers.VpnGateParser
 import com.kpstv.vpn.data.helpers.VpnBookParser
+import com.kpstv.vpn.data.helpers.VpnGateParser
 import com.kpstv.vpn.di.service.worker.DaggerWorkerFactory
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.Notifications
@@ -14,10 +14,10 @@ import com.kpstv.vpn.logging.Logger
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.supervisorScope
 import java.util.concurrent.TimeUnit
 
-// A worker to refresh VPN configurations every 7 hours.
 class VpnWorker @AssistedInject constructor(
   @Assisted private val appContext: Context,
   @Assisted workerParams: WorkerParameters,
@@ -38,19 +38,27 @@ class VpnWorker @AssistedInject constructor(
     try {
       val ipData = ipApi.fetch()
       Logger.d("IP Info: ${ipData.country}, ${ipData.city}, ${ipData.region}")
-    } catch (_ : Exception) { }
-
-    val vpnGateListAsync = async(start = CoroutineStart.LAZY) { vpnGateParser.parse() }
-    val vpnBookListAsync = async(start = CoroutineStart.LAZY) { vpnBookParser.parse() }
-
-    val configList = try {
-      awaitAll(vpnGateListAsync, vpnBookListAsync)
-    } catch (e : Exception) {
-      Logger.w(e, "Failed to fetch VPN servers from Worker")
-      return@scope createFailureResult()
+    } catch (_: Exception) {
     }
 
-    val final = VpnRepository.merge(configList[0], configList[1])
+    val vpnGateListAsync = async { vpnGateParser.parse() }
+    val vpnBookListAsync = async { vpnBookParser.parse() }
+
+    val vpnGateConfigList = try {
+      vpnGateListAsync.await()
+    } catch (e: Exception) {
+      Logger.w(e, "Failed to fetch VPN servers from vpngate.net for Worker")
+      emptyList()
+    }
+
+    val vpnBookList = try {
+      vpnBookListAsync.await()
+    } catch (e: Exception) {
+      Logger.w(e, "Failed to fetch VPN servers from vpnbook.com for Worker")
+      emptyList()
+    }
+
+    val final = VpnRepository.merge(vpnGateConfigList, vpnBookList)
 
     return@scope if (final.isNotEmpty()) {
       dao.insertAll(final)
@@ -60,7 +68,7 @@ class VpnWorker @AssistedInject constructor(
     }
   }
 
-  private fun createFailureResult() : Result {
+  private fun createFailureResult(): Result {
     Notifications.createVpnRefreshFailedNotification(appContext)
     return Result.failure()
   }
