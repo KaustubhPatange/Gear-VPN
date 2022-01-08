@@ -1,0 +1,3 @@
+Added: Report/Feedback button in about screen.
+Improved: Handling of network interruption while refresh VPN list.
+Fixed: Improper worker termination when one of parser throws exception.

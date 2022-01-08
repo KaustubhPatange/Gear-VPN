@@ -62,6 +62,7 @@ object Notifications {
       .setSmallIcon(R.drawable.ic_logo_error)
       .setPriority(NotificationCompat.PRIORITY_HIGH)
       .setContentIntent(openApp)
+      .setAutoCancel(true)
 
     NotificationManagerCompat.from(this).notify(NOTIFICATION_REFRESH_FAILED, builder.build())
   }
