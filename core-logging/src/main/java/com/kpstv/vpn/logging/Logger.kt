@@ -12,6 +12,7 @@ object Logger {
   fun init(debug: Boolean) {
     if (debug) {
       Timber.plant(ExtendedDebugTree())
+      return
     }
     Timber.plant(CrashlyticsTree())
   }
@@ -42,7 +43,8 @@ object Logger {
       Timber.Tree::class.java.name,
       Timber.DebugTree::class.java.name,
       Logger::class.java.name,
-      ExtendedDebugTree::class.java.name
+      ExtendedDebugTree::class.java.name,
+      CrashlyticsTree::class.java.name
     )
 
     private fun fetchTag(): String? {
@@ -51,14 +53,18 @@ object Logger {
         .let(::createStackElementTag)
     }
 
+    open fun flush(tag: String?, message: String, t: Throwable?) {}
+
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-      super.log(priority, fetchTag(), message, t)
+      val tagName = fetchTag()
+      super.log(priority, tagName, message, t)
+      flush(tagName, message, t)
     }
   }
 
   // Firebase Crashlytics tree
   private class CrashlyticsTree : ExtendedDebugTree() {
-    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+    override fun flush(tag: String?, message: String, t: Throwable?) {
       if (t != null) {
         FirebaseCrashlytics.getInstance().recordException(t) // records non-fatal exceptions
       }
