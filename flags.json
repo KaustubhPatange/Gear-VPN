@@ -270,5 +270,9 @@
   {
     "country": "United Arab Emirates",
     "flag": "https://cdn.countryflags.com/thumbs/united-arab-emirates/flag-round-250.png"
+  },
+  {
+    "country": "Syrian Arab Republic",
+    "flag": "https://cdn.countryflags.com/thumbs/syria/flag-round-250.png"
   }
 ]
