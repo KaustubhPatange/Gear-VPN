@@ -5,11 +5,11 @@ platform :android do
   lane :production do
     gradle(task: "app:checkForChangelog")
     gradle(task: "clean bundleRelease")
-    upload_to_play_store
+    upload_to_play_store(skip_upload_metadata: true, skip_upload_images: true, skip_upload_screenshots: true)
   end
   lane :internal_test do
     gradle(task: "app:checkForChangelog")
     gradle(task: "clean bundleRelease")
-    upload_to_play_store(track: 'internal')
+    upload_to_play_store(track: 'internal', skip_upload_metadata: true, skip_upload_images: true, skip_upload_screenshots: true)
   end
 end
