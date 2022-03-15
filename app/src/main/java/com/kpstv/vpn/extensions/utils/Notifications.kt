@@ -12,7 +12,6 @@ import androidx.core.app.TaskStackBuilder
 import androidx.core.content.getSystemService
 import androidx.work.ForegroundInfo
 import com.kpstv.vpn.R
-import com.kpstv.vpn.extensions.getPendingIntentFlags
 import com.kpstv.vpn.recievers.AppBroadcast
 import com.kpstv.vpn.ui.activities.Main
 import com.kpstv.vpn.ui.activities.Splash
@@ -53,7 +52,7 @@ object Notifications {
     val openAppIntent = Intent(this, Splash::class.java)
     val openApp = TaskStackBuilder.create(this).run {
       addNextIntentWithParentStack(openAppIntent)
-      getPendingIntent(0, openAppIntent.getPendingIntentFlags())
+      getPendingIntent(0, PendingIntentHelper.getSafeFlags())
     }
 
     val builder = NotificationCompat.Builder(this, REFRESH_CHANNEL)
@@ -86,7 +85,7 @@ object Notifications {
     val startIntent = Intent(this, Main::class.java)
     val pendingIntent: PendingIntent? = TaskStackBuilder.create(this).run {
       addNextIntentWithParentStack(startIntent)
-      getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+      getPendingIntent(0, PendingIntentHelper.getSafeFlags())
     }
     val builder = NotificationCompat.Builder(this, COMMON_ALERT_CHANNEL).apply {
       setContentTitle(getString(R.string.vpn_action_required_title))

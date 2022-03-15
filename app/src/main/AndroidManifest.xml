@@ -6,7 +6,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
 
     <application
         android:name="com.kpstv.vpn.App"
@@ -16,14 +18,15 @@
         android:isFeatureSplit="false"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_config"
-        tools:replace="networkSecurityConfig"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Splash"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:replace="networkSecurityConfig">
 
         <activity
             android:name=".ui.activities.Splash"
+            android:exported="true"
             android:theme="@style/Theme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,24 +37,26 @@
         <!-- If you changed this class name make sure to update the reflective access for it in OpenVPNService. -->
         <activity
             android:name=".ui.activities.Main"
+            android:exported="false"
             android:theme="@style/Theme.Main" />
 
         <receiver android:name="com.kpstv.vpn.recievers.AppBroadcast" />
-        
-        <service android:name=".services.GearConnect"
+
+        <service
+            android:name=".services.GearConnect"
+            android:exported="true"
             android:icon="@drawable/ic_logo"
             android:label="@string/gear_connect"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
-                <action
-                    android:name="android.service.quicksettings.action.QS_TILE"/>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
 
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove"/>
+            tools:node="remove" />
 
     </application>
 
