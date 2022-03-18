@@ -11,8 +11,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.getSystemService
 import androidx.work.ForegroundInfo
+import androidx.work.ListenableWorker
+import androidx.work.WorkManager
 import com.kpstv.vpn.R
-import com.kpstv.vpn.recievers.AppBroadcast
 import com.kpstv.vpn.ui.activities.Main
 import com.kpstv.vpn.ui.activities.Splash
 
@@ -34,18 +35,27 @@ object Notifications {
     }
   }
 
-  fun createVpnRefreshNotification(context: Context): ForegroundInfo = with(context) {
-    val cancelIntent = AppBroadcast.createPendingIntent(this, AppBroadcast.STOP_REFRESHING)
+  fun createVpnRefreshNotification(context: Context, worker: ListenableWorker): ForegroundInfo =
+    createRefreshForegroundInfo(context, worker, context.getString(R.string.vpn_refresh), NOTIFICATION_REFRESH)
+
+  fun createFlagRefreshNotification(context: Context, worker: ListenableWorker): ForegroundInfo =
+    createRefreshForegroundInfo(context, worker, context.getString(R.string.flags_refresh), NOTIFICATION_REFRESH_FLAG)
+
+  fun createVpnBookRefreshNotification(context: Context, worker: ListenableWorker): ForegroundInfo =
+    createRefreshForegroundInfo(context, worker, context.getString(R.string.vpnbook_refresh), NOTIFICATION_REFRESH_VPNBOOK)
+
+  private fun createRefreshForegroundInfo(context: Context, worker: ListenableWorker, title: String, notificationId: Int): ForegroundInfo = with(context) {
+    val cancelIntent = WorkManager.getInstance(this).createCancelPendingIntent(worker.id)
 
     val builder = NotificationCompat.Builder(this, REFRESH_CHANNEL)
       .setOngoing(true)
-      .setContentTitle(getString(R.string.vpn_refresh))
+      .setContentTitle(title)
       .setSmallIcon(R.drawable.ic_logo)
       .setProgress(100, 0, true)
       .setPriority(NotificationCompat.PRIORITY_LOW)
       .addAction(R.drawable.ic_baseline_cancel_24, getString(android.R.string.cancel), cancelIntent)
 
-    ForegroundInfo(NOTIFICATION_REFRESH, builder.build())
+    ForegroundInfo(notificationId, builder.build())
   }
 
   fun createVpnRefreshFailedNotification(context: Context) : Unit = with(context) {
@@ -138,4 +148,6 @@ object Notifications {
   private const val NOTIFICATION_VPN_ACTION_REQUIRED = 135
   private const val NOTIFICATION_NO_INTERNET = 136
   private const val NOTIFICATION_AUTH_FAILED = 137
+  private const val NOTIFICATION_REFRESH_FLAG = 138
+  private const val NOTIFICATION_REFRESH_VPNBOOK = 139
 }

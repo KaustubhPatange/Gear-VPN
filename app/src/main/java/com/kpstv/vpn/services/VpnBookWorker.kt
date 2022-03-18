@@ -5,8 +5,10 @@ import androidx.work.*
 import com.kpstv.vpn.data.db.localized.VpnBookDao
 import com.kpstv.vpn.data.models.AppSettingsConverter
 import com.kpstv.vpn.di.service.worker.DaggerWorkerFactory
+import com.kpstv.vpn.extensions.setExpeditedCompat
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.NetworkUtils.Companion.getBodyAndClose
+import com.kpstv.vpn.extensions.utils.Notifications
 import com.kpstv.vpn.logging.Logger
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -19,6 +21,10 @@ class VpnBookWorker @AssistedInject constructor(
   private val networkUtils: NetworkUtils,
   private val dao: VpnBookDao
 ) : CoroutineWorker(appContext, workerParams) {
+
+  override suspend fun getForegroundInfo(): ForegroundInfo {
+    return Notifications.createVpnBookRefreshNotification(appContext, this)
+  }
 
   override suspend fun doWork(): Result {
     Logger.d("Trying to update credentials for vpnbook.com")
@@ -48,6 +54,7 @@ class VpnBookWorker @AssistedInject constructor(
 
       val request = OneTimeWorkRequestBuilder<VpnBookWorker>()
         .setConstraints(constraints)
+        .setExpeditedCompat(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .build()
 
       WorkManager.getInstance(context)

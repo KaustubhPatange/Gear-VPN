@@ -48,8 +48,8 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
 
       val doc = Jsoup.parse(body)
 
-      val table = doc.getElementById("vpngate_inner_contents_td").children()
-        .findLast { it.id() == "vg_hosts_table_id" }?.child(0)
+      val table = doc.getElementById("vpngate_inner_contents_td")?.children()
+        ?.findLast { it.id() == "vg_hosts_table_id" }?.child(0)
         ?: run {
           onComplete.invoke(formatConfigurations(vpnConfigurations))
           return@scope

@@ -40,8 +40,6 @@
             android:exported="false"
             android:theme="@style/Theme.Main" />
 
-        <receiver android:name="com.kpstv.vpn.recievers.AppBroadcast" />
-
         <service
             android:name=".services.GearConnect"
             android:exported="true"

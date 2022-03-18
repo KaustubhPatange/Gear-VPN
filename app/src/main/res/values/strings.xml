@@ -135,5 +135,7 @@
     <string name="error_btn_dismiss">Dismiss</string>
     <string name="error_btn_refresh">Refresh</string>
     <string name="error_vpn_refresh">Error while refreshing VPN due to network interruption.</string>
+    <string name="flags_refresh">Refreshing Country flags</string>
+    <string name="vpnbook_refresh">Updating VPN configs credential</string>
 
 </resources>
