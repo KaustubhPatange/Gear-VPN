@@ -30,7 +30,7 @@ class VpnWorker @AssistedInject constructor(
   private val vpnBookParser = VpnBookParser(networkUtils)
 
   override suspend fun doWork(): Result = supervisorScope scope@{
-    setForeground(Notifications.createVpnRefreshNotification(appContext))
+    setForeground(Notifications.createVpnRefreshNotification(appContext, this@VpnWorker))
 
     Logger.d("Fetching from Worker")
 
@@ -92,8 +92,5 @@ class VpnWorker @AssistedInject constructor(
         .enqueueUniquePeriodicWork(ID, ExistingPeriodicWorkPolicy.REPLACE, request)
     }
 
-    fun stop(context: Context) {
-      WorkManager.getInstance(context).cancelUniqueWork(ID)
-    }
   }
 }

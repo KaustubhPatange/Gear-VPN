@@ -5,9 +5,12 @@ import androidx.work.*
 import com.kpstv.vpn.data.api.FlagApi
 import com.kpstv.vpn.data.db.localized.FlagDao
 import com.kpstv.vpn.di.service.worker.DaggerWorkerFactory
+import com.kpstv.vpn.extensions.setExpeditedCompat
+import com.kpstv.vpn.extensions.utils.Notifications
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.delay
 
 class FlagWorker @AssistedInject constructor(
   private val flagApi: FlagApi,
@@ -15,6 +18,10 @@ class FlagWorker @AssistedInject constructor(
   @Assisted private val appContext: Context,
   @Assisted workerParams: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParams) {
+
+  override suspend fun getForegroundInfo(): ForegroundInfo {
+    return Notifications.createFlagRefreshNotification(appContext, this)
+  }
 
   override suspend fun doWork(): Result {
     val flags = flagApi.fetch()
@@ -38,6 +45,7 @@ class FlagWorker @AssistedInject constructor(
 
       val request = OneTimeWorkRequestBuilder<FlagWorker>()
         .setConstraints(constraints)
+        .setExpeditedCompat(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .build()
 
       WorkManager.getInstance(context)

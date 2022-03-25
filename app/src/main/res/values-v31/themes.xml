@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Splash" parent="Theme.Main">
+        <item name="android:windowBackground">@color/background</item>
+        <!-- Nice hack to make icon transparent so that app logo won't be visible during initial splash -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/unknown</item>
+        <item name="android:windowSplashScreenAnimationDuration">1</item>
+    </style>
+</resources>

@@ -301,7 +301,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         try {
             Intent launchIntent = new Intent(this, Class.forName("com.kpstv.vpn.ui.activities.Main"));
             launchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent pIntent = PendingIntent.getActivity(this, 0, launchIntent, 0);
+            PendingIntent pIntent = PendingIntent.getActivity(this, 0, launchIntent, PendingIntent.FLAG_IMMUTABLE);
             nbuilder.setContentIntent(pIntent);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -1403,7 +1403,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             nbuilder.setContentTitle(getString(reason));
 
             nbuilder.setContentText(url);
-            intent = VariantConfig.getOpenUrlIntent(this);
+            intent = VariantConfig.getOpenUrlIntent(this, false);
             intent.setData(Uri.parse(url));
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         } else if (method.equals("CR_TEXT")) {

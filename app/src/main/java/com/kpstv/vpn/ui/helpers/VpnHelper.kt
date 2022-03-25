@@ -269,6 +269,8 @@ data class VpnConfig(
   val expireTime: Long,
   val connectionType: ConnectionType
 ) {
+
+  @JsonClass(generateAdapter = false)
   enum class ConnectionType { Unknown, TCP, UDP }
 
   fun isNotEmpty(): Boolean {

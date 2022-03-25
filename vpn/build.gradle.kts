@@ -15,13 +15,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdk = 31
+
+    //ndkVersion = "23.0.7599858"
 
     defaultConfig {
-        minSdkVersion(16)
-        targetSdkVersion(30)  //'Q'.toInt()
-       /* versionCode = 177
-        versionName = "0.7.23"*/
+        minSdk = 16
+        targetSdk = 31
 
         externalNativeBuild {
             cmake {
@@ -30,10 +30,6 @@ android {
     }
 
     testOptions.unitTests.isIncludeAndroidResources = true
-
-   /* buildFeatures {
-        buildConfig = false
-    }*/
 
     externalNativeBuild {
         cmake {
@@ -128,9 +124,9 @@ fun registerGenTask(variantName: String, variantDirName: String): File {
             mkdir(genDir)
         }
         commandLine(listOf(swigcmd, "-outdir", genDir, "-outcurrentdir", "-c++", "-java", "-package", "net.openvpn.ovpn3",
-                "-Isrc/main/cpp/openvpn3/client", "-Isrc/main/cpp/openvpn3/",
-                "-o", "${genDir}/ovpncli_wrap.cxx", "-oh", "${genDir}/ovpncli_wrap.h",
-                "src/main/cpp/openvpn3/javacli/ovpncli.i"))
+            "-Isrc/main/cpp/openvpn3/client", "-Isrc/main/cpp/openvpn3/",
+            "-o", "${genDir}/ovpncli_wrap.cxx", "-oh", "${genDir}/ovpncli_wrap.h",
+            "src/main/cpp/openvpn3/javacli/ovpncli.i"))
 
     }
     return baseDir
@@ -150,13 +146,12 @@ dependencies {
     // https://maven.google.com/web/index.html
     // https://developer.android.com/jetpack/androidx/releases/core
     val preferenceVersion = "1.1.1"
-    val coreVersion = "1.2.0"
+    val coreVersion = "1.6.0"
     val materialVersion = "1.1.0"
     val fragment_version = "1.3.2"
 
 
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.annotation:annotation:1.3.0")
     implementation("androidx.core:core:$coreVersion")
     implementation(project(":core-shared"))
     implementation(project(":core-logging"))
