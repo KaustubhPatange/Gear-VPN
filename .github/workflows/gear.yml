@@ -1,0 +1,12 @@
+name: gear
+on:
+  schedule:
+    - cron: '* */6 * * *'
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sending password update
+        run: |
+          curl --request GET \
+          --url 'https://gear-vpn-api.vercel.app/api/gear/vpnbook?type=send-update&secret=${{ secrets.GEAR_SECRET }}'
