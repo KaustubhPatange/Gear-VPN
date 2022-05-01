@@ -120,7 +120,7 @@ class NetworkUtils @Inject constructor() {
 
     val verifiedHosts = HostnameVerifier host@{ hostname, _ ->
       return@host hostname.contains(
-        "vpngate|vpnbook|github|ip-api".toRegex()
+        "vpngate|vpnbook|github|ip-api|gear-vpn-api".toRegex()
       )
     }
 

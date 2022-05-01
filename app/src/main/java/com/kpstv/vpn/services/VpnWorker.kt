@@ -3,6 +3,7 @@ package com.kpstv.vpn.services
 import android.content.Context
 import androidx.work.*
 import com.kpstv.vpn.data.api.IpApi
+import com.kpstv.vpn.data.api.VpnApi
 import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.data.db.repository.VpnRepository
 import com.kpstv.vpn.data.helpers.VpnBookParser
@@ -22,6 +23,7 @@ class VpnWorker @AssistedInject constructor(
   @Assisted private val appContext: Context,
   @Assisted workerParams: WorkerParameters,
   private val ipApi: IpApi,
+  private val vpnApi: VpnApi,
   private val dao: VpnDao,
   networkUtils: NetworkUtils,
 ) : CoroutineWorker(appContext, workerParams) {
@@ -43,6 +45,7 @@ class VpnWorker @AssistedInject constructor(
 
     val vpnGateListAsync = async { vpnGateParser.parse() }
     val vpnBookListAsync = async { vpnBookParser.parse() }
+    val duoServerListAsync = async { vpnApi.getDuoServers() }
 
     val vpnGateConfigList = try {
       vpnGateListAsync.await()
@@ -58,7 +61,14 @@ class VpnWorker @AssistedInject constructor(
       emptyList()
     }
 
-    val final = VpnRepository.merge(vpnGateConfigList, vpnBookList)
+    val duoServerList = try {
+      duoServerListAsync.await()
+    } catch (e: Exception) {
+      Logger.w(e, "Failed to fetch VPN servers from gear-vpn-api/duoserver for Worker")
+      emptyList()
+    }
+
+    val final = VpnRepository.merge(vpnGateConfigList, vpnBookList, duoServerList)
 
     return@scope if (final.isNotEmpty()) {
       dao.insertAll(final)

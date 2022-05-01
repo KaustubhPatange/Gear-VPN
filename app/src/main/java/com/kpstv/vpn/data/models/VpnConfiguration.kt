@@ -4,11 +4,13 @@ import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.kpstv.vpn.extensions.utils.DateUtils
+import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 import java.util.*
 
 @Entity(tableName = "table_vpnconfigs")
 @Parcelize
+@JsonClass(generateAdapter = true)
 data class VpnConfiguration(
   val country: String,
   val countryFlagUrl: String,

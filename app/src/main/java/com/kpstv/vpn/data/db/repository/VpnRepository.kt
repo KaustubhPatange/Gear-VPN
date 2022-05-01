@@ -1,5 +1,6 @@
 package com.kpstv.vpn.data.db.repository
 
+import com.kpstv.vpn.data.api.VpnApi
 import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.data.helpers.VpnBookParser
 import com.kpstv.vpn.data.helpers.VpnGateParser
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.flow
 import okhttp3.internal.toImmutableList
 import java.io.InterruptedIOException
 import javax.inject.Inject
+import javax.net.ssl.SSLPeerUnverifiedException
 
 sealed class VpnLoadState(open val configs: List<VpnConfiguration>) {
   data class Loading(override val configs: List<VpnConfiguration> = emptyList()) :
@@ -32,13 +34,14 @@ sealed class VpnLoadState(open val configs: List<VpnConfiguration>) {
 @AppScope
 class VpnRepository @Inject constructor(
   private val vpnDao: VpnDao,
-  networkUtils: NetworkUtils
+  private val vpnApi: VpnApi,
+  networkUtils: NetworkUtils,
 ) {
   private val vpnGateParser: VpnGateParser = VpnGateParser(networkUtils)
   private val vpnBookParser: VpnBookParser = VpnBookParser(networkUtils)
 
   fun fetch(forceNetwork: Boolean = false): Flow<VpnLoadState> = flow {
-    safeNetworkAccessor(excludeExceptions = arrayOf(InterruptedIOException::class)) {
+    safeNetworkAccessor(excludeExceptions = arrayOf(InterruptedIOException::class, SSLPeerUnverifiedException::class)) {
       fetchVPN(forceNetwork = forceNetwork)
     }
   }
@@ -74,6 +77,9 @@ class VpnRepository @Inject constructor(
             vpnConfigs = merge(configs, vpnConfigs)
           }
         )
+
+       val duoConfigs = vpnApi.getDuoServers()
+        vpnConfigs = merge(duoConfigs, vpnConfigs)
       } catch (e: InterruptedIOException) {
         Logger.d("Warning: OkHttp client interrupted")
         if (vpnConfigs.isEmpty())
@@ -98,14 +104,8 @@ class VpnRepository @Inject constructor(
   }
 
   companion object {
-    fun merge(from: List<VpnConfiguration>, to: List<VpnConfiguration>): List<VpnConfiguration> {
-      val into = to.toMutableList()
-      // does from.union(to).distinctBy { it.ip } but respects the order
-      for (c in from) {
-        into.removeAll { it.ip == c.ip }
-        into.add(c)
-      }
-      return into.sortedBy { it.country }.sortedByDescending { it.premium }.toImmutableList()
+    fun merge(vararg configs: List<VpnConfiguration>): List<VpnConfiguration> {
+      return configs.flatMap { it }.distinctBy { it.ip }.sortedBy { it.country }.sortedByDescending { it.premium }
     }
   }
 }

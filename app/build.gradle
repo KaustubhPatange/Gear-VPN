@@ -9,6 +9,9 @@ plugins {
 }
 
 android {
+    def props = new Properties()
+    file("${rootProject.projectDir}/local.properties").withInputStream { props.load(it) }
+
     compileSdk 31
 
     defaultConfig {
@@ -22,13 +25,12 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField("String", "GEAR_DUO_SECRET", "\"${props.getProperty("gear.secret.duo")}\"")
     }
 
     signingConfigs {
         release {
-            def props = new Properties()
-            file("${rootProject.projectDir}/local.properties").withInputStream { props.load(it) }
-
             storeFile file(props.getProperty("signing.keyFile"))
             storePassword props.getProperty("signing.storePassword")
             keyAlias props.getProperty("signing.alias")

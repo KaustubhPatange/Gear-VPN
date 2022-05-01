@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.room.Room
 import com.kpstv.vpn.data.api.FlagApi
 import com.kpstv.vpn.data.api.IpApi
+import com.kpstv.vpn.data.api.VpnApi
 import com.kpstv.vpn.data.db.database.FlagDatabase
 import com.kpstv.vpn.data.db.database.VpnDatabase
 import com.kpstv.vpn.data.db.database.VpnDatabaseMigrations
@@ -84,5 +85,13 @@ class AppModule {
       .baseUrl(FlagApi.API)
       .build()
       .create(FlagApi::class.java)
+  }
+
+  @Provides
+  fun provideVpnApi(networkUtils: NetworkUtils): VpnApi {
+    return networkUtils.getRetrofitBuilder()
+      .baseUrl(VpnApi.API)
+      .build()
+      .create(VpnApi::class.java)
   }
 }

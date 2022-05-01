@@ -184,7 +184,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
   }
 
   private fun formatConfigurations(list: List<VpnConfiguration>): List<VpnConfiguration> {
-    return list.sortedBy { it.country }.sortedByDescending { it.premium }
+    return list.filterNot { it.country in excludedCountries }.sortedBy { it.country }.sortedByDescending { it.premium }
   }
 
   private fun formatCountry(country: String): String {
@@ -194,6 +194,7 @@ class VpnGateParser(private val networkUtils: NetworkUtils) {
   }
 
   private val list = listOf("Federation", "Republic of")
+  private val excludedCountries = listOf("United States")
 
   companion object {
     private const val CallTimeoutMillis : Long = 1000L * 40
