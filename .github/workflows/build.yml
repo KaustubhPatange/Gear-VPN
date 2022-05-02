@@ -48,6 +48,7 @@ jobs:
           echo "signing.storePassword=$STORE_PASSWORD" >> local.properties
           echo "signing.keyPassword=$KEY_PASSWORD" >> local.properties
           echo "signing.keyFile=${{github.workspace}}/key.jks" >> local.properties
+          echo "gear.secret.duo=$GEAR_DUO_SECRET" >> local.properties
         env:
           SIGNING_KEY: ${{secrets.SIGNING_KEY}}
           PLAY_CONFIG: ${{secrets.PLAY_CONFIG}}
@@ -55,6 +56,7 @@ jobs:
           STORE_PASSWORD: ${{secrets.STORE_PASSWORD}}
           KEY_PASSWORD: ${{secrets.KEY_PASSWORD}}
           GOOGLE_SERVICES_JSON: ${{secrets.GOOGLE_SERVICES_JSON}}
+          GEAR_DUO_SECRET: ${{secrets.GEAR_DUO_SECRET}}
 
       - name: Assemble & Sign
         run: |
