@@ -1,0 +1,2 @@
+Added: 3 more free servers.
+Improved: Servers which are not working are removed.

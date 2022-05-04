@@ -78,8 +78,18 @@ class VpnRepository @Inject constructor(
           }
         )
 
-       val duoConfigs = vpnApi.getDuoServers()
+        val start = System.currentTimeMillis()
+        val duoConfigsResult = runCatching {
+          vpnApi.getDuoServers()
+        }
+        val end = System.currentTimeMillis()
+        val duoConfigs = duoConfigsResult.getOrNull() ?: emptyList()
+        if (duoConfigsResult.isFailure) {
+          Logger.w(duoConfigsResult.exceptionOrNull(), "Failing to load duo servers: ${end - start} ms")
+        }
         vpnConfigs = merge(duoConfigs, vpnConfigs)
+
+        Logger.d("All parsing completed")
       } catch (e: InterruptedIOException) {
         Logger.d("Warning: OkHttp client interrupted")
         if (vpnConfigs.isEmpty())
