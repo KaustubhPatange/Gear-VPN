@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.vpn.R
@@ -42,11 +41,7 @@ import com.kpstv.vpn.extensions.utils.AppUtils.asPassword
 import com.kpstv.vpn.extensions.utils.AppUtils.getFileName
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
 import com.kpstv.vpn.extensions.utils.VpnUtils
-import com.kpstv.vpn.ui.components.AnimatedSwipeDismiss
-import com.kpstv.vpn.ui.components.Header
-import com.kpstv.vpn.ui.components.QuickTip
-import com.kpstv.vpn.ui.components.ThemeButton
-import com.kpstv.vpn.ui.dialogs.RefreshDialog
+import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
@@ -56,7 +51,7 @@ import es.dmoral.toasty.Toasty
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ImportScreen(
-  importViewModel: ImportViewModel = viewModel(),
+  importViewModel: ImportViewModel = composeViewModel(),
   onItemClick: (LocalConfiguration) -> Unit,
   onPremiumClick: () -> Unit,
   isPremiumUnlocked: Boolean,
@@ -140,7 +135,7 @@ fun ImportScreen(
 
 @Composable
 private fun ImportHeader(
-  importViewModel: ImportViewModel = viewModel(),
+  importViewModel: ImportViewModel = composeViewModel(),
   onItemClick: (LocalConfiguration) -> Boolean,
 ) {
   ImportServerQuickTip()

@@ -43,6 +43,7 @@ import com.kpstv.vpn.extensions.drawableFrom
 import com.kpstv.vpn.ui.components.AutoSizeSingleLineText
 import com.kpstv.vpn.ui.components.HeaderButton
 import com.kpstv.vpn.ui.components.ThemeButton
+import com.kpstv.vpn.ui.components.composeViewModel
 import com.kpstv.vpn.ui.helpers.AppPackage
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.screens.NavigationRoute
@@ -72,7 +73,7 @@ private enum class DialogMode : Parcelable {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AppsDialog(
-  viewModel: AppSheetViewModel = viewModel(),
+  viewModel: AppSheetViewModel = composeViewModel(),
   onDisallowedAppListChanged: () -> Unit
 ) {
   val controller = findNavController(key = NavigationRoute.key)

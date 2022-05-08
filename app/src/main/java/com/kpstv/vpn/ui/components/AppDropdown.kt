@@ -45,14 +45,13 @@ fun AppDropdownMenu(
 }
 
 @Composable
-fun AppDropdownCheckBoxItem(text: String, checked: Boolean, onClick: () -> Unit) {
+fun AppDropdownRadioButtonItem(text: String, checked: Boolean, onClick: () -> Unit) {
   Row(
     modifier = Modifier
       .fillMaxWidth()
       .clickable(onClick = {
         onClick()
       })
-      .padding(vertical = 10.dp, horizontal = 10.dp)
   ) {
     RadioButton(selected = checked, onClick = onClick)
     Text(
