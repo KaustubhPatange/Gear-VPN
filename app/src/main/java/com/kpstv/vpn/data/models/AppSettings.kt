@@ -1,10 +1,8 @@
 package com.kpstv.vpn.data.models
 
-import com.kpstv.bindings.AutoGenerateConverter
-import com.kpstv.bindings.ConverterType
+import com.kpstv.vpn.extensions.custom.AbstractMoshiConverter
 import com.squareup.moshi.JsonClass
 
-@AutoGenerateConverter(using = ConverterType.MOSHI)
 @JsonClass(generateAdapter = true)
 data class AppSettings(
     val vpnbook: Vpnbook
@@ -14,4 +12,6 @@ data class AppSettings(
         val password: String,
         val username: String
     )
+
+    object Converter : AbstractMoshiConverter<AppSettings>(AppSettings::class)
 }

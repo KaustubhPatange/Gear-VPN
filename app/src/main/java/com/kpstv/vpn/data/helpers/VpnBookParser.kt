@@ -1,7 +1,7 @@
 package com.kpstv.vpn.data.helpers
 
 import androidx.annotation.WorkerThread
-import com.kpstv.vpn.data.models.AppSettingsConverter
+import com.kpstv.vpn.data.models.AppSettings
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.DateUtils
 import com.kpstv.vpn.logging.Logger
@@ -37,7 +37,7 @@ class VpnBookParser(private val networkUtils: NetworkUtils) {
       onSuccess = { response ->
         if (response.isSuccessful) {
           val content = response.getBodyAndClose()
-          AppSettingsConverter.fromStringToAppSettings(content)?.let { converter ->
+          AppSettings.Converter.fromString(content)?.let { converter ->
             username = converter.vpnbook.username
             password = converter.vpnbook.password
           }

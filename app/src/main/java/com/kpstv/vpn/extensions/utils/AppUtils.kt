@@ -3,7 +3,6 @@ package com.kpstv.vpn.extensions.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -79,5 +78,19 @@ object AppUtils {
       .launchWithFallback(this, Uri.parse(url)) {
         launchUrl(url)
       }
+  }
+
+  fun Context.sendEmail(mail: String): Boolean {
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+      data = Uri.parse("mailto:")
+      putExtra(Intent.EXTRA_EMAIL, arrayOf(mail))
+      putExtra(Intent.EXTRA_SUBJECT, "Gear VPN support")
+    }
+    return if (intent.resolveActivity(packageManager) != null) {
+      startActivity(intent)
+      true
+    } else {
+      false
+    }
   }
 }

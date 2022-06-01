@@ -278,5 +278,9 @@
   {
     "country": "Saudi Arabia",
     "flag": "https://cdn.countryflags.com/thumbs/saudi-arabia/flag-round-250.png"
+  },
+  {
+    "country": "Guam",
+    "flag": "https://cdn.countryflags.com/thumbs/guam/flag-round-250.png"
   }
 ]
