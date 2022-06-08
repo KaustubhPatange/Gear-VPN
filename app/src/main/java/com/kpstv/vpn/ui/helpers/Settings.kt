@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStoreFile
@@ -36,9 +37,14 @@ object Settings {
   // Filter Servers
 
   @Composable
-  fun getFilterServer(): State<ServerFilter> = dataStore.data.map { preferences ->
-    ServerFilter.valueOf(preferences[filterServerKey] ?: ServerFilter.All.name)
-  }.collectAsState(initial = DefaultFilterServer)
+  fun getFilterServer(): State<ServerFilter> {
+    val flow = remember {
+      dataStore.data.map { preferences ->
+        ServerFilter.valueOf(preferences[filterServerKey] ?: ServerFilter.All.name)
+      }
+    }
+    return flow.collectAsState(initial = DefaultFilterServer)
+  }
 
   fun setFilterServer(serverFilter: ServerFilter) {
     scope.launch {
@@ -68,13 +74,13 @@ object Settings {
 
   fun getLastVpnConfig(): Flow<VpnConfig?> = dataStore.data.map { preferences ->
     val configJson = preferences[lastVpnConfigKey] ?: return@map null
-    VpnConfigConverter.fromStringToVpnConfig(configJson)
+    VpnConfig.Converter.fromString(configJson)
   }
 
   fun setLastVpnConfig(value: VpnConfig) {
     scope.launch {
       dataStore.edit { prefs ->
-        VpnConfigConverter.toStringFromVpnConfig(value)?.let { config ->
+        VpnConfig.Converter.toString(value)?.let { config ->
           prefs[lastVpnConfigKey] = config
         }
       }

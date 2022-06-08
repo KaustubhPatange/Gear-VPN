@@ -29,12 +29,14 @@ import com.kpstv.vpn.BuildConfig
 import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrl
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
+import com.kpstv.vpn.extensions.utils.AppUtils.sendEmail
 import com.kpstv.vpn.ui.components.Header
 import com.kpstv.vpn.ui.components.HeaderButton
 import com.kpstv.vpn.ui.components.ThemeButton
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.theme.foregroundColor
+import es.dmoral.toasty.Toasty
 
 @Composable
 fun AboutScreen(goBack: () -> Unit) {
@@ -108,6 +110,17 @@ fun AboutScreen(goBack: () -> Unit) {
             contentDescription = "faq",
             tooltip = "FAQs",
             onClick = { context.launchUrlInApp(context.getString(R.string.app_faq)) }
+          )
+          Spacer(modifier = Modifier.width(5.dp))
+          HeaderButton(
+            icon = R.drawable.ic_mail_outline,
+            contentDescription = "email",
+            tooltip = "Email author",
+            onClick = {
+              if (!context.sendEmail(context.getString(R.string.app_email))) {
+                Toasty.error(context, context.getString(R.string.error_intent_resolver_email)).show()
+              }
+            }
           )
           Spacer(modifier = Modifier.width(5.dp))
           HeaderButton(

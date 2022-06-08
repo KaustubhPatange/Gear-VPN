@@ -25,6 +25,11 @@ class AppSheetViewModel @AssistedInject constructor(
     }
   }
 
+  override fun onCleared() {
+    android.util.Log.e("AppSheetViewModel", "onCleared()")
+    super.onCleared()
+  }
+
   @AssistedFactory
   interface Factory : AssistedSavedStateViewModelFactory<AppSheetViewModel>
 }

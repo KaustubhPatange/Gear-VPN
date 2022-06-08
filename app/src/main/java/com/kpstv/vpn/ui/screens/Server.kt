@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
@@ -60,7 +59,7 @@ fun ServerScreen(
   onImportButton: () -> Unit = {},
   onPremiumClick: () -> Unit = {},
   isPremiumUnlocked: Boolean = false,
-  flagViewModel: FlagViewModel = viewModel(),
+  flagViewModel: FlagViewModel = composeViewModel(),
   onItemClick: (VpnConfiguration, VpnConfig.ConnectionType) -> Unit,
 ) {
   val swipeRefreshState = rememberSwipeRefreshState(vpnState is VpnLoadState.Loading)
@@ -230,7 +229,7 @@ private fun HeaderDropdownMenu(expanded: Boolean = false) {
     title = stringResource(R.string.filter_server),
     expandedState = expandedState,
     content = {
-      AppDropdownCheckBoxItem(
+      AppDropdownRadioButtonItem(
         text = stringResource(R.string.server_filter_all),
         checked = filterServerState.value == Settings.ServerFilter.All,
         onClick = {
@@ -238,7 +237,7 @@ private fun HeaderDropdownMenu(expanded: Boolean = false) {
           dismiss()
         }
       )
-      AppDropdownCheckBoxItem(
+      AppDropdownRadioButtonItem(
         text = stringResource(R.string.server_filter_premium),
         checked = filterServerState.value == Settings.ServerFilter.Premium,
         onClick = {
@@ -246,7 +245,7 @@ private fun HeaderDropdownMenu(expanded: Boolean = false) {
           dismiss()
         }
       )
-      AppDropdownCheckBoxItem(
+      AppDropdownRadioButtonItem(
         text = stringResource(R.string.server_filter_free),
         checked = filterServerState.value == Settings.ServerFilter.Free,
         onClick = {

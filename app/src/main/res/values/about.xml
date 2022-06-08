@@ -7,4 +7,5 @@
     <string name="app_faq_server">https://github.com/KaustubhPatange/Gear-VPN/wiki/FAQs#q-why-some-of-the-servers-does-not-work-connect</string>
     <string name="app_import_server">https://github.com/KaustubhPatange/Gear-VPN/wiki/Import-OpenVPN-Configuration</string>
     <string name="app_google_play">https://play.google.com/store/apps/details?id=com.kpstv.vpn</string>
+    <string name="app_email">developerkp16@gmail.com</string>
 </resources>

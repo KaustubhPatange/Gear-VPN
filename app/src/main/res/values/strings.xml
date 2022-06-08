@@ -138,4 +138,6 @@
     <string name="flags_refresh">Refreshing Country flags</string>
     <string name="vpnbook_refresh">Updating VPN configs credential</string>
 
+    <string name="error_intent_resolver_email">No app(s) found to send email</string>
+
 </resources>

@@ -3,7 +3,7 @@ package com.kpstv.vpn.services
 import android.content.Context
 import androidx.work.*
 import com.kpstv.vpn.data.db.localized.VpnBookDao
-import com.kpstv.vpn.data.models.AppSettingsConverter
+import com.kpstv.vpn.data.models.AppSettings
 import com.kpstv.vpn.di.service.worker.DaggerWorkerFactory
 import com.kpstv.vpn.extensions.setExpeditedCompat
 import com.kpstv.vpn.extensions.utils.NetworkUtils
@@ -32,7 +32,7 @@ class VpnBookWorker @AssistedInject constructor(
     val appSettingResponse = networkUtils.simpleGetRequest(SettingsUrl).getOrNull()
     if (appSettingResponse?.isSuccessful == true) {
       val content = appSettingResponse.getBodyAndClose()
-      AppSettingsConverter.fromStringToAppSettings(content)?.let { converter ->
+      AppSettings.Converter.fromString(content)?.let { converter ->
         dao.safeUpdate(username = converter.vpnbook.username, password = converter.vpnbook.password)
       }
     }

@@ -2,7 +2,6 @@ package com.kpstv.vpn.ui.screens
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kpstv.navigation.compose.*
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
@@ -10,6 +9,7 @@ import com.kpstv.vpn.data.models.asVpnConfig
 import com.kpstv.vpn.extensions.SlideTop
 import com.kpstv.vpn.extensions.asVpnConfig
 import com.kpstv.vpn.ui.components.ConnectionStatusBox
+import com.kpstv.vpn.ui.components.composeViewModel
 import com.kpstv.vpn.ui.components.rememberBottomSheetState
 import com.kpstv.vpn.ui.dialogs.ReviewDialogScreen
 import com.kpstv.vpn.ui.dialogs.WelcomeDialogScreen
@@ -47,8 +47,8 @@ private class Load(val refresh: Boolean = false)
 fun NavigationScreen(
   navigator: ComposeNavigator,
   billingHelper: BillingHelper,
-  viewModel: VpnViewModel = viewModel(),
-  flagViewModel: FlagViewModel = viewModel()
+  viewModel: VpnViewModel = composeViewModel(),
+  flagViewModel: FlagViewModel = composeViewModel()
 ) {
   val context = LocalContext.current
   val shouldRefresh = remember { mutableStateOf(Load(), policy = referentialEqualityPolicy()) }

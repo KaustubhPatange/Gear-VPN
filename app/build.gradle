@@ -6,6 +6,7 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
     id 'com.spotify.ruler'
+    id 'com.google.devtools.ksp'
 }
 
 android {
@@ -67,6 +68,13 @@ android {
     }
 }
 
+kotlin {
+    sourceSets {
+        main.kotlin.srcDirs += 'build/generated/ksp/main/kotlin'
+        test.kotlin.srcDirs += 'build/generated/ksp/test/kotlin'
+    }
+}
+
 ruler {
     abi.set("arm64-v8a")
     locale.set("en")
@@ -103,7 +111,7 @@ dependencies {
     implementation "io.coil-kt:coil-compose:1.4.0"
     implementation "io.coil-kt:coil-gif:1.3.2"
 
-    implementation "io.github.kaustubhpatange:navigator-compose:0.1-alpha25"
+    implementation "io.github.kaustubhpatange:navigator-compose:0.1-alpha32"
 
     implementation "org.jsoup:jsoup:1.13.1"
 
@@ -113,13 +121,13 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
 
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0-alpha04"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1"
 
     implementation "androidx.work:work-runtime-ktx:2.7.1"
 
     implementation "androidx.room:room-runtime:2.4.2"
     implementation "androidx.room:room-ktx:2.4.2"
-    kapt "androidx.room:room-compiler:2.4.2"
+    ksp "androidx.room:room-compiler:2.4.2"
 
     implementation "com.google.dagger:dagger:2.40"
     kapt "com.google.dagger:dagger-compiler:2.40"
@@ -134,11 +142,8 @@ dependencies {
 
     implementation 'com.google.android.play:core-ktx:1.8.1'
 
-    implementation 'io.github.kaustubhpatange:autobindings-room:1.1-beta05'
-    kapt 'io.github.kaustubhpatange:autobindings-compiler:1.1-beta05'
-
-    implementation 'com.squareup.moshi:moshi:1.12.0'
-    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.12.0'
+    implementation 'com.squareup.moshi:moshi:1.13.0'
+    ksp 'com.squareup.moshi:moshi-kotlin-codegen:1.13.0'
 
     implementation project(":vpn")
     implementation project(":core-shared")

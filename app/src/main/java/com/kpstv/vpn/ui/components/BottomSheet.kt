@@ -97,7 +97,6 @@ fun BottomSheet(
     )
 
     LaunchedEffect(bottomSheetState.expanded.value) effect@{
-      if (swipeableState.isAnimationRunning) return@effect
       swipeableState.animateTo(
         targetValue = bottomSheetState.isVisible(),
         anim = tween()

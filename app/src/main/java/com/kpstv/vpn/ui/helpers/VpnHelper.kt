@@ -5,11 +5,10 @@ import android.graphics.Color
 import android.net.VpnService
 import android.os.IBinder
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.kpstv.bindings.AutoGenerateConverter
-import com.kpstv.bindings.ConverterType
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.asShared
 import com.kpstv.vpn.extensions.asVpnConfig
+import com.kpstv.vpn.extensions.custom.AbstractMoshiConverter
 import com.kpstv.vpn.logging.Logger
 import com.squareup.moshi.JsonClass
 import de.blinkt.openvpn.DisconnectVPNActivity
@@ -258,7 +257,6 @@ open class VpnHelper(
   }
 }
 
-@AutoGenerateConverter(using = ConverterType.MOSHI)
 @JsonClass(generateAdapter = true)
 data class VpnConfig(
   val username: String?,
@@ -278,6 +276,8 @@ data class VpnConfig(
   }
 
   fun isExpired(): Boolean = VpnConfiguration.isExpired(expireTime)
+
+  object Converter : AbstractMoshiConverter<VpnConfig>(VpnConfig::class)
 
   companion object {
     fun createEmpty(): VpnConfig = VpnConfig(
