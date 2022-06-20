@@ -41,6 +41,11 @@ class GearConnect : TileService() {
     super.onCreate()
     vpnHelper = VpnServiceHelper(this)
     vpnHelper.init()
+
+    val context = applicationContext
+    if (context != null) {
+      NetworkMonitor.init(context)
+    }
   }
 
   override fun onStartListening() {
@@ -72,6 +77,7 @@ class GearConnect : TileService() {
   override fun onClick() {
     connectJob = SupervisorJob()
     CoroutineScope(connectJob + Dispatchers.Main).launch {
+      NetworkMonitor.forceUpdate()
       if (!NetworkMonitor.connection.value) {
         Notifications.createNoInternetNotification(this@GearConnect)
       } else if (vpnHelper.isConnected()) {
@@ -142,7 +148,7 @@ class GearConnect : TileService() {
     }
 
     val localConfigurations = vpnDao.getAll()
-    if (config != null && config.isExpired()) {
+    if (config == null || config.isExpired()) {
       if (localConfigurations.isNotEmpty()) {
         val localConfig =
           localConfigurations.random().asVpnConfig(connectionType = VpnConfig.ConnectionType.TCP)
