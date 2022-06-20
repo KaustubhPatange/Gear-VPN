@@ -7,6 +7,11 @@ platform :android do
     gradle(task: "clean bundleRelease")
     upload_to_play_store(skip_upload_metadata: true, skip_upload_images: true, skip_upload_screenshots: true)
   end
+  lane :production_80 do
+    gradle(task: "app:checkForChangelog")
+    gradle(task: "clean bundleRelease")
+    upload_to_play_store(skip_upload_metadata: true, skip_upload_images: true, skip_upload_screenshots: true, rollout: '0.8')
+  end
   lane :internal_test do
     gradle(task: "app:checkForChangelog")
     gradle(task: "clean bundleRelease")

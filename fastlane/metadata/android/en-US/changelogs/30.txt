@@ -1,0 +1,3 @@
+Added: "Send Email" to author button in About section.
+Improved: Some memory optimization.
+Fixed: Gear Connect feature throwing "No Internet Connection" error.
