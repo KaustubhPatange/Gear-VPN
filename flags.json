@@ -290,5 +290,13 @@
   {
     "country": "Seychelles",
     "flag": "https://cdn.countryflags.com/thumbs/seychelles/flag-round-250.png"
+  },
+  {
+    "country": "Suriname",
+    "flag": "https://cdn.countryflags.com/thumbs/suriname/flag-round-250.png"
+  },
+  {
+    "country": "Azerbaijan",
+    "flag": "https://cdn.countryflags.com/thumbs/azerbaijan/flag-round-250.png"
   }
 ]
