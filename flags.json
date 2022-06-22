@@ -282,5 +282,13 @@
   {
     "country": "Guam",
     "flag": "https://cdn.countryflags.com/thumbs/guam/flag-round-250.png"
+  },
+  {
+    "country": "Ecuador",
+    "flag": "https://cdn.countryflags.com/thumbs/ecuador/flag-round-250.png"
+  },
+  {
+    "country": "Seychelles",
+    "flag": "https://cdn.countryflags.com/thumbs/seychelles/flag-round-250.png"
   }
 ]
