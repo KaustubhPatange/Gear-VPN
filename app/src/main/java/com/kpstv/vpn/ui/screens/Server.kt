@@ -32,6 +32,7 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.kpstv.navigation.compose.DialogRoute
 import com.kpstv.navigation.compose.findNavController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
@@ -39,6 +40,7 @@ import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
 import com.kpstv.vpn.extensions.utils.VpnUtils
 import com.kpstv.vpn.ui.components.*
+import com.kpstv.vpn.ui.dialogs.GearAlertDialog
 import com.kpstv.vpn.ui.dialogs.HowToRefreshDialog
 import com.kpstv.vpn.ui.dialogs.RefreshDialog
 import com.kpstv.vpn.ui.helpers.Settings
@@ -49,6 +51,7 @@ import com.kpstv.vpn.ui.theme.*
 import com.kpstv.vpn.ui.viewmodels.FlagViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.parcelize.Parcelize
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -70,10 +73,12 @@ fun ServerScreen(
 
   val filterServer by Settings.getFilterServer()
 
+  val navController = findNavController(NavigationRoute.key)
+
   SwipeRefresh(
     modifier = Modifier.fillMaxSize(),
     state = swipeRefreshState,
-    onRefresh = onForceRefresh,
+    onRefresh = { navController.showDialog(ServerRefreshDialog) },
     swipeEnabled = (vpnState is VpnLoadState.Completed || vpnState.isError()),
     indicator = { state, trigger ->
       SwipeRefreshIndicator(
@@ -209,6 +214,9 @@ fun ServerScreen(
 
   // How to refresh VPN servers Dialog
   HowToRefreshDialog()
+
+  // Server confirm refresh dialog
+  ServerRefreshConfirmDialog(onRefresh = onForceRefresh)
 }
 
 @Composable
@@ -494,6 +502,20 @@ private fun HowToRefreshQuickTip() {
   if (!showTip) {
     Spacer(modifier = Modifier.height(15.dp))
   }
+}
+
+@Parcelize
+private object ServerRefreshDialog : DialogRoute
+
+@Composable
+private fun ServerRefreshConfirmDialog(onRefresh: () -> Unit) {
+  GearAlertDialog(
+    route = ServerRefreshDialog::class,
+    title = stringResource(R.string.server_refresh_dialog_title),
+    message = stringResource(R.string.server_refresh_dialog_message),
+    onPositiveClick = onRefresh,
+    showNegativeButton = true,
+  )
 }
 
 @Preview

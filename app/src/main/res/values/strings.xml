@@ -140,4 +140,7 @@
 
     <string name="error_intent_resolver_email">No app(s) found to send email</string>
 
+    <string name="server_refresh_dialog_title">Refresh?</string>
+    <string name="server_refresh_dialog_message">This will refresh VPN servers.</string>
+
 </resources>
