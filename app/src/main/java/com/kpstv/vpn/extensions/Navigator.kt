@@ -2,9 +2,7 @@ package com.kpstv.vpn.extensions
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import com.kpstv.navigation.compose.ComposeTransition
-import com.kpstv.navigation.compose.NavigatorTransition
-import com.kpstv.navigation.compose.TransitionKey
+import com.kpstv.navigation.compose.*
 
 val SlideTop get() = SlideTopTransition.key
 
@@ -26,4 +24,8 @@ val SlideTopTransition = object : NavigatorTransition() {
       }
     )
   }
+}
+
+fun <T : Route> ComposeNavigator.Controller<T>.isDialogShowing(dialogRoute: DialogRoute) : Boolean {
+  return getAllDialogHistory().contains(dialogRoute)
 }

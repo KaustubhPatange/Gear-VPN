@@ -26,6 +26,7 @@ import com.kpstv.navigation.compose.DialogRoute
 import com.kpstv.navigation.compose.findNavController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.clickableNoIndication
+import com.kpstv.vpn.extensions.isDialogShowing
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrl
 import com.kpstv.vpn.ui.helpers.ReviewSettings
 import com.kpstv.vpn.ui.screens.NavigationRoute
@@ -50,7 +51,7 @@ fun ReviewDialogScreen() {
   }
 
   LaunchedEffect(Unit) {
-    if (ReviewSettings.canShowDialog()) {
+    if (ReviewSettings.canShowDialog() && !navController.isDialogShowing(ReviewDialog)) {
       navController.showDialog(ReviewDialog)
     }
   }
