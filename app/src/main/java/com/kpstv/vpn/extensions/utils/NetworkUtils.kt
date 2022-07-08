@@ -11,6 +11,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.IOException
 import java.net.ProtocolException
 import java.net.SocketException
+import java.net.UnknownHostException
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -48,7 +49,7 @@ class NetworkUtils @Inject constructor() {
     // This will help us to catch IOException for safeNetworkAccessor
     fun Result<Response>.getOrThrowIO() : Response? {
       val exception = exceptionOrNull()
-      if (exception is IOException) throw exception
+      if (exception is IOException && exception !is UnknownHostException) throw exception
       return getOrNull()
     }
   }
