@@ -1,0 +1,3 @@
+Added: Confirmation dialog for server refresh.
+Fixed: Crash when dialog is restored from process death.
+Fixed: Ignore unknown host exceptions.
