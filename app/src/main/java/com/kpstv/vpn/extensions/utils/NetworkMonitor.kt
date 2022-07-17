@@ -85,17 +85,20 @@ object NetworkMonitor {
       val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
       val hasInternetCapability = networkCapabilities?.hasCapability(NET_CAPABILITY_INTERNET)
       if (hasInternetCapability == true) {
-        job = SupervisorJob()
-        CoroutineScope(Dispatchers.IO + job).launch {
-          val hasInternet = execute(network.socketFactory)
-          if(hasInternet){
-            withContext(Dispatchers.Main) {
-              networks.add(network)
-              fireNetworkChanges()
-            }
-          }
-          isInitialized = true
-        }
+        networks.add(network)
+        fireNetworkChanges()
+        isInitialized = true
+//        job = SupervisorJob()
+//        CoroutineScope(Dispatchers.IO + job).launch {
+//          val hasInternet = execute(network.socketFactory)
+//          if(hasInternet){
+//            withContext(Dispatchers.Main) {
+//              networks.add(network)
+//              fireNetworkChanges()
+//            }
+//          }
+//          isInitialized = true
+//        }
       }
     }
 
@@ -104,6 +107,7 @@ object NetworkMonitor {
       fireNetworkChanges()
     }
 
+    // does not work on all devices, so better not use it.
     private fun execute(socketFactory: SocketFactory): Boolean {
       return try{
         val socket = socketFactory.createSocket() ?: throw IOException("Socket is null.")
