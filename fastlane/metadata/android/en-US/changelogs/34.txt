@@ -1,0 +1,2 @@
+Fixed: Not able to import OpenVPN3 config file.
+Fixed: Crash when importing OpenVPN config file.

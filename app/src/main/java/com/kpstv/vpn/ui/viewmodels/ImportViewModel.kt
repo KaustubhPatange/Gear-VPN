@@ -9,25 +9,20 @@ import com.kpstv.vpn.di.presentation.viewmodel.AssistedSavedStateViewModelFactor
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
 class ImportViewModel @AssistedInject constructor(
   @Assisted private val savedStateHandle: SavedStateHandle,
   private val localDao: LocalDao
 ) : ViewModel() {
   private val job = SupervisorJob()
-  private val viewModelIOScope = CoroutineScope(job + Dispatchers.IO)
+  private val viewModelIOScope = CoroutineScope(Dispatchers.IO + job)
 
   val getConfigs: Flow<List<LocalConfiguration>> = localDao.getAsFlow()
 
-  fun addConfig(config: LocalConfiguration) {
-    viewModelScope.launch {
-      localDao.insert(config)
-    }
+  suspend fun addConfig(config: LocalConfiguration) = withContext(viewModelIOScope.coroutineContext) {
+    localDao.insert(config)
   }
 
   fun removeConfig(config: LocalConfiguration) {

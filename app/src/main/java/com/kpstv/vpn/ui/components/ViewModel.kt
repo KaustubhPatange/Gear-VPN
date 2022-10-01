@@ -15,8 +15,8 @@ import com.kpstv.vpn.ui.activities.Dagger
 @Composable
 inline fun <reified VM : ViewModel> composeViewModel(): VM {
   val context = LocalContext.current
-  val activity = remember { context.findActivity() as Dagger }
+  val activity = remember(context) { context.findActivity() as Dagger }
   val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
-  val factory = remember { activity.abstractViewModelFactory.get().create(savedStateRegistryOwner) }
+  val factory = remember(savedStateRegistryOwner) { activity.abstractViewModelFactory.get().create(savedStateRegistryOwner) }
   return viewModel(factory = factory)
 }

@@ -149,7 +149,9 @@ fun NavigationScreen(
               .run { copy(country = context.getString(R.string.import_config_country, country)) })
 
           navController.navigateTo(NavigationRoute.Main()) {
-            popUpTo(NavigationRoute.Main::class)
+            popUpTo(NavigationRoute.Main::class) {
+              inclusive = true
+            }
             withAnimation {
               target = Fade
               current = Fade

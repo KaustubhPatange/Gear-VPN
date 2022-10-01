@@ -47,6 +47,9 @@ import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.viewmodels.ImportViewModel
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -60,20 +63,26 @@ fun ImportScreen(
   val context = LocalContext.current
   val keyboardController = LocalSoftwareKeyboardController.current
 
+  val onItemClick = rememberUpdatedState(onItemClick)
+  val goBack = rememberUpdatedState(goBack)
+
+  val compositionCoroutineScope = rememberCoroutineScope(getContext = Dispatchers::Main)
+
   val localConfigurations = importViewModel.getConfigs.collectAsState(initial = emptyList())
 
-  val onChangeProfile: (LocalConfiguration) -> Boolean =
+  val onChangeProfile: (LocalConfiguration, toSave: Boolean) -> Unit =
     remember(isPremiumUnlocked, localConfigurations.value) {
-      changeProfile@{ config ->
-        return@changeProfile if (!isPremiumUnlocked && localConfigurations.value.size >= 3) {
+      changeProfile@{ config, toSave ->
+        if (!isPremiumUnlocked && localConfigurations.value.size >= 3) {
           keyboardController?.hide()
           Toasty.warning(context, context.getString(R.string.max_premium), Toasty.LENGTH_LONG)
             .show()
           onPremiumClick() // TODO: When premium is purchased from this screen, it doesn't unlock (problem lies with Datastore).
-          false
         } else {
-          onItemClick(config)
-          true
+          compositionCoroutineScope.launch {
+            if (toSave) importViewModel.addConfig(config)
+            onItemClick.value(config)
+          }
         }
       }
     }
@@ -106,7 +115,7 @@ fun ImportScreen(
             onSwipe = { config ->
               importViewModel.removeConfig(config)
             },
-            onItemClick = onItemClick
+            onItemClick = onItemClick.value
           )
         }
 
@@ -123,7 +132,7 @@ fun ImportScreen(
     Column {
       Header(
         title = stringResource(R.string.import_config),
-        onBackButton = goBack
+        onBackButton = goBack.value
       )
       if (localConfigurations.value.isEmpty()) {
         Spacer(modifier = Modifier.height(10.dp))
@@ -135,16 +144,11 @@ fun ImportScreen(
 
 @Composable
 private fun ImportHeader(
-  importViewModel: ImportViewModel = composeViewModel(),
-  onItemClick: (LocalConfiguration) -> Boolean,
+  onItemClick: (LocalConfiguration, toSave: Boolean) -> Unit,
 ) {
   ImportServerQuickTip()
   Profile(
-    changeProfile = { config, toSave ->
-      if (onItemClick(config)) {
-        if (toSave) importViewModel.addConfig(config)
-      }
-    }
+    changeProfile = onItemClick
   )
 }
 
@@ -315,19 +319,18 @@ private fun ProfileColumn(
       )
     )
 
-    Spacer(modifier = Modifier.height(25.dp))
+    Spacer(modifier = Modifier.height(20.dp))
 
     Row(
       modifier = Modifier.clickableNoIndication(
         onClick = { onSaveProfileChanged.invoke(!saveProfile) }
       )) {
       Checkbox(
-        modifier = Modifier.align(Alignment.CenterVertically),
         checked = saveProfile,
         onCheckedChange = onSaveProfileChanged
       )
-      Spacer(modifier = Modifier.width(10.dp))
       Text(
+        modifier = Modifier.align(Alignment.CenterVertically),
         text = stringResource(R.string.save_profile),
         style = MaterialTheme.typography.h2.copy(fontSize = 16.sp)
       )
