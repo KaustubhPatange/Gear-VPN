@@ -31,6 +31,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.kpstv.vpn.R
+import com.kpstv.vpn.ui.theme.Dimen.dp160
 
 enum class ConnectivityStatus {
   NONE,
@@ -52,7 +53,7 @@ private enum class CircularAnimateState {
   SHRINK_OUT_BIT // connected
 }
 
-private val diameter = 160.dp
+private val diameter = dp160
 private val dotSize = 3.dp
 private val dashSize = 10.dp
 private val arcThickness = 3.dp

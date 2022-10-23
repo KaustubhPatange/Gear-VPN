@@ -4,9 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,6 +35,10 @@ import com.kpstv.vpn.ui.dialogs.AppsDialog
 import com.kpstv.vpn.ui.dialogs.AppsDialogMain
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
+import com.kpstv.vpn.ui.theme.Dimen.dp10
+import com.kpstv.vpn.ui.theme.Dimen.dp50
+import com.kpstv.vpn.ui.theme.Dimen.dp55
+import com.kpstv.vpn.ui.theme.Dimen.dp90
 import com.kpstv.vpn.ui.theme.cyanDark
 import com.kpstv.vpn.ui.theme.greenColorDark
 import com.kpstv.vpn.ui.theme.purpleColor
@@ -135,7 +137,7 @@ fun MainScreen(
       modifier = Modifier
         .fillMaxWidth()
         .padding(15.dp)
-        .height(90.dp)
+        .height(dp90)
         .border(
           border = BorderStroke(
             width = 2.dp,
@@ -159,8 +161,8 @@ fun MainScreen(
             }
           ),
           modifier = Modifier
-            .padding(10.dp)
-            .requiredWidthIn(max = 50.dp)
+            .padding(dp10)
+            .requiredWidthIn(max = dp50)
             .fillMaxHeight(),
           contentDescription = "country",
         )
@@ -207,7 +209,7 @@ fun MainScreen(
         .fillMaxWidth()
         .padding(5.dp)
         .padding(horizontal = 32.dp)
-        .height(55.dp)
+        .height(dp55)
     ) {
       ThemeButton(
         enabled = (
@@ -308,6 +310,23 @@ fun PreviewStartScreen() {
   CommonPreviewTheme {
     MainScreen(
       publicIp = "104.156.232.238",
+      getFlagUrl = { MutableStateFlow("") },
+      onToChangeServer = {},
+      onToAboutScreen = {},
+      onDisallowedAppListChanged = {},
+      onPremiumClick = {},
+      onConnectClick = {},
+      onDisconnect = {}
+    )
+  }
+}
+
+@Preview(widthDp = 320, heightDp = 533)
+@Composable
+fun PreviewStartScreenSmall() {
+  CommonPreviewTheme {
+    MainScreen(
+        publicIp = "104.156.232.238",
       getFlagUrl = { MutableStateFlow("") },
       onToChangeServer = {},
       onToAboutScreen = {},

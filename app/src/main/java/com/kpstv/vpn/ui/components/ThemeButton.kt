@@ -14,13 +14,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
+import com.kpstv.vpn.ui.theme.Dimen.spNormal
 
 @Composable
 fun ThemeButton(
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
   text: String,
-  fontSize: TextUnit = TextUnit.Unspecified,
+  fontSize: TextUnit = spNormal,
   enabled: Boolean = true
 ) {
   Button(

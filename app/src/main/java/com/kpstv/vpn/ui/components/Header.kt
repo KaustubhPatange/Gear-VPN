@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.insets.statusBarsPadding
 import com.kpstv.vpn.R
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
+import com.kpstv.vpn.ui.theme.Dimen.dp48
 
 @Composable
 fun Header(title: String, modifier: Modifier = Modifier, onBackButton: () -> Unit = {}, actionRow: @Composable () -> Unit = {}) {
@@ -46,16 +47,6 @@ fun Header(title: String, modifier: Modifier = Modifier, onBackButton: () -> Uni
         contentDescription = "back button",
         onClick = onBackButton
       )
-      IconButton(
-        onClick = onBackButton,
-        modifier = Modifier
-          .clip(CircleShape)
-      ) {
-        Image(
-          painter = painterResource(R.drawable.ic_baseline_arrow_back_24),
-          contentDescription = "back button"
-        )
-      }
       Text(
         text = title,
         modifier = Modifier.align(Alignment.Center),
@@ -103,7 +94,7 @@ fun HeaderButton(
         },
         tooltipOffset = tooltipOffset
       )
-      .size(48.dp)
+      .size(dp48)
       .clip(CircleShape),
     contentAlignment = Alignment.Center
   ) {

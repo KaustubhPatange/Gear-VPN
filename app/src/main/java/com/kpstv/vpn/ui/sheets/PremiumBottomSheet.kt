@@ -20,6 +20,8 @@ import com.kpstv.vpn.R
 import com.kpstv.vpn.ui.components.BottomSheetState
 import com.kpstv.vpn.ui.components.ThemeButton
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
+import com.kpstv.vpn.ui.theme.Dimen.dp100
+import com.kpstv.vpn.ui.theme.Dimen.sp18
 
 @Composable
 fun PremiumBottomSheet(
@@ -70,14 +72,14 @@ private fun CommonSheet(
           iterations = LottieConstants.IterateForever
         )
         LottieAnimation(
-          modifier = Modifier.size(100.dp), // it needs fixed size otherwise it fills the entire screen, [cc](github.com/airbnb/lottie-android/issues/1866)
+          modifier = Modifier.size(dp100), // it needs fixed size otherwise it fills the entire screen, [cc](github.com/airbnb/lottie-android/issues/1866)
           composition = composition,
           progress = progress
         )
         Text(
           modifier = Modifier.align(Alignment.CenterVertically),
           text = text,
-          style = MaterialTheme.typography.h4.copy(fontSize = 18.sp)
+          style = MaterialTheme.typography.h4.copy(fontSize = sp18)
         )
         Spacer(modifier = Modifier.width(20.dp))
       }

@@ -34,6 +34,8 @@ import com.kpstv.vpn.ui.components.Header
 import com.kpstv.vpn.ui.components.HeaderButton
 import com.kpstv.vpn.ui.components.ThemeButton
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
+import com.kpstv.vpn.ui.theme.Dimen.dp150
+import com.kpstv.vpn.ui.theme.Dimen.sp35
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.theme.foregroundColor
 import es.dmoral.toasty.Toasty
@@ -70,7 +72,7 @@ fun AboutScreen(goBack: () -> Unit) {
       CompositionLocalProvider(LocalContentColor provides foregroundColor) {
         Icon(
           modifier = Modifier
-            .size(150.dp)
+            .size(dp150)
             .rotate(iconAngle),
           painter = painterResource(R.drawable.ic_logo),
           contentDescription = "logo"
@@ -78,7 +80,7 @@ fun AboutScreen(goBack: () -> Unit) {
         Spacer(modifier = Modifier.height(30.dp))
         Text(
           text = stringResource(R.string.app_name),
-          style = MaterialTheme.typography.h4.copy(fontSize = 35.sp)
+          style = MaterialTheme.typography.h4.copy(fontSize = sp35)
         )
       }
       Spacer(modifier = Modifier.height(10.dp))
