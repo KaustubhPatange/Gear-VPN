@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
+import com.kpstv.vpn.ui.theme.Dimen.sp15
 import com.kpstv.vpn.ui.theme.dotColor
 import java.util.*
 
@@ -42,7 +43,7 @@ fun QuickTip(
           Text(
             modifier = Modifier.weight(1f),
             text = message,
-            style = MaterialTheme.typography.h5.copy(fontSize = 15.sp),
+            style = MaterialTheme.typography.h5.copy(fontSize = sp15),
             color = textColor
           )
           Spacer(modifier = Modifier.width(10.dp))

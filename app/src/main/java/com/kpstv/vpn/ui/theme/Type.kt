@@ -10,6 +10,11 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.sp
 import com.kpstv.vpn.R
+import com.kpstv.vpn.ui.theme.Dimen.sp13
+import com.kpstv.vpn.ui.theme.Dimen.sp14
+import com.kpstv.vpn.ui.theme.Dimen.sp16
+import com.kpstv.vpn.ui.theme.Dimen.sp24
+import com.kpstv.vpn.ui.theme.Dimen.sp25
 
 val jostRegular = FontFamily(
   Font(R.font.jost_regular)
@@ -27,26 +32,26 @@ val jostBold = FontFamily(
 val Typography = Typography(
   h2 = TextStyle(
     fontFamily = jostRegular,
-    fontSize = 25.sp
+    fontSize = sp25
   ),
   h4 = TextStyle(
     fontFamily = jostMedium,
-    fontSize = 24.sp
+    fontSize = sp24
   ),
   h5 = TextStyle(
     fontFamily = jostMedium,
     fontWeight = FontWeight.W700,
-    fontSize = 16.sp
+    fontSize = sp16
   ),
   subtitle1 = TextStyle(
     fontFamily = jostBold,
     letterSpacing = TextUnit(0.8f, TextUnitType.Sp),
-    fontSize = 14.sp
+    fontSize = sp14
   ),
   subtitle2 = TextStyle(
     fontFamily = jostBold,
     letterSpacing = TextUnit(0.8f, TextUnitType.Sp),
-    fontSize = 13.sp
+    fontSize = sp13
   ),
   button = TextStyle(
     fontFamily = jostMedium,

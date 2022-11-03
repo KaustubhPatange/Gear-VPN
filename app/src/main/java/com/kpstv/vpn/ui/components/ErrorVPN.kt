@@ -15,6 +15,9 @@ import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.*
 import com.kpstv.vpn.R
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
+import com.kpstv.vpn.ui.theme.Dimen.dp250
+import com.kpstv.vpn.ui.theme.Dimen.sp16
+import com.kpstv.vpn.ui.theme.Dimen.sp30
 
 @Composable
 fun ErrorVpnScreen(modifier: Modifier = Modifier, title: String, onDismiss: () -> Unit, onRefresh: () -> Unit) {
@@ -34,20 +37,20 @@ private fun ErrorContent(modifier: Modifier = Modifier, title: String, onDismiss
       iterations = LottieConstants.IterateForever
     )
     LottieAnimation(
-      modifier = Modifier.size(250.dp), // it needs fixed size otherwise it fills the entire screen, [cc](github.com/airbnb/lottie-android/issues/1866)
+      modifier = Modifier.size(dp250), // it needs fixed size otherwise it fills the entire screen, [cc](github.com/airbnb/lottie-android/issues/1866)
       composition = composition,
       progress = progress
     )
     Spacer(modifier = Modifier.height(20.dp))
     Text(
       text = title,
-      style = MaterialTheme.typography.h5.copy(fontSize = 30.sp),
+      style = MaterialTheme.typography.h5.copy(fontSize = sp30),
       textAlign = TextAlign.Center
     )
     Spacer(modifier = Modifier.height(20.dp))
     Text(
       text = stringResource(R.string.dialog_error_vpn_text),
-      style = MaterialTheme.typography.h4.copy(fontSize = 16.sp),
+      style = MaterialTheme.typography.h4.copy(fontSize = sp16),
       color = MaterialTheme.colors.secondary,
       textAlign = TextAlign.Center
     )

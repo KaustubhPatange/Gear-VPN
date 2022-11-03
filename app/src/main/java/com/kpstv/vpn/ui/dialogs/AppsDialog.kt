@@ -48,6 +48,12 @@ import com.kpstv.vpn.ui.helpers.AppPackage
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.screens.NavigationRoute
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
+import com.kpstv.vpn.ui.theme.Dimen.dp15
+import com.kpstv.vpn.ui.theme.Dimen.dp25
+import com.kpstv.vpn.ui.theme.Dimen.dp45
+import com.kpstv.vpn.ui.theme.Dimen.dp5
+import com.kpstv.vpn.ui.theme.Dimen.sp16
+import com.kpstv.vpn.ui.theme.Dimen.sp20
 import com.kpstv.vpn.ui.theme.dotColor
 import com.kpstv.vpn.ui.viewmodels.AppSheetViewModel
 import kotlinx.coroutines.Dispatchers
@@ -112,8 +118,8 @@ fun AppsDialog(
     BoxWithConstraints(
       modifier = Modifier
         .fillMaxSize()
-        .padding(25.dp)
-        .clip(RoundedCornerShape(5.dp))
+        .padding(dp25)
+        .clip(RoundedCornerShape(dp5))
         .background(MaterialTheme.colors.background)
     ) {
 
@@ -220,7 +226,7 @@ private fun Header(
               Column(modifier = Modifier.padding(horizontal = 5.dp)) {
                 Text(
                   text = stringResource(R.string.filter_apps),
-                  style = MaterialTheme.typography.h4.copy(fontSize = 20.sp)
+                  style = MaterialTheme.typography.h4.copy(fontSize = sp20)
                 )
                 Spacer(modifier = Modifier.height(3.dp))
                 AutoSizeSingleLineText(
@@ -347,17 +353,17 @@ private fun AppsItem(
     val drawable = remember { item.loadIcon() }
 
     Image(
-      modifier = Modifier.size(45.dp),
+      modifier = Modifier.size(dp45),
       painter = rememberImagePainter(drawable),
       contentDescription = "app icon"
     )
-    Spacer(modifier = Modifier.width(15.dp))
+    Spacer(modifier = Modifier.width(dp15))
     Column(
       modifier = Modifier
         .align(Alignment.CenterVertically)
         .weight(1f)
     ) {
-      Text(text = item.name, style = MaterialTheme.typography.h4.copy(fontSize = 16.sp))
+      Text(text = item.name, style = MaterialTheme.typography.h4.copy(fontSize = sp16))
       Text(
         text = item.packageName,
         style = MaterialTheme.typography.subtitle2,
