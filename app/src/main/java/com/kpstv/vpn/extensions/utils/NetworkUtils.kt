@@ -1,5 +1,6 @@
 package com.kpstv.vpn.extensions.utils
 
+import android.content.Context
 import com.kpstv.vpn.di.app.AppScope
 import com.kpstv.vpn.logging.Logger
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -8,6 +9,7 @@ import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.io.File
 import java.io.IOException
 import java.net.ProtocolException
 import java.net.SocketException
@@ -27,7 +29,7 @@ import kotlin.coroutines.resumeWithException
 
 // https://github.com/KaustubhPatange/Moviesy/blob/master/app/src/main/java/com/kpstv/yts/extensions/utils/RetrofitUtils.kt
 @AppScope
-class NetworkUtils @Inject constructor() {
+class NetworkUtils @Inject constructor(private val appContext: Context) {
 
   companion object {
     /**
@@ -66,6 +68,7 @@ class NetworkUtils @Inject constructor() {
       .connectTimeout(40, TimeUnit.SECONDS)
       .readTimeout(40, TimeUnit.SECONDS)
       .callTimeout(40, TimeUnit.SECONDS)
+      .cache(Cache(File(appContext.cacheDir, "http-cache"), 50 * 1024 * 1024)) // 50mb
   }
 
   /**

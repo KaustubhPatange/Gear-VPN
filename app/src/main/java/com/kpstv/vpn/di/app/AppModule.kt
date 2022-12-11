@@ -3,6 +3,7 @@ package com.kpstv.vpn.di.app
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import com.kpstv.vpn.BuildConfig
 import com.kpstv.vpn.data.api.FlagApi
 import com.kpstv.vpn.data.api.IpApi
 import com.kpstv.vpn.data.api.VpnApi
@@ -13,7 +14,6 @@ import com.kpstv.vpn.data.db.localized.FlagDao
 import com.kpstv.vpn.data.db.localized.LocalDao
 import com.kpstv.vpn.data.db.localized.VpnBookDao
 import com.kpstv.vpn.data.db.localized.VpnDao
-import com.kpstv.vpn.data.db.repository.VpnRepository
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import dagger.Module
 import dagger.Provides
@@ -69,7 +69,7 @@ class AppModule {
   /* Networking */
 
   @Provides
-  fun provideNetworkUtils(): NetworkUtils = NetworkUtils()
+  fun provideNetworkUtils(@AppContext context: Context): NetworkUtils = NetworkUtils(context)
 
   @Provides
   fun provideIpApi(networkUtils: NetworkUtils): IpApi {
