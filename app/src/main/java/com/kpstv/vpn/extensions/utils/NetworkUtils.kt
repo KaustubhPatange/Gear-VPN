@@ -1,7 +1,9 @@
 package com.kpstv.vpn.extensions.utils
 
 import android.content.Context
+import com.kpstv.vpn.BuildConfig
 import com.kpstv.vpn.di.app.AppScope
+import com.kpstv.vpn.extensions.interceptor.VpnInterceptor
 import com.kpstv.vpn.logging.Logger
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -74,8 +76,9 @@ class NetworkUtils @Inject constructor(private val appContext: Context) {
   /**
    * @param addLoggingInterceptor If true logcat will display all the Http request messages
    */
-  fun getHttpClient(addLoggingInterceptor: Boolean = false): OkHttpClient {
+  fun getHttpClient(addLoggingInterceptor: Boolean = BuildConfig.DEBUG): OkHttpClient {
     val client = getHttpBuilder()
+    client.addInterceptor(VpnInterceptor())
     if (addLoggingInterceptor) {
       val loggingInterceptor = HttpLoggingInterceptor()
       loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -124,7 +127,7 @@ class NetworkUtils @Inject constructor(private val appContext: Context) {
 
     val verifiedHosts = HostnameVerifier host@{ hostname, _ ->
       return@host hostname.contains(
-        "vpngate|vpnbook|github|ip-api|gear-vpn-api".toRegex()
+        "vpngate|vpnbook|github|ip-api|gear-vpn-api|kaustubhpatange.com".toRegex()
       )
     }
 

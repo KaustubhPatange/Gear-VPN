@@ -43,8 +43,8 @@ fun ProtocolSheet(
     CommonSheet(
       countryName = vpnConfig.country,
       ipAddr = vpnConfig.ip,
-      enableTCP = vpnConfig.configTCP != null,
-      enableUDP = vpnConfig.configUDP != null,
+      enableTCP = !vpnConfig.configTCP.isNullOrBlank(),
+      enableUDP = !vpnConfig.configUDP.isNullOrBlank(),
       onItemClick = onItemClick
     )
   }

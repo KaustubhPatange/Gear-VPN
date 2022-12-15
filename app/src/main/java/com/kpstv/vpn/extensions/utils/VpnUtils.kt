@@ -30,13 +30,12 @@ object VpnUtils {
     }
   }
 
-  fun formatVpnGateSpeed(value: String) : String {
+  fun formatVpnGateSpeed(speed: Float) : String {
     val formatter = DecimalFormat("#.##")
-    val speed = value.replace(",", "").toDouble()
     return if (speed > 1000) {
       "${formatter.format((speed/1000.00))} Gbps"
     } else {
-      "$value Mbps"
+      "$speed Mbps"
     }
   }
 }

@@ -47,10 +47,12 @@ class VpnRepository @Inject constructor(
       if (response.data.isEmpty()) {
         throw ListEmptyException("List should not be empty")
       }
-      emit(VpnLoadState.Completed(response.data))
+      val sorted = response.data.sortedByDescending { it.premium }
+      emit(VpnLoadState.Completed(sorted))
     } /*catch(e: ListEmptyException) {
       emit(VpnLoadState.Interrupt)
     } */ catch(e: Exception) {
+      e.printStackTrace()
       emit(VpnLoadState.Empty())
     }
   }

@@ -12,7 +12,7 @@ import com.kpstv.vpn.data.models.VpnConfiguration
 
 @Database(
   entities = [VpnConfiguration::class, LocalConfiguration::class],
-  version = 2,
+  version = 3,
   exportSchema = false
 )
 abstract class VpnDatabase : RoomDatabase() {
@@ -55,6 +55,32 @@ object VpnDatabaseMigrations {
             password TEXT,
             config TEXT NOT NULL,
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
+        )
+      """.trimIndent())
+    }
+  }
+
+  val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+      // We moved to API, caching is done by cache control headers
+      // so we don't need local db.
+      database.execSQL("DROP TABLE table_vpnconfigs")
+      database.execSQL("""
+        CREATE TABLE table_vpnconfigs (
+            country TEXT NOT NULL,
+            sessions TEXT NOT NULL,
+            ip TEXT NOT NULL,
+            speed FLOAT NOT NULL,
+            upTime TEXT NOT NULL,
+            score INTEGER NOT NULL,
+            countryFlagUrl TEXT NOT NULL,
+            password TEXT NOT NULL,
+            configTCP TEXT,
+            configUDP TEXT,
+            expireTime INTEGER NOT NULL,
+            premium INTEGER NOT NULL,
+            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL
         )
       """.trimIndent())
     }

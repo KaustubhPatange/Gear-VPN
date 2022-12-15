@@ -34,7 +34,7 @@ class AppModule {
       VpnDatabase::class.java,
       VpnDatabase.DB_NAME
     )
-      .addMigrations(VpnDatabaseMigrations.MIGRATION_1_2)
+      .addMigrations(VpnDatabaseMigrations.MIGRATION_1_2, VpnDatabaseMigrations.MIGRATION_2_3)
       .fallbackToDestructiveMigration()
       .fallbackToDestructiveMigrationOnDowngrade()
       .build()
