@@ -38,49 +38,6 @@ class VpnWorker @AssistedInject constructor(
      * might help for any future tasks.
      */
     return@scope Result.success()
-
-//    Logger.d("Fetching from Worker")
-//
-//    // fetch IP for logging
-//    try {
-//      val ipData = ipApi.fetch()
-//      Logger.d("IP Info: ${ipData.country}, ${ipData.city}, ${ipData.region}")
-//    } catch (_: Exception) {
-//    }
-//
-//    val vpnGateListAsync = async { vpnGateParser.parse() }
-//    val vpnBookListAsync = async { vpnBookParser.parse() }
-//    val duoServerListAsync = async { vpnApi.getDuoServers() }
-//
-//    val vpnGateConfigList = try {
-//      vpnGateListAsync.await()
-//    } catch (e: Exception) {
-//      Logger.w(e, "Failed to fetch VPN servers from vpngate.net for Worker")
-//      emptyList()
-//    }
-//
-//    val vpnBookList = try {
-//      vpnBookListAsync.await()
-//    } catch (e: Exception) {
-//      Logger.w(e, "Failed to fetch VPN servers from vpnbook.com for Worker")
-//      emptyList()
-//    }
-//
-//    val duoServerList = try {
-//      duoServerListAsync.await()
-//    } catch (e: Exception) {
-//      Logger.w(e, "Failed to fetch VPN servers from gear-vpn-api/duoserver for Worker")
-//      emptyList()
-//    }
-//
-//    val final = VpnRepository.merge(vpnGateConfigList, vpnBookList, duoServerList)
-//
-//    return@scope if (final.isNotEmpty()) {
-//      dao.insertAll(final)
-//      Result.success()
-//    } else {
-//      createFailureResult()
-//    }
   }
 
   private fun createFailureResult(): Result {
