@@ -298,5 +298,9 @@
   {
     "country": "Azerbaijan",
     "flag": "https://cdn.countryflags.com/thumbs/azerbaijan/flag-round-250.png"
+  },
+  {
+    "country": "Mongolia",
+    "flag": "https://cdn.countryflags.com/thumbs/mongolia/flag-round-250.png"
   }
 ]
