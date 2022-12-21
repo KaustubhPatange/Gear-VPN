@@ -32,11 +32,12 @@ class VpnWorker @AssistedInject constructor(
   override suspend fun doWork(): Result = supervisorScope scope@{
     setForeground(Notifications.createVpnRefreshNotification(appContext, this@VpnWorker))
 
-    /**
-     * We don't need this worker since everything is moved to API now which is much
-     * reliable & fast, but we'll still keep this periodic worker in place as it
-     * might help for any future tasks.
-     */
+    try {
+      vpnApi.getVpnConfigs(limit = 50)
+    } catch(_: Exception) {
+      createFailureResult()
+    }
+
     return@scope Result.success()
   }
 
