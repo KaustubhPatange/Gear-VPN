@@ -1,21 +1,22 @@
 package com.kpstv.vpn.services
 
 import android.content.Context
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.kpstv.vpn.data.api.IpApi
 import com.kpstv.vpn.data.api.VpnApi
 import com.kpstv.vpn.data.db.localized.VpnDao
-import com.kpstv.vpn.data.db.repository.VpnRepository
-import com.kpstv.vpn.data.helpers.VpnBookParser
-import com.kpstv.vpn.data.helpers.VpnGateParser
 import com.kpstv.vpn.di.service.worker.DaggerWorkerFactory
 import com.kpstv.vpn.extensions.utils.NetworkUtils
 import com.kpstv.vpn.extensions.utils.Notifications
-import com.kpstv.vpn.logging.Logger
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import java.util.concurrent.TimeUnit
 
@@ -28,54 +29,16 @@ class VpnWorker @AssistedInject constructor(
   networkUtils: NetworkUtils,
 ) : CoroutineWorker(appContext, workerParams) {
 
-  private val vpnGateParser = VpnGateParser(networkUtils)
-  private val vpnBookParser = VpnBookParser(networkUtils)
-
   override suspend fun doWork(): Result = supervisorScope scope@{
     setForeground(Notifications.createVpnRefreshNotification(appContext, this@VpnWorker))
 
-    Logger.d("Fetching from Worker")
-
-    // fetch IP for logging
     try {
-      val ipData = ipApi.fetch()
-      Logger.d("IP Info: ${ipData.country}, ${ipData.city}, ${ipData.region}")
-    } catch (_: Exception) {
-    }
-
-    val vpnGateListAsync = async { vpnGateParser.parse() }
-    val vpnBookListAsync = async { vpnBookParser.parse() }
-    val duoServerListAsync = async { vpnApi.getDuoServers() }
-
-    val vpnGateConfigList = try {
-      vpnGateListAsync.await()
-    } catch (e: Exception) {
-      Logger.w(e, "Failed to fetch VPN servers from vpngate.net for Worker")
-      emptyList()
-    }
-
-    val vpnBookList = try {
-      vpnBookListAsync.await()
-    } catch (e: Exception) {
-      Logger.w(e, "Failed to fetch VPN servers from vpnbook.com for Worker")
-      emptyList()
-    }
-
-    val duoServerList = try {
-      duoServerListAsync.await()
-    } catch (e: Exception) {
-      Logger.w(e, "Failed to fetch VPN servers from gear-vpn-api/duoserver for Worker")
-      emptyList()
-    }
-
-    val final = VpnRepository.merge(vpnGateConfigList, vpnBookList, duoServerList)
-
-    return@scope if (final.isNotEmpty()) {
-      dao.insertAll(final)
-      Result.success()
-    } else {
+      vpnApi.getVpnConfigs(limit = 50)
+    } catch(_: Exception) {
       createFailureResult()
     }
+
+    return@scope Result.success()
   }
 
   private fun createFailureResult(): Result {

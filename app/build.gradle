@@ -27,7 +27,7 @@ android {
             useSupportLibrary true
         }
 
-        buildConfigField("String", "GEAR_DUO_SECRET", "\"${props.getProperty("gear.secret.duo")}\"")
+        buildConfigField("String", "GEAR_API", "\"${props.getProperty("gear.api")}\"")
     }
 
     signingConfigs {
@@ -62,6 +62,10 @@ android {
         kotlinCompilerExtensionVersion versions.compose
     }
     packagingOptions {
+        pickFirsts = [
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1"
+        ]
         jniLibs {
             useLegacyPackaging = true
         }

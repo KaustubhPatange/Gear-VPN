@@ -23,7 +23,7 @@ data class VpnConfiguration(
    * as "x days/hours/mins" for VPN Gate
    */
   val upTime: String,
-  val speed: String,
+  val speed: Float,
   val configTCP: String?,
   val configUDP: String?,
   val score: Long,
@@ -44,7 +44,7 @@ data class VpnConfiguration(
       countryFlagUrl = "",
       sessions = "",
       upTime = "",
-      speed = "",
+      speed = 0f,
       configTCP = null,
       configUDP = null,
       username = "vpn",

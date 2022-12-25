@@ -7,6 +7,7 @@ import com.kpstv.vpn.di.app.DaggerAppComponent
 import com.kpstv.vpn.di.service.worker.InjectDaggerWorkerFactory
 import com.kpstv.vpn.logging.Logger
 import com.kpstv.vpn.extensions.utils.Notifications
+import com.kpstv.vpn.ui.helpers.Device
 import com.kpstv.vpn.ui.helpers.Settings
 import javax.inject.Inject
 
@@ -27,6 +28,7 @@ class App : Application(), Configuration.Provider {
   override fun onCreate() {
     appComponent.inject(this)
     super.onCreate()
+    Device.init(this)
     Notifications.init(this)
 
     Logger.init(BuildConfig.DEBUG)

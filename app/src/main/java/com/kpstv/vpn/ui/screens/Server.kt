@@ -420,7 +420,7 @@ private fun CommonItem(
 
 @Composable
 private fun getCommonItemSubtext(config: VpnConfiguration): String {
-  return if (config.sessions.isEmpty() && config.upTime.isEmpty() && config.speed.isEmpty()) {
+  return if (config.sessions.isEmpty() && config.upTime.isEmpty() && config.speed == 0f) {
     stringResource(R.string.server_subtitle2)
   } else {
     stringResource(
@@ -598,5 +598,5 @@ private fun createTestConfiguration() =
     ip = "192.168.1.1",
     sessions = "61 sessions",
     upTime = "89 days",
-    speed = "73.24"
+    speed = 73.24f
   )

@@ -1,6 +1,9 @@
 package com.kpstv.vpn.extensions.utils
 
+import android.content.Context
+import com.kpstv.vpn.BuildConfig
 import com.kpstv.vpn.di.app.AppScope
+import com.kpstv.vpn.extensions.interceptor.VpnInterceptor
 import com.kpstv.vpn.logging.Logger
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -8,6 +11,7 @@ import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.io.File
 import java.io.IOException
 import java.net.ProtocolException
 import java.net.SocketException
@@ -27,7 +31,7 @@ import kotlin.coroutines.resumeWithException
 
 // https://github.com/KaustubhPatange/Moviesy/blob/master/app/src/main/java/com/kpstv/yts/extensions/utils/RetrofitUtils.kt
 @AppScope
-class NetworkUtils @Inject constructor() {
+class NetworkUtils @Inject constructor(private val appContext: Context) {
 
   companion object {
     /**
@@ -66,13 +70,15 @@ class NetworkUtils @Inject constructor() {
       .connectTimeout(40, TimeUnit.SECONDS)
       .readTimeout(40, TimeUnit.SECONDS)
       .callTimeout(40, TimeUnit.SECONDS)
+      .cache(Cache(File(appContext.cacheDir, "http-cache"), 50 * 1024 * 1024)) // 50mb
   }
 
   /**
    * @param addLoggingInterceptor If true logcat will display all the Http request messages
    */
-  fun getHttpClient(addLoggingInterceptor: Boolean = false): OkHttpClient {
+  fun getHttpClient(addLoggingInterceptor: Boolean = BuildConfig.DEBUG): OkHttpClient {
     val client = getHttpBuilder()
+    client.addInterceptor(VpnInterceptor())
     if (addLoggingInterceptor) {
       val loggingInterceptor = HttpLoggingInterceptor()
       loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -121,7 +127,7 @@ class NetworkUtils @Inject constructor() {
 
     val verifiedHosts = HostnameVerifier host@{ hostname, _ ->
       return@host hostname.contains(
-        "vpngate|vpnbook|github|ip-api|gear-vpn-api".toRegex()
+        "vpngate|vpnbook|github|ip-api|gear-vpn-api|kaustubhpatange.com".toRegex()
       )
     }
 
