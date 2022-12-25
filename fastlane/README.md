@@ -31,6 +31,14 @@ Deploy a new version to the Google Play
 
 
 
+### android production_30
+
+```sh
+[bundle exec] fastlane android production_30
+```
+
+
+
 ### android internal_test
 
 ```sh

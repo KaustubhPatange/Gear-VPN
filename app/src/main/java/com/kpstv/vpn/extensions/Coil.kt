@@ -8,6 +8,7 @@ import coil.ImageLoader
 import coil.compose.LocalImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
+import coil.decode.SvgDecoder
 
 @Composable
 fun CoilCustomImageLoader(content: @Composable () -> Unit) {
@@ -19,6 +20,7 @@ fun CoilCustomImageLoader(content: @Composable () -> Unit) {
       } else {
         add(GifDecoder())
       }
+      add(SvgDecoder(context))
     }.build()
   CompositionLocalProvider(LocalImageLoader provides imageLoader) {
     content()
