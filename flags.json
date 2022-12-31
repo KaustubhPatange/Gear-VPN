@@ -306,5 +306,9 @@
   {
     "country": "Latvia",
     "flag": "https://hatscripts.github.io/circle-flags/flags/lv.svg"
+  },
+  {
+    "country": "Moldova",
+    "flag": "https://hatscripts.github.io/circle-flags/flags/md.svg"
   }
 ]
