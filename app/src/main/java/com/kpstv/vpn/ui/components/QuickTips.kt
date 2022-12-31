@@ -18,7 +18,6 @@ import com.kpstv.vpn.ui.theme.Dimen.sp15
 import com.kpstv.vpn.ui.theme.dotColor
 import java.util.*
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun QuickTip(
   message: String,

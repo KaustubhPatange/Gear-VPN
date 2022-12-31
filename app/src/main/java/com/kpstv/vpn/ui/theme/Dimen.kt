@@ -66,5 +66,7 @@ object Dimen {
     val sp15 by ResponsiveTextDimensions(15.sp, 11.sp)
     val sp14 by ResponsiveTextDimensions(14.sp, 11.sp)
     val sp13 by ResponsiveTextDimensions(13.sp, 10.sp)
+    val sp12 by ResponsiveTextDimensions(12.sp, 9.sp)
+    val sp11 by ResponsiveTextDimensions(11.sp, 8.sp)
 }
 

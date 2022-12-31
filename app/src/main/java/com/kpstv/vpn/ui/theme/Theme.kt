@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import com.kpstv.vpn.ui.theme.foregroundColor as foreColor
 
 private val DarkColorPalette = darkColors(
   primary = primaryColor,
@@ -36,10 +37,12 @@ private val LightColorPalette = lightColors(
 
 interface Attrs {
   val errorButton: Color
+  val foregroundColor: Color
 }
 
 private class DarkAttrsColor : Attrs {
   override val errorButton: Color = Color(0xFFBB2020)
+  override val foregroundColor: Color = foreColor
 }
 
 private class GearVPNColors {

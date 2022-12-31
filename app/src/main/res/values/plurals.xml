@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="billing_description">
+        <item quantity="one">Pay monthly, cancel any time</item>
+        <item quantity="other">Pay for %1$s months</item>
+    </plurals>
+</resources>

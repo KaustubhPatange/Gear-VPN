@@ -3,9 +3,9 @@ package com.kpstv.vpn.di.app
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
-import com.kpstv.vpn.BuildConfig
 import com.kpstv.vpn.data.api.FlagApi
 import com.kpstv.vpn.data.api.IpApi
+import com.kpstv.vpn.data.api.PlanApi
 import com.kpstv.vpn.data.api.VpnApi
 import com.kpstv.vpn.data.db.database.FlagDatabase
 import com.kpstv.vpn.data.db.database.VpnDatabase
@@ -93,5 +93,13 @@ class AppModule {
       .baseUrl(VpnApi.API)
       .build()
       .create(VpnApi::class.java)
+  }
+
+  @Provides
+  fun providePlanApi(networkUtils: NetworkUtils): PlanApi {
+    return networkUtils.getRetrofitBuilder()
+      .baseUrl(PlanApi.API)
+      .build()
+      .create(PlanApi::class.java)
   }
 }
