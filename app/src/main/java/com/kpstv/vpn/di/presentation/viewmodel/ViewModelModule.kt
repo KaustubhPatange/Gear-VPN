@@ -6,6 +6,7 @@ import com.kpstv.vpn.di.presentation.viewmodel.ViewModelKey
 import com.kpstv.vpn.ui.viewmodels.AppSheetViewModel
 import com.kpstv.vpn.ui.viewmodels.FlagViewModel
 import com.kpstv.vpn.ui.viewmodels.ImportViewModel
+import com.kpstv.vpn.ui.viewmodels.PlanViewModel
 import com.kpstv.vpn.ui.viewmodels.VpnViewModel
 import dagger.Binds
 import dagger.Module
@@ -32,4 +33,9 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(FlagViewModel::class)
   abstract fun bindFlagViewModel(f: FlagViewModel.Factory) : AssistedSavedStateViewModelFactory<out ViewModel>
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(PlanViewModel::class)
+  abstract fun bindPlanViewModel(f: PlanViewModel.Factory) : AssistedSavedStateViewModelFactory<out ViewModel>
 }

@@ -14,6 +14,7 @@ import com.kpstv.vpn.ui.components.rememberBottomSheetState
 import com.kpstv.vpn.ui.dialogs.ReviewDialogScreen
 import com.kpstv.vpn.ui.dialogs.WelcomeDialogScreen
 import com.kpstv.vpn.ui.helpers.BillingHelper
+import com.kpstv.vpn.ui.helpers.SkuState
 import com.kpstv.vpn.ui.sheets.PremiumBottomSheet
 import com.kpstv.vpn.ui.viewmodels.FlagViewModel
 import com.kpstv.vpn.ui.viewmodels.VpnViewModel
@@ -64,14 +65,15 @@ fun NavigationScreen(
   val connectivityStatus = viewModel.connectivityStatus.collectAsState()
 
   val isPremiumUnlocked = billingHelper.isPurchased.collectAsState(initial = false)
+  val planState = billingHelper.planState.collectAsState()
 
   val onPurchaseComplete = billingHelper.purchaseComplete.collectAsState()
-  if (onPurchaseComplete.value.sku == BillingHelper.purchase_sku) {
+  if (onPurchaseComplete.value) {
     premiumBottomSheet.show()
   }
 
-  val onPurchaseClick: () -> Unit = {
-    billingHelper.launch()
+  val onPurchaseClick: (sku: String) -> Unit = { sku ->
+    billingHelper.launch(sku)
     premiumBottomSheet.hide()
   }
 
@@ -175,6 +177,7 @@ fun NavigationScreen(
     PremiumBottomSheet(
       premiumBottomSheet = premiumBottomSheet,
       isPremiumUnlocked = isPremiumUnlocked.value,
+      planState = planState.value,
       onPremiumClick = onPurchaseClick
     )
 

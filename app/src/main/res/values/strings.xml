@@ -53,7 +53,7 @@
     <string name="invalid_config">Invalid config file</string>
     <string name="import_error_field_profile">Profile name cannot be empty</string>
     <string name="premium_pay">PAY</string>
-    <string name="premium_text">Enjoy fast premium servers for lifetime with one subscription.</string>
+    <string name="premium_text">Enjoy premium benefits with just one subscription.</string>
     <string name="purchase_ack">Could not acknowledge purchase</string>
     <string name="purchase_err_client">Billing client is not initialized yet!</string>
 
@@ -112,7 +112,8 @@
     <string name="feature_split_text">Filter apps to exclude/include from VPN access.</string>
     <string name="server_tip_text">Some of the servers listed here may not work.</string>
     <string name="learn_more">Learn more</string>
-    <string name="import_server_tip_text">Connect to any third party OpenVPN servers.</string>
+    <string name="import_server_tip_text">Import any third party OpenVPN configuration.</string>
+    <string name="premium_import_tip_text">Unlock unlimited imports with premium, current limit is %1$d.</string>
 
     <string name="import_config_country">Custom (%1$s)</string>
 
@@ -143,4 +144,6 @@
     <string name="server_refresh_dialog_title">Refresh?</string>
     <string name="server_refresh_dialog_message">This will refresh VPN servers.</string>
 
+    <string name="error_plan_id">Could not find plan id</string>
+    <string name="buy_premium">Buy Premium</string>
 </resources>

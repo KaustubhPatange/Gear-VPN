@@ -6,32 +6,55 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.*
 import com.kpstv.vpn.R
+import com.kpstv.vpn.data.models.Plan
 import com.kpstv.vpn.logging.Logger
+import com.kpstv.vpn.ui.viewmodels.PlanViewModel
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlin.coroutines.resume
 
-data class BillingSku(val sku: String) {
-  companion object {
-    fun createEmpty() = BillingSku(sku = "")
+sealed interface SkuState {
+  data class Sku(internal val skus: List<SkuDetails> = emptyList(), internal val plans: List<Plan>) : SkuState {
+
+    val details: List<Data> = skus.map { sku ->
+      val plan = plans.first { it.sku == sku.sku }
+      return@map Data(
+        id = sku.sku,
+        billingName = plan.name,
+        billingPeriodMonth = plan.billingCycleMonth,
+        price = sku.price
+      )
+    }
+
+    data class Data(
+      val id: String,
+      val billingName: String,
+      val billingPeriodMonth: Int,
+      val price: String,
+    )
   }
+  object Loading : SkuState
+  object Error : SkuState
 }
 
-class BillingHelper(private val activity: ComponentActivity) {
+class BillingHelper(
+  private val activity: ComponentActivity,
+  private val planViewModel: PlanViewModel
+) {
 
   private var currentIsPurchase: Boolean = false
 
   private var billingErrorMessage: String? = null
 
   val isPurchased: Flow<Boolean> get() = Settings.HasPurchased.get()
-  private val purchaseCompleteStateFlow: MutableStateFlow<BillingSku> = MutableStateFlow(BillingSku.createEmpty())
-  val purchaseComplete: StateFlow<BillingSku> = purchaseCompleteStateFlow.asStateFlow()
+  private val purchaseCompleteStateFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+  val purchaseComplete: StateFlow<Boolean> = purchaseCompleteStateFlow.asStateFlow()
 
-  companion object {
-    const val purchase_sku = "gear_premium_sub"
-  }
+  val planState = MutableStateFlow<SkuState>(SkuState.Loading)
 
-  private var sku: SkuDetails? = null
+  private val availableSkus = arrayListOf<String>()
+  private val skusDetails: List<SkuDetails>? get() = (planState.value as? SkuState.Sku)?.skus
 
   private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
@@ -41,10 +64,19 @@ class BillingHelper(private val activity: ComponentActivity) {
     }
   }
 
-  private var billingClient = BillingClient.newBuilder(activity)
-    .setListener(purchasesUpdatedListener)
-    .enablePendingPurchases()
-    .build()
+  private var _billingClient: BillingClient? = null
+  private val billingClient get() = _billingClient!!
+
+  init {
+    setupBillingClient()
+  }
+
+  private fun setupBillingClient() {
+    _billingClient = BillingClient.newBuilder(activity)
+      .setListener(purchasesUpdatedListener)
+      .enablePendingPurchases()
+      .build()
+  }
 
   private val activityObserver = object: DefaultLifecycleObserver {
     override fun onStop(owner: LifecycleOwner) {
@@ -57,49 +89,74 @@ class BillingHelper(private val activity: ComponentActivity) {
 
   fun init() {
     activity.lifecycle.addObserver(activityObserver)
-    billingClient.startConnection(object : BillingClientStateListener {
-      override fun onBillingSetupFinished(billingResult: BillingResult) {
-        if (billingResult.responseCode ==  BillingClient.BillingResponseCode.OK) {
-          activity.lifecycleScope.launchWhenStarted {
-            querySkuDetails()
-            validatePurchase()
-          }
-        } else {
-          billingErrorMessage = billingResult.debugMessage
-          Logger.d("Invalid Response code: ${billingResult.responseCode}, Message: ${billingResult.debugMessage}")
-        }
-      }
-      override fun onBillingServiceDisconnected() {
-        Logger.d("Service disconnected")
-      }
-    })
-
+    activity.lifecycleScope.launchWhenStarted { startConnection() }
     activity.lifecycleScope.launchWhenStarted {
       isPurchased.collect { currentIsPurchase = it }
     }
   }
 
-  fun launch() {
-    val sku = sku ?: run {
-      Toasty.error(activity, billingErrorMessage ?: activity.getString(R.string.purchase_err_client)).show()
-      return
+  private suspend fun startConnection() {
+    suspendCancellableCoroutine { continuation ->
+      fun complete() {
+        if (!continuation.isCompleted) continuation.resume(Unit)
+      }
+      billingClient.startConnection(object : BillingClientStateListener {
+        override fun onBillingSetupFinished(billingResult: BillingResult) {
+          if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+            activity.lifecycleScope.launchWhenStarted {
+              querySkuDetails()
+              validatePurchase()
+              complete()
+            }
+          } else {
+            billingErrorMessage = billingResult.debugMessage
+            Logger.d("Invalid Response code: ${billingResult.responseCode}, Message: ${billingResult.debugMessage}")
+            complete()
+          }
+        }
+        override fun onBillingServiceDisconnected() {
+          Logger.d("Service disconnected")
+        }
+      })
     }
+  }
 
-    val flowParams = BillingFlowParams.newBuilder()
-      .setSkuDetails(sku)
-      .build()
+  fun launch(sku: String) {
+    activity.lifecycleScope.launchWhenStarted scope@{
+      if (billingClient.isDisconnected()) {
+        setupBillingClient()
+        startConnection()
+      }
 
-   billingClient.launchBillingFlow(activity, flowParams).responseCode
+      val skuDetail = skusDetails?.firstOrNull { it.sku == sku } ?: run {
+        Toasty.error(activity, billingErrorMessage ?: activity.getString(R.string.purchase_err_client)).show()
+        return@scope
+      }
+
+      val flowParams = BillingFlowParams.newBuilder()
+        .setSkuDetails(skuDetail)
+        .build()
+
+      billingClient.launchBillingFlow(activity, flowParams).responseCode
+    }
   }
 
   private suspend fun querySkuDetails() {
+    val plans = planViewModel.fetchPlans().data
+    availableSkus.clear() // method can called multiple times, better to clear it
+    availableSkus.addAll(plans.map { it.sku })
+
     val params = SkuDetailsParams.newBuilder()
-    params.setSkusList(listOf(purchase_sku)).setType(BillingClient.SkuType.SUBS)
+    params.setSkusList(availableSkus).setType(BillingClient.SkuType.SUBS)
 
     val skuDetailsResult: SkuDetailsResult = billingClient.querySkuDetails(params.build())
 
-    skuDetailsResult.skuDetailsList?.let { list ->
-      sku = list.find { it.sku == purchase_sku }
+    val skuDetails = skuDetailsResult.skuDetailsList?.filter { availableSkus.contains(it.sku) }
+      ?: emptyList()
+    if (skuDetails.isEmpty()) {
+      planState.emit(SkuState.Error)
+    } else {
+      planState.emit(SkuState.Sku(skuDetails, plans))
     }
   }
 
@@ -117,7 +174,9 @@ class BillingHelper(private val activity: ComponentActivity) {
       removeSubscription()
       return
     }
-    purchaseResult.purchasesList.firstOrNull { it.skus.contains(purchase_sku) }?.let { purchase ->
+    purchaseResult.purchasesList.firstOrNull { purchase ->
+      purchase.skus.intersect(availableSkus.toSet()).isNotEmpty()
+    }?.let { purchase ->
       if (purchase.purchaseState != Purchase.PurchaseState.PURCHASED) {
         removeSubscription()
         return
@@ -140,11 +199,16 @@ class BillingHelper(private val activity: ComponentActivity) {
         }
       }
 
-      if (purchase.skus.contains(purchase_sku)) {
+      if (purchase.skus.intersect(availableSkus.toSet()).isNotEmpty()) {
         Toasty.info(activity, activity.getString(R.string.restart_maybe), Toasty.LENGTH_LONG).show()
         Settings.HasPurchased.set(true)
-        purchaseCompleteStateFlow.emit(BillingSku(purchase_sku))
+        purchaseCompleteStateFlow.emit(true)
       }
     }
+  }
+
+  private fun BillingClient.isDisconnected(): Boolean {
+    return listOf(BillingClient.ConnectionState.DISCONNECTED, BillingClient.ConnectionState.CLOSED)
+      .contains(connectionState)
   }
 }

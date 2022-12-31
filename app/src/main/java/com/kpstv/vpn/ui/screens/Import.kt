@@ -3,8 +3,8 @@ package com.kpstv.vpn.ui.screens
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,13 +45,14 @@ import com.kpstv.vpn.ui.components.*
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.dotColor
+import com.kpstv.vpn.ui.theme.goldenYellowBright
+import com.kpstv.vpn.ui.theme.highlightColor
 import com.kpstv.vpn.ui.viewmodels.ImportViewModel
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ImportScreen(
   importViewModel: ImportViewModel = composeViewModel(),
@@ -73,7 +74,7 @@ fun ImportScreen(
   val onChangeProfile: (LocalConfiguration, toSave: Boolean) -> Unit =
     remember(isPremiumUnlocked, localConfigurations.value) {
       changeProfile@{ config, toSave ->
-        if (!isPremiumUnlocked && localConfigurations.value.size >= 3) {
+        if (!isPremiumUnlocked && localConfigurations.value.size >= MAXIMUM_LOCAL_CONFIGURATION_LIMIT) {
           keyboardController?.hide()
           Toasty.warning(context, context.getString(R.string.max_premium), Toasty.LENGTH_LONG)
             .show()
@@ -96,7 +97,11 @@ fun ImportScreen(
               .statusBarsPadding()
               .height(80.dp)
           )
-          ImportHeader(onItemClick = onChangeProfile)
+          ImportHeader(
+            onItemClick = onChangeProfile,
+            isPremiumUnlocked = isPremiumUnlocked,
+            onPremiumClick = onPremiumClick
+          )
           Spacer(modifier = Modifier.height(20.dp))
           Divider(color = MaterialTheme.colors.primaryVariant, thickness = 1.dp)
           Spacer(modifier = Modifier.height(15.dp))
@@ -136,7 +141,11 @@ fun ImportScreen(
       )
       if (localConfigurations.value.isEmpty()) {
         Spacer(modifier = Modifier.height(10.dp))
-        ImportHeader(onItemClick = onChangeProfile)
+        ImportHeader(
+          onItemClick = onChangeProfile,
+          isPremiumUnlocked = isPremiumUnlocked,
+          onPremiumClick = onPremiumClick
+        )
       }
     }
   }
@@ -144,9 +153,14 @@ fun ImportScreen(
 
 @Composable
 private fun ImportHeader(
+  isPremiumUnlocked: Boolean,
   onItemClick: (LocalConfiguration, toSave: Boolean) -> Unit,
+  onPremiumClick: () -> Unit,
 ) {
-  ImportServerQuickTip()
+  ImportTipGroup(
+    isPremiumUnlocked = isPremiumUnlocked,
+    onPremiumClick = onPremiumClick
+  )
   Profile(
     changeProfile = onItemClick
   )
@@ -422,13 +436,26 @@ private fun ProfileItem(
 }
 
 @Composable
+private fun ImportTipGroup(
+  isPremiumUnlocked: Boolean,
+  onPremiumClick: () -> Unit,
+) {
+  val shownTip by Settings.ImportServerTipShown.getAsState(defaultValue = !LocalInspectionMode.current)
+  ImportServerQuickTip()
+  PremiumImportQuickTip(isPremiumUnlocked = isPremiumUnlocked, onPremiumClick = onPremiumClick)
+  AnimatedVisibility(visible = !shownTip || !isPremiumUnlocked) {
+    Spacer(modifier = Modifier.height(15.dp))
+  }
+}
+
+@Composable
 private fun ImportServerQuickTip() {
   val context = LocalContext.current
-  val showTip by Settings.ImportServerTipShown.getAsState(defaultValue = !LocalInspectionMode.current)
+  val shownTip by Settings.ImportServerTipShown.getAsState(defaultValue = !LocalInspectionMode.current)
   Box(modifier = Modifier.padding(horizontal = 20.dp)) {
     QuickTip(
       message = stringResource(R.string.import_server_tip_text),
-      visible = !showTip,
+      visible = !shownTip,
       button = {
         ThemeButton(
           onClick = {
@@ -440,10 +467,30 @@ private fun ImportServerQuickTip() {
       }
     )
   }
-  if (!showTip) {
-    Spacer(modifier = Modifier.height(20.dp))
+}
+
+@Composable
+private fun PremiumImportQuickTip(isPremiumUnlocked: Boolean, onPremiumClick: () -> Unit) {
+  val importTipShown by Settings.ImportServerTipShown.getAsState(defaultValue = LocalInspectionMode.current)
+  Box(modifier = Modifier.padding(horizontal = 20.dp)) {
+    QuickTip(
+      message = stringResource(R.string.premium_import_tip_text, MAXIMUM_LOCAL_CONFIGURATION_LIMIT),
+      visible = importTipShown && !isPremiumUnlocked,
+      cardColor = highlightColor,
+      textColor = MaterialTheme.colors.surface.copy(alpha = 0.8f),
+      button = {
+        ThemeButton(
+          backgroundColor = goldenYellowBright,
+          textColor = MaterialTheme.colors.surface,
+          onClick = onPremiumClick,
+          text = stringResource(R.string.buy_premium)
+        )
+      }
+    )
   }
 }
+
+private const val MAXIMUM_LOCAL_CONFIGURATION_LIMIT = 3
 
 @Preview
 @Composable
@@ -476,5 +523,13 @@ fun PreviewProfileItem() {
 fun PreviewImportServerQuickTip() {
   CommonPreviewTheme {
     ImportServerQuickTip()
+  }
+}
+
+@Preview
+@Composable
+fun PreviewPremiumImportServerQuickTip() {
+  CommonPreviewTheme {
+    PremiumImportQuickTip(isPremiumUnlocked = false, onPremiumClick = {})
   }
 }

@@ -9,6 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
@@ -22,6 +23,8 @@ fun ThemeButton(
   modifier: Modifier = Modifier,
   text: String,
   fontSize: TextUnit = spNormal,
+  backgroundColor: Color = MaterialTheme.colors.primary,
+  textColor: Color = MaterialTheme.colors.onSecondary,
   enabled: Boolean = true
 ) {
   Button(
@@ -30,13 +33,14 @@ fun ThemeButton(
     enabled = enabled,
 
     colors = ButtonDefaults.buttonColors(
+      backgroundColor = backgroundColor,
       disabledBackgroundColor = MaterialTheme.colors.primary.copy(alpha = 0.4f),
     )
   ) {
     Text(
       fontSize = fontSize,
       text = text,
-      color = if (enabled) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onSecondary.copy(
+      color = if (enabled) textColor else textColor.copy(
         alpha = 0.5f
       )
     )
