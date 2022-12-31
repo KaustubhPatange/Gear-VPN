@@ -443,7 +443,7 @@ private fun ImportTipGroup(
   val shownTip by Settings.ImportServerTipShown.getAsState(defaultValue = !LocalInspectionMode.current)
   ImportServerQuickTip()
   PremiumImportQuickTip(isPremiumUnlocked = isPremiumUnlocked, onPremiumClick = onPremiumClick)
-  AnimatedVisibility(visible = !shownTip && !isPremiumUnlocked) {
+  AnimatedVisibility(visible = !shownTip || !isPremiumUnlocked) {
     Spacer(modifier = Modifier.height(15.dp))
   }
 }
