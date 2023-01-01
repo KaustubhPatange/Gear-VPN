@@ -1,0 +1,2 @@
+Add: New subscription plans
+Update: VPN servers will load faster
