@@ -52,7 +52,7 @@
     <string name="vpn_local_configurations">Saved profiles</string>
     <string name="invalid_config">Invalid config file</string>
     <string name="import_error_field_profile">Profile name cannot be empty</string>
-    <string name="premium_pay">PAY</string>
+    <string name="premium_pay">PAY NOW</string>
     <string name="premium_text">Enjoy premium benefits with just one subscription.</string>
     <string name="purchase_ack">Could not acknowledge purchase</string>
     <string name="purchase_err_client">Billing client is not initialized yet!</string>

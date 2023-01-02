@@ -13,8 +13,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -23,12 +25,14 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,6 +42,7 @@ import com.kpstv.vpn.R
 import com.kpstv.vpn.ui.components.AutoSizeSingleLineText
 import com.kpstv.vpn.ui.components.BottomSheetState
 import com.kpstv.vpn.ui.components.ThemeButton
+import com.kpstv.vpn.ui.components.ThemeOutlinedButton
 import com.kpstv.vpn.ui.helpers.SkuState
 import com.kpstv.vpn.ui.theme.CommonPreviewTheme
 import com.kpstv.vpn.ui.theme.Dimen.dp10
@@ -51,8 +56,10 @@ import com.kpstv.vpn.ui.theme.Dimen.sp18
 import com.kpstv.vpn.ui.theme.Dimen.sp20
 import com.kpstv.vpn.ui.theme.FontMediumSpanStyle
 import com.kpstv.vpn.ui.theme.goldenYellow
+import com.kpstv.vpn.ui.theme.goldenYellowBright
 import com.kpstv.vpn.ui.theme.goldenYellowDark
 import es.dmoral.toasty.Toasty
+import java.util.Locale
 
 @Composable
 fun PremiumBottomSheet(
@@ -74,6 +81,7 @@ fun PremiumBottomSheet(
         text = stringResource(R.string.premium_text),
         buttonText = stringResource(R.string.premium_pay),
         onBuyButtonClick = onPremiumClick,
+        close = { premiumBottomSheet.hide() },
         hasPremium = false,
         isLoading = isPlanLoading,
         plans = plans
@@ -84,6 +92,7 @@ fun PremiumBottomSheet(
         text = stringResource(R.string.premium_complete_text),
         buttonText = stringResource(R.string.premium_complete_button),
         onBuyButtonClick = { premiumBottomSheet.hide() },
+        close = { premiumBottomSheet.hide() },
         hasPremium = true,
       )
     }
@@ -97,6 +106,7 @@ private fun CommonSheet(
   text: String,
   buttonText: String,
   onBuyButtonClick: (sku: String) -> Unit,
+  close: () -> Unit,
   hasPremium: Boolean,
   isLoading: Boolean = false,
   plans: List<SkuState.Sku.Data> = emptyList()
@@ -165,6 +175,8 @@ private fun CommonSheet(
             modifier = Modifier
               .fillMaxWidth()
               .height(50.dp),
+            backgroundColor = goldenYellowBright,
+            textColor = MaterialTheme.colors.surface,
             onClick = {
               if (hasPremium) {
                 onBuyButtonClick("")
@@ -177,6 +189,17 @@ private fun CommonSheet(
             text = buttonText,
             enabled = !isLoading
           )
+          if (!hasPremium) {
+            Spacer(modifier = Modifier.height(dp15))
+            ThemeOutlinedButton(
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+              text = stringResource(R.string.cancel).uppercase(),
+              borderColor = MaterialTheme.colors.primary.copy(alpha = 0.8f),
+              onClick = close
+            )
+          }
           Spacer(modifier = Modifier.navigationBarsPadding())
         }
       }
@@ -274,6 +297,7 @@ fun PreviewPremiumBottomSheet() {
       text = stringResource(R.string.premium_text),
       buttonText = stringResource(R.string.premium_pay),
       onBuyButtonClick = { },
+      close = {},
       isLoading = false,
       hasPremium = false,
       plans = listOf(
@@ -293,6 +317,7 @@ fun PreviewPremiumLoadingBottomSheet() {
       text = stringResource(R.string.premium_text),
       buttonText = stringResource(R.string.premium_pay),
       onBuyButtonClick = { },
+      close = {},
       hasPremium = false,
       isLoading = true,
     )
@@ -308,6 +333,7 @@ fun PreviewPremiumPurchasedBottomSheet() {
       text = stringResource(R.string.premium_complete_text),
       buttonText = stringResource(R.string.premium_complete_button),
       onBuyButtonClick = { },
+      close = {},
       hasPremium = true,
     )
   }
