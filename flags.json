@@ -310,5 +310,9 @@
   {
     "country": "Moldova",
     "flag": "https://hatscripts.github.io/circle-flags/flags/md.svg"
+  },
+  {
+    "country": "Costa Rica",
+    "flag": "https://hatscripts.github.io/circle-flags/flags/cr.svg"
   }
 ]
