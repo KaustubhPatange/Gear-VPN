@@ -22,7 +22,9 @@ object VpnUtils {
 
       // check for certificates
       if (lines.none { it.matches(certificateRegex) }) return false
-      if (lines.none { it.matches(certificatePrivateRegex) }) return false
+
+      // no need to verify private key
+//      if (lines.none { it.matches(certificatePrivateRegex) }) return false
 
       return true
     } catch (e: Exception) {
