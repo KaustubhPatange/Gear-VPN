@@ -1,0 +1,1 @@
+Fix: OpenVPN with Static Key signature configs not importing.
