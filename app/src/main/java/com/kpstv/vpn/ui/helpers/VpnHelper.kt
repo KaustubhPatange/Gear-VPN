@@ -39,7 +39,6 @@ open class VpnHelper(
     }
 
   private var openVpnService: OpenVPNService? = null
-  private var serviceBinded: Boolean = false
 
   private var disposeJob = SupervisorJob()
 
@@ -51,11 +50,9 @@ open class VpnHelper(
 
   open fun dispose() {
     LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver)
-    openVpnService = null
-    if (serviceBinded) {
+    try {
       context.unbindService(serviceConnection)
-    }
-    serviceBinded = false
+    } catch(_: Exception) {}
   }
 
   private fun saveVpnConfigState() {
@@ -223,7 +220,7 @@ open class VpnHelper(
     }
   }
 
-  private fun bindToVPNService() {
+  fun bindToVPNService() {
     if (openVpnService == null) {
       val serviceIntent = Intent(context, OpenVPNService::class.java).apply {
         action = OpenVPNService.START_SERVICE
@@ -234,7 +231,6 @@ open class VpnHelper(
 
   private val serviceConnection = object : ServiceConnection {
     override fun onServiceConnected(name: ComponentName?, binder: IBinder) {
-      serviceBinded = true
       openVpnService = (binder as OpenVPNService.LocalBinder).service
       restoreVpnConfigState()
       onServiceConnected()
@@ -242,9 +238,7 @@ open class VpnHelper(
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
-      serviceBinded = false
       openVpnService = null
-      context.unbindService(this)
     }
   }
 
