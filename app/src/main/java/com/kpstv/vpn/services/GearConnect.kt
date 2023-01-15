@@ -6,11 +6,13 @@ import android.service.quicksettings.TileService
 import androidx.annotation.RequiresApi
 import com.kpstv.vpn.App
 import com.kpstv.vpn.R
-import com.kpstv.vpn.data.db.localized.VpnDao
+import com.kpstv.vpn.data.api.VpnApi
+import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.extensions.asVpnConfig
 import com.kpstv.vpn.extensions.utils.FlagUtils
 import com.kpstv.vpn.extensions.utils.NetworkMonitor
 import com.kpstv.vpn.extensions.utils.Notifications
+import com.kpstv.vpn.logging.Logger
 import com.kpstv.vpn.ui.helpers.Settings
 import com.kpstv.vpn.ui.helpers.VpnConfig
 import com.kpstv.vpn.ui.helpers.VpnConnectionStatus
@@ -18,8 +20,8 @@ import com.kpstv.vpn.ui.helpers.VpnServiceHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,7 +36,7 @@ class GearConnect : TileService() {
   private lateinit var vpnHelper: VpnServiceHelper
 
   @Inject
-  lateinit var vpnDao: VpnDao
+  lateinit var vpnApi: VpnApi
 
   override fun onCreate() {
     appComponent.newServiceComponent().inject(this)
@@ -141,29 +143,43 @@ class GearConnect : TileService() {
   }
 
   private suspend fun performConnection() {
-    val config = Settings.getLastVpnConfig().firstOrNull()
-    if (config != null && !config.isExpired()) {
-      vpnHelper.connect(config)
+    val lastConfig = Settings.getLastVpnConfig().firstOrNull()
+
+    val configs: List<VpnConfiguration> = try {
+      vpnApi.getVpnConfigs(limit = 50).data.run {
+        val hasPremium = Settings.HasPurchased.get().first()
+        if (!hasPremium) {
+          return@run this.filter { !it.premium }
+        }
+        this
+      }
+    } catch(e: Exception) {
+      Logger.w(e, "Couldn't refresh VPN configurations from \"TitleService\"")
+      emptyList()
+    }
+
+    if (lastConfig == null) {
+      showUserActionRequired()
       return
     }
 
-    val localConfigurations = vpnDao.getAll()
-    if (config == null || config.isExpired()) {
-      if (localConfigurations.isNotEmpty()) {
-        val localConfig =
-          localConfigurations.random().asVpnConfig(connectionType = VpnConfig.ConnectionType.TCP)
-        vpnHelper.connect(localConfig)
-        return
-      } else {
-        showUserActionRequired()
-      }
-    } else {
-      showUserActionRequired()
+    if (configs.isEmpty()) {
+      showServersEmptyNotification()
+      return
     }
+
+    val randomConfig =
+      configs.random().asVpnConfig(connectionType = VpnConfig.ConnectionType.TCP)
+    vpnHelper.connect(randomConfig)
   }
 
   private fun showUserActionRequired() {
     Notifications.createVpnUserActionRequiredNotification(this)
+    ensureOriginalStatus()
+  }
+
+  private fun showServersEmptyNotification() {
+    Notifications.createVpnServersEmptyNotification(this)
     ensureOriginalStatus()
   }
 

@@ -89,13 +89,15 @@
     <string name="apps_dialog_search">Search</string>
     <string name="gear_connect">Gear connect</string>
     <string name="vpn_action_required_title">User action required</string>
-    <string name="vpn_action_required_text">Couldn\'t establish VPN connection automatically.\nKindly connect manually one time to grant access.</string>
+    <string name="vpn_action_required_text">Couldn\'t establish VPN connection automatically.\nKindly connect to a VPN manually by opening the app for one time to grant access.</string>
 
     <string name="tile_gear_connected">Connected:\n%1$s - %2$s</string>
     <string name="tile_gear_connecting">Connecting</string>
     <string name="tile_gear_no_net">No Internet</string>
     <string name="notify_no_net">Unable to connect</string>
     <string name="notify_no_net_text">No internet connect available for VPN</string>
+    <string name="notify_empty_servers">Some unexpected error occurred</string>
+    <string name="notify_empty_servers_text">It seems like VPN server lists are empty, kindly try again in few minutes or report the issue to me.</string>
     <string name="next">Next (%1$d/%2$d)</string>
     <string name="finish">Finish</string>
     <string name="welcome_welcome">Welcome</string>
