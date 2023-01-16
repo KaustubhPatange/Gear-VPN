@@ -18,6 +18,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.supervisorScope
+import okhttp3.CacheControl
 import java.util.concurrent.TimeUnit
 
 class VpnWorker @AssistedInject constructor(
@@ -33,7 +34,7 @@ class VpnWorker @AssistedInject constructor(
     setForeground(Notifications.createVpnRefreshNotification(appContext, this@VpnWorker))
 
     try {
-      vpnApi.getVpnConfigs(limit = 50)
+      vpnApi.getVpnConfigs(cacheControl = CacheControl.FORCE_NETWORK, limit = 50)
     } catch(_: Exception) {
       createFailureResult()
     }
