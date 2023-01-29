@@ -108,6 +108,17 @@ object Notifications {
     NotificationManagerCompat.from(this).notify(NOTIFICATION_VPN_ACTION_REQUIRED, builder.build())
   }
 
+  fun createVpnServersEmptyNotification(context: Context): Unit = with(context) {
+    val builder = NotificationCompat.Builder(this, COMMON_ALERT_CHANNEL).apply {
+      setContentTitle(getString(R.string.notify_empty_servers))
+      setContentText(getString(R.string.notify_empty_servers_text))
+      setSmallIcon(R.drawable.ic_logo_error)
+      setAutoCancel(true)
+    }
+
+    NotificationManagerCompat.from(this).notify(NOTIFICATION_VPN_SERVERS_EMPTY, builder.build())
+  }
+
   fun createNoInternetNotification(context: Context): Unit = with(context) {
     val builder = NotificationCompat.Builder(this, COMMON_ALERT_CHANNEL).apply {
       setContentTitle(getString(R.string.notify_no_net))
@@ -150,4 +161,5 @@ object Notifications {
   private const val NOTIFICATION_AUTH_FAILED = 137
   private const val NOTIFICATION_REFRESH_FLAG = 138
   private const val NOTIFICATION_REFRESH_VPNBOOK = 139
+  private const val NOTIFICATION_VPN_SERVERS_EMPTY = 140
 }

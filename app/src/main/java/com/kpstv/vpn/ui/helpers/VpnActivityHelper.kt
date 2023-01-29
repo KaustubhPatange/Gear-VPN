@@ -13,15 +13,16 @@ import com.kpstv.vpn.R
 import com.kpstv.vpn.extensions.utils.Notifications
 import com.kpstv.vpn.ui.viewmodels.VpnViewModel
 import es.dmoral.toasty.Toasty
-import kotlinx.coroutines.flow.collect
 
 class VpnActivityHelper(private val activity: ComponentActivity) : VpnHelper(activity, activity.lifecycleScope) {
   private val vpnViewModel by activity.viewModels<VpnViewModel>()
 
   private val lifecycleObserver = object : DefaultLifecycleObserver {
+    override fun onStart(owner: LifecycleOwner) {
+      bindToVPNService()
+    }
     override fun onDestroy(owner: LifecycleOwner) {
       dispose()
-      super.onDestroy(owner)
     }
   }
 

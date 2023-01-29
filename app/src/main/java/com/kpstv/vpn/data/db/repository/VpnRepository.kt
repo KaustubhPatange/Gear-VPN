@@ -1,6 +1,7 @@
 package com.kpstv.vpn.data.db.repository
 
 import com.kpstv.vpn.data.api.VpnApi
+import com.kpstv.vpn.data.db.localized.VpnDao
 import com.kpstv.vpn.data.models.VpnConfiguration
 import com.kpstv.vpn.di.app.AppScope
 import com.kpstv.vpn.extensions.utils.safeNetworkAccessor
@@ -47,6 +48,7 @@ class VpnRepository @Inject constructor(
       if (response.data.isEmpty()) {
         throw ListEmptyException("List should not be empty")
       }
+
       val sorted = response.data.sortedByDescending { it.premium }
       emit(VpnLoadState.Completed(sorted))
     } /*catch(e: ListEmptyException) {
