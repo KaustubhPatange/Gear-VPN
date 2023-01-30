@@ -1,0 +1,3 @@
+Fix: Service connection leak due to incorrect service binding.
+Fix: Gear connect not working & will choose random servers.
+Fix: Vpn worker not refreshing list due to gzip exception.
