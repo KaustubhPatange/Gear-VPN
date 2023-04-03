@@ -14,8 +14,12 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
+        classpath "dev.iurysouza:modulegraph:0.2.2"
         classpath "com.android.tools.build:gradle:$versions.gradlePlugin"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         classpath 'com.google.gms:google-services:4.3.10'
@@ -42,4 +46,10 @@ if (hasProperty('buildScan')) {
 }
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+apply plugin: "dev.iurysouza.modulegraph"
+moduleGraphConfig {
+    readmePath = "${projectDir}/README.md"
+    heading = '### Dependency Diagram'
 }
