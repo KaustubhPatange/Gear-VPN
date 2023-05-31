@@ -28,6 +28,9 @@ android {
         }
 
         buildConfigField("String", "GEAR_API", "\"${props.getProperty("gear.api")}\"")
+        buildConfigField("String", "GEAR_API2", "\"${props.getProperty("gear.api2")}\"")
+        buildConfigField("String", "GEAR_KEY", "\"${props.getProperty("gear.key")}\"")
+        buildConfigField("String", "GEAR_HOST", "\"${props.getProperty("gear.host")}\"")
     }
 
     signingConfigs {
