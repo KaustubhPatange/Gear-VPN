@@ -34,8 +34,9 @@ object Settings {
     )
   }
 
-  // Filter Servers
+  // Filter Servers (Deprecated)
 
+  @Deprecated("Filtering of server is not required due to new UI changes")
   @Composable
   fun getFilterServer(): State<ServerFilter> {
     val flow = remember {
@@ -46,6 +47,7 @@ object Settings {
     return flow.collectAsState(initial = DefaultFilterServer)
   }
 
+  @Deprecated("Filtering of server is not required due to new UI changes")
   fun setFilterServer(serverFilter: ServerFilter) {
     scope.launch {
       dataStore.edit { prefs ->
@@ -54,8 +56,10 @@ object Settings {
     }
   }
 
+  @Deprecated("Filtering of server is not required due to new UI changes")
   private val DefaultFilterServer: ServerFilter = ServerFilter.All
 
+  @Deprecated("Filtering of server is not required due to new UI changes")
   enum class ServerFilter {
     All, Premium, Free
   }
