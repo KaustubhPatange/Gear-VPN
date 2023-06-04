@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalAnimationApi::class)
-
 package com.kpstv.vpn.ui.screens
 
 import androidx.compose.animation.*
@@ -53,11 +51,13 @@ import com.kpstv.vpn.ui.sheets.ProtocolConnectionType
 import com.kpstv.vpn.ui.sheets.ProtocolSheet
 import com.kpstv.vpn.ui.theme.*
 import com.kpstv.vpn.ui.viewmodels.FlagViewModel
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.parcelize.Parcelize
+import okhttp3.internal.immutableListOf
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ServerScreen(
   vpnState: VpnLoadState,
@@ -76,7 +76,9 @@ fun ServerScreen(
   val vpnConfig = rememberSaveable { mutableStateOf(VpnConfiguration.createEmpty()) }
   val selectedVpnCountry = rememberSaveable { mutableStateOf("") }
 
-  val configs by remember(vpnState) { derivedStateOf { vpnState.configs.groupBy { it.country } } }
+  val configs by remember(vpnState) {
+    derivedStateOf { vpnState.configs.groupBy { it.country }.mapValues { it.value.toImmutableList() } }
+  }
   val countries by remember(vpnState) {
     derivedStateOf {
       vpnState.configs.map { it.country }.distinct()
@@ -84,6 +86,8 @@ fun ServerScreen(
   }
 
   val navController = findNavController(NavigationRoute.key)
+
+  android.util.Log.e("ServerScreen", "Recomposed")
 
   SwipeRefresh(
     modifier = Modifier.fillMaxSize(),
@@ -125,9 +129,9 @@ fun ServerScreen(
 
           key(item) {
             CommonItem(
-              configs = configs.getOrElse(item, ::listOf),
+              configs = configs[item]!!,
               isPremiumUnlocked = isPremiumUnlocked,
-              getFlagUrl = { flowOf("") },//flagViewModel::getFlagUrlByCountry,
+              getFlagUrl = flagViewModel::getFlagUrlByCountry,
               onClick = { config ->
                 vpnConfig.value = config
                 protocolBottomSheetState.show()
@@ -290,7 +294,7 @@ private fun Footer(modifier: Modifier = Modifier, onImportButton: () -> Unit) {
 
 @Composable
 private fun CommonItem(
-  configs: List<VpnConfiguration>,
+  configs: ImmutableList<VpnConfiguration>,
   isPremiumUnlocked: Boolean,
   getFlagUrl: (String) -> Flow<String>,
   onPremiumClick: () -> Unit,
@@ -299,6 +303,8 @@ private fun CommonItem(
   onExpandedClick: () -> Unit
 ) {
   Spacer(modifier = Modifier.height(5.dp))
+
+  android.util.Log.e("CommonItem", "Recomposed: ${configs[0].country}")
 
   Column(
     modifier = Modifier
@@ -400,6 +406,7 @@ private fun CommonChildItem(
   isPremiumUnlocked: Boolean = false,
   onPremiumClick: () -> Unit = {},
 ) {
+
   Row(
     modifier = Modifier
       .clip(RoundedCornerShape(5.dp))
@@ -445,7 +452,9 @@ private fun CommonChildItem(
 private fun getCommonItemSubtext(config: VpnConfiguration): String {
   return if (config.sessions.isEmpty() && config.upTime.isEmpty() && config.speed == 0f) {
     stringResource(R.string.server_subtitle2)
-  } else if (config.sessions.isEmpty() && config.upTime.isNotEmpty()) {
+  } else if (config.sessions.isEmpty() && config.upTime.isNotEmpty() && config.speed == 0f) {
+    config.upTime
+  } else if (config.sessions.isEmpty() && config.upTime.isNotEmpty() && config.speed != 0f) {
     stringResource(
       R.string.server_subtitle3,
       config.upTime,
@@ -560,7 +569,7 @@ fun PreviewFooter() {
 fun PreviewCommonItem() {
   CommonPreviewTheme {
     CommonItem(
-      configs = listOf(createTestConfiguration(), createTestConfiguration()),
+      configs = listOf(createTestConfiguration(), createTestConfiguration()).toImmutableList(),
       getFlagUrl = { flowOf("") },
       isPremiumUnlocked = true,
       onClick = {},

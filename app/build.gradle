@@ -7,6 +7,7 @@ plugins {
     id 'com.google.firebase.crashlytics'
     id 'com.spotify.ruler'
     id 'com.google.devtools.ksp'
+    id "dev.shreyaspatil.compose-compiler-report-generator"
 }
 
 android {
@@ -147,6 +148,7 @@ dependencies {
     implementation "com.android.billingclient:billing-ktx:4.1.0"
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
+    implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
     implementation 'com.google.android.play:core-ktx:1.8.1'
 
     implementation 'com.squareup.moshi:moshi:1.13.0'
