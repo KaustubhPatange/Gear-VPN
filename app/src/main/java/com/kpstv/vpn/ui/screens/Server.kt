@@ -168,9 +168,6 @@ fun ServerScreen(
         Header(
           title = stringResource(R.string.choose_server),
           onBackButton = onBackButton,
-          actionRow = {
-            HeaderDropdownMenu()
-          }
         )
       }
 
@@ -218,51 +215,6 @@ fun ServerScreen(
   ServerRefreshConfirmDialog(onRefresh = onForceRefresh)
 }
 
-@Composable
-private fun HeaderDropdownMenu(expanded: Boolean = false) {
-  val expandedState = remember { mutableStateOf(expanded) }
-
-  val filterServerState = Settings.getFilterServer()
-
-  val dismiss = remember { { expandedState.value = false } }
-
-  HeaderButton(
-    icon = R.drawable.ic_baseline_filter_list_24,
-    contentDescription = "filter server",
-    tooltip = stringResource(R.string.server_filter),
-    onClick = { expandedState.value = true }
-  )
-  AppDropdownMenu(
-    title = stringResource(R.string.filter_server),
-    expandedState = expandedState,
-    content = {
-      AppDropdownRadioButtonItem(
-        text = stringResource(R.string.server_filter_all),
-        checked = filterServerState.value == Settings.ServerFilter.All,
-        onClick = {
-          Settings.setFilterServer(Settings.ServerFilter.All)
-          dismiss()
-        }
-      )
-      AppDropdownRadioButtonItem(
-        text = stringResource(R.string.server_filter_premium),
-        checked = filterServerState.value == Settings.ServerFilter.Premium,
-        onClick = {
-          Settings.setFilterServer(Settings.ServerFilter.Premium)
-          dismiss()
-        }
-      )
-      AppDropdownRadioButtonItem(
-        text = stringResource(R.string.server_filter_free),
-        checked = filterServerState.value == Settings.ServerFilter.Free,
-        onClick = {
-          Settings.setFilterServer(Settings.ServerFilter.Free)
-          dismiss()
-        }
-      )
-    }
-  )
-}
 
 @Composable
 private fun Footer(modifier: Modifier = Modifier, onImportButton: () -> Unit) {
