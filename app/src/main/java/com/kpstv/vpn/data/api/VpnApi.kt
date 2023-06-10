@@ -8,15 +8,14 @@ import retrofit2.http.Header
 import retrofit2.http.Query
 
 interface VpnApi {
-    @GET("v1.0/vpn-configs/all")
+    @GET("all")
     suspend fun getVpnConfigs(
         @Header("Cache-Control") cacheControl: CacheControl = CACHE_NORMAL,
-        @Query("lastKey") lastKey: String = "",
         @Query("limit") limit: Int
     ): VpnResponse
 
     companion object {
-        const val API: String = BuildConfig.GEAR_API
+        const val API: String = BuildConfig.GEAR_API2
 
         val CACHE_NORMAL = CacheControl.Builder().build()
         val FORCE_NETWORK = CacheControl.FORCE_NETWORK

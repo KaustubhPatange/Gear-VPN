@@ -1,6 +1,7 @@
 package com.kpstv.vpn.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -37,6 +38,7 @@ import com.kpstv.navigation.compose.findNavController
 import com.kpstv.vpn.R
 import com.kpstv.vpn.data.db.repository.VpnLoadState
 import com.kpstv.vpn.data.models.VpnConfiguration
+import com.kpstv.vpn.extensions.fastForEach
 import com.kpstv.vpn.extensions.utils.AppUtils.launchUrlInApp
 import com.kpstv.vpn.extensions.utils.VpnUtils
 import com.kpstv.vpn.ui.components.*
@@ -49,11 +51,13 @@ import com.kpstv.vpn.ui.sheets.ProtocolConnectionType
 import com.kpstv.vpn.ui.sheets.ProtocolSheet
 import com.kpstv.vpn.ui.theme.*
 import com.kpstv.vpn.ui.viewmodels.FlagViewModel
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.parcelize.Parcelize
+import okhttp3.internal.immutableListOf
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ServerScreen(
   vpnState: VpnLoadState,
@@ -70,10 +74,20 @@ fun ServerScreen(
   val protocolBottomSheetState = rememberBottomSheetState()
 
   val vpnConfig = rememberSaveable { mutableStateOf(VpnConfiguration.createEmpty()) }
+  val selectedVpnCountry = rememberSaveable { mutableStateOf("") }
 
-  val filterServer by Settings.getFilterServer()
+  val configs by remember(vpnState) {
+    derivedStateOf { vpnState.configs.groupBy { it.country }.mapValues { it.value.toImmutableList() } }
+  }
+  val countries by remember(vpnState) {
+    derivedStateOf {
+      vpnState.configs.map { it.country }.distinct()
+    }
+  }
 
   val navController = findNavController(NavigationRoute.key)
+
+  android.util.Log.e("ServerScreen", "Recomposed")
 
   SwipeRefresh(
     modifier = Modifier.fillMaxSize(),
@@ -90,10 +104,6 @@ fun ServerScreen(
       )
     }
   ) {
-    val freeServerIndex = vpnState.configs.indexOfFirst { !it.premium }
-
-    val isPremiumServerExpanded = filterServer != Settings.ServerFilter.Free
-    val isFreeServerExpanded = filterServer != Settings.ServerFilter.Premium
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
 
@@ -101,7 +111,7 @@ fun ServerScreen(
         modifier = Modifier
           .padding(horizontal = 20.dp)
       ) {
-        itemsIndexed(vpnState.configs) { index, item ->
+        itemsIndexed(countries) { index, item ->
           if (index == 0) {
             key("header$index") {
               Spacer(
@@ -114,43 +124,31 @@ fun ServerScreen(
                 onRefresh = onForceRefresh,
               )
               ScreenQuickTips()
-              ServerHeader(
-                title = stringResource(R.string.premium_server),
-                premium = true,
-                expanded = isPremiumServerExpanded,
-                changeToExpandedState = { Settings.setFilterServer(Settings.ServerFilter.All) }
-              )
-              Spacer(modifier = Modifier.height(15.dp))
-            }
-          }
-          if (index == freeServerIndex) {
-            key("freeServerIndex$index") {
-              Spacer(modifier = Modifier.height(15.dp))
-              ServerHeader(
-                title = stringResource(R.string.free_server),
-                expanded = isFreeServerExpanded,
-                changeToExpandedState = { Settings.setFilterServer(Settings.ServerFilter.All) }
-              )
-              Spacer(modifier = Modifier.height(10.dp))
             }
           }
 
-          if ((isPremiumServerExpanded && item.premium) || (isFreeServerExpanded && !item.premium)) {
-            key(item.ip + index) {
-              CommonItem(
-                config = item,
-                isPremiumUnlocked = isPremiumUnlocked,
-                onPremiumClick = onPremiumClick,
-                getFlagUrl = flagViewModel::getFlagUrlByCountry,
-                onClick = { config ->
-                  vpnConfig.value = config
-                  protocolBottomSheetState.show()
+          key(item) {
+            CommonItem(
+              configs = configs[item]!!,
+              isPremiumUnlocked = isPremiumUnlocked,
+              getFlagUrl = flagViewModel::getFlagUrlByCountry,
+              onClick = { config ->
+                vpnConfig.value = config
+                protocolBottomSheetState.show()
+              },
+              isExpanded = selectedVpnCountry.value == item,
+              onPremiumClick = onPremiumClick,
+              onExpandedClick = {
+                if (selectedVpnCountry.value == item) {
+                  selectedVpnCountry.value = ""
+                } else {
+                  selectedVpnCountry.value = item
                 }
-              )
-            }
+              }
+            )
           }
 
-          if (index == vpnState.configs.size - 1) {
+          if (index == configs.size - 1) {
             key("endSpacer$index") {
               Spacer(
                 modifier = Modifier
@@ -170,9 +168,6 @@ fun ServerScreen(
         Header(
           title = stringResource(R.string.choose_server),
           onBackButton = onBackButton,
-          actionRow = {
-            HeaderDropdownMenu()
-          }
         )
       }
 
@@ -192,6 +187,7 @@ fun ServerScreen(
           vpnConfig.value,
           VpnConfig.ConnectionType.TCP
         )
+
         ProtocolConnectionType.UDP -> onItemClick.invoke(
           vpnConfig.value,
           VpnConfig.ConnectionType.UDP
@@ -219,51 +215,6 @@ fun ServerScreen(
   ServerRefreshConfirmDialog(onRefresh = onForceRefresh)
 }
 
-@Composable
-private fun HeaderDropdownMenu(expanded: Boolean = false) {
-  val expandedState = remember { mutableStateOf(expanded) }
-
-  val filterServerState = Settings.getFilterServer()
-
-  val dismiss = remember { { expandedState.value = false } }
-
-  HeaderButton(
-    icon = R.drawable.ic_baseline_filter_list_24,
-    contentDescription = "filter server",
-    tooltip = stringResource(R.string.server_filter),
-    onClick = { expandedState.value = true }
-  )
-  AppDropdownMenu(
-    title = stringResource(R.string.filter_server),
-    expandedState = expandedState,
-    content = {
-      AppDropdownRadioButtonItem(
-        text = stringResource(R.string.server_filter_all),
-        checked = filterServerState.value == Settings.ServerFilter.All,
-        onClick = {
-          Settings.setFilterServer(Settings.ServerFilter.All)
-          dismiss()
-        }
-      )
-      AppDropdownRadioButtonItem(
-        text = stringResource(R.string.server_filter_premium),
-        checked = filterServerState.value == Settings.ServerFilter.Premium,
-        onClick = {
-          Settings.setFilterServer(Settings.ServerFilter.Premium)
-          dismiss()
-        }
-      )
-      AppDropdownRadioButtonItem(
-        text = stringResource(R.string.server_filter_free),
-        checked = filterServerState.value == Settings.ServerFilter.Free,
-        onClick = {
-          Settings.setFilterServer(Settings.ServerFilter.Free)
-          dismiss()
-        }
-      )
-    }
-  )
-}
 
 @Composable
 private fun Footer(modifier: Modifier = Modifier, onImportButton: () -> Unit) {
@@ -292,60 +243,126 @@ private fun Footer(modifier: Modifier = Modifier, onImportButton: () -> Unit) {
   }
 }
 
-@Composable
-private fun ServerHeader(
-  title: String,
-  premium: Boolean = false,
-  expanded: Boolean = true,
-  changeToExpandedState: () -> Unit = {}
-) {
-  Row(
-    modifier = Modifier
-      .fillMaxWidth()
-      .clickable(enabled = !expanded, onClick = changeToExpandedState)
-  ) {
-    if (!expanded) {
-      Icon(
-        painter = painterResource(R.drawable.ic_baseline_play_arrow_24),
-        modifier = Modifier.align(Alignment.CenterVertically),
-        contentDescription = null
-      )
-    }
-    Spacer(modifier = Modifier.width(7.dp))
-    Text(
-      text = title,
-      style = MaterialTheme.typography.h4.copy(fontSize = 20.sp),
-      color = MaterialTheme.colors.onSecondary
-    )
-    if (premium) {
-      Spacer(modifier = Modifier.width(7.dp))
-      Image(
-        painter = painterResource(R.drawable.ic_crown),
-        modifier = Modifier.align(Alignment.CenterVertically),
-        contentDescription = "Premium"
-      )
-    }
-  }
-}
 
 @Composable
 private fun CommonItem(
-  config: VpnConfiguration,
+  configs: ImmutableList<VpnConfiguration>,
   isPremiumUnlocked: Boolean,
   getFlagUrl: (String) -> Flow<String>,
-  onPremiumClick: () -> Unit = {},
-  onClick: (VpnConfiguration) -> Unit
+  onPremiumClick: () -> Unit,
+  onClick: (VpnConfiguration) -> Unit,
+  isExpanded: Boolean,
+  onExpandedClick: () -> Unit
 ) {
   Spacer(modifier = Modifier.height(5.dp))
 
-  Row(
+  android.util.Log.e("CommonItem", "Recomposed: ${configs[0].country}")
+
+  Column(
     modifier = Modifier
       .clip(RoundedCornerShape(10.dp))
       .border(
         width = 1.5.dp,
-        color = if (config.premium) goldenYellow else dotColor.copy(alpha = 0.7f),
+        color = dotColor.copy(alpha = 0.7f),
         shape = RoundedCornerShape(10.dp)
       )
+      .fillMaxWidth()
+      .animateContentSize(
+        animationSpec = tween(durationMillis = 150)
+      )
+  ) {
+    Row(
+      modifier = Modifier
+        .clickable(
+          onClick = onExpandedClick,
+        )
+        .padding(7.dp)
+    ) {
+      val flagUrl by getFlagUrl(configs[0].country).collectAsState(initial = "")
+//      Column(
+//        modifier = Modifier.padding(5.dp)
+//          .size(40.dp)
+//      ) {}
+      Image(
+        painter = rememberImagePainter(
+          data = flagUrl,
+          builder = {
+            placeholder(R.drawable.unknown)
+            crossfade(true)
+          }
+        ),
+        modifier = Modifier
+          .padding(5.dp)
+          .size(40.dp)
+          .align(Alignment.CenterVertically)
+          .scale(1f),
+        contentDescription = "Country flag",
+        contentScale = ContentScale.Fit
+      )
+
+      Spacer(modifier = Modifier.width(10.dp))
+
+      Column(
+        modifier = Modifier
+          .fillMaxWidth()
+          .align(Alignment.CenterVertically)
+      ) {
+        Text(
+          text = configs[0].country,
+          style = MaterialTheme.typography.h4.copy(fontSize = 20.sp),
+          overflow = TextOverflow.Ellipsis,
+          maxLines = 1
+        )
+        Text(
+          text = stringResource(R.string.server_location, configs.size),
+          style = MaterialTheme.typography.h5.copy(fontSize = 15.sp),
+          color = MaterialTheme.colors.onSecondary,
+        )
+      }
+    }
+
+    Spacer(modifier = Modifier.height(3.dp))
+
+    if (isExpanded) {
+      Column(modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 7.dp)) {
+        Spacer(
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .padding(horizontal = 10.dp)
+            .background(dotColor)
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        configs.fastForEach { config ->
+          key(config.ip) {
+            CommonChildItem(
+              config = config,
+              onClick = onClick,
+              isPremiumUnlocked = isPremiumUnlocked,
+              onPremiumClick = onPremiumClick
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+          }
+        }
+      }
+    }
+  }
+
+  Spacer(modifier = Modifier.height(5.dp))
+}
+
+@Composable
+private fun CommonChildItem(
+  config: VpnConfiguration,
+  onClick: (VpnConfiguration) -> Unit,
+  isPremiumUnlocked: Boolean = false,
+  onPremiumClick: () -> Unit = {},
+) {
+
+  Row(
+    modifier = Modifier
+      .clip(RoundedCornerShape(5.dp))
+      .fillMaxWidth()
       .clickable(
         onClick = {
           if (config.premium && !isPremiumUnlocked) {
@@ -353,58 +370,18 @@ private fun CommonItem(
           } else {
             onClick.invoke(config)
           }
-        },
-      )
-      .fillMaxWidth()
-      .padding(7.dp)
-  ) {
-    val flagUrl by getFlagUrl(config.country).collectAsState(initial = "")
-    Image(
-      painter = rememberImagePainter(
-        data = flagUrl,
-        builder = {
-          placeholder(R.drawable.unknown)
-          crossfade(true)
         }
-      ),
-      modifier = Modifier
-        .padding(5.dp)
-        .size(40.dp)
-        .align(Alignment.CenterVertically)
-//        .height(40.dp)
-        /* .requiredWidthIn(max = 40.dp)
-         .fillMaxHeight()*/
-        .scale(1f),
-      contentDescription = "Country flag",
-      contentScale = ContentScale.Fit
-    )
-
-    Spacer(modifier = Modifier.width(10.dp))
-
-    Column(
-      modifier = Modifier
-        .fillMaxWidth()
-        .align(Alignment.CenterVertically)
-    ) {
-      Row(modifier = Modifier.fillMaxWidth()) {
-        Text(
-          text = config.country,
-          style = MaterialTheme.typography.h4.copy(fontSize = 20.sp),
-          overflow = TextOverflow.Ellipsis,
-          maxLines = 1
-        )
-        Text(
-          text = stringResource(R.string.server_ip, config.ip),
-          modifier = Modifier
-            .padding(start = 7.dp)
-            .weight(1f)
-            .align(Alignment.CenterVertically),
-          style = MaterialTheme.typography.h5.copy(fontSize = 15.sp),
-          color = MaterialTheme.colors.onSecondary,
-          overflow = TextOverflow.Ellipsis,
-          maxLines = 1
-        )
-      }
+      )
+      .padding(vertical = 5.dp, horizontal = 10.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.SpaceBetween
+  ) {
+    Column {
+      Text(
+        text = config.ip,
+        style = MaterialTheme.typography.h5.copy(fontSize = 15.sp),
+        color = MaterialTheme.colors.onSecondary,
+      )
       Spacer(modifier = Modifier.height(1.dp))
       AutoSizeSingleLineText(
         text = getCommonItemSubtext(config),
@@ -413,15 +390,28 @@ private fun CommonItem(
         color = MaterialTheme.colors.onSurface,
       )
     }
+    if (config.premium) {
+      Image(
+        modifier = Modifier.size(18.dp),
+        painter = painterResource(R.drawable.ic_crown),
+        contentDescription = "Get premium"
+      )
+    }
   }
-
-  Spacer(modifier = Modifier.height(5.dp))
 }
 
 @Composable
 private fun getCommonItemSubtext(config: VpnConfiguration): String {
   return if (config.sessions.isEmpty() && config.upTime.isEmpty() && config.speed == 0f) {
     stringResource(R.string.server_subtitle2)
+  } else if (config.sessions.isEmpty() && config.upTime.isNotEmpty() && config.speed == 0f) {
+    config.upTime
+  } else if (config.sessions.isEmpty() && config.upTime.isNotEmpty() && config.speed != 0f) {
+    stringResource(
+      R.string.server_subtitle3,
+      config.upTime,
+      VpnUtils.formatVpnGateSpeed(config.speed)
+    )
   } else {
     stringResource(
       R.string.server_subtitle,
@@ -531,44 +521,22 @@ fun PreviewFooter() {
 fun PreviewCommonItem() {
   CommonPreviewTheme {
     CommonItem(
-      config = createTestConfiguration(),
+      configs = listOf(createTestConfiguration(), createTestConfiguration()).toImmutableList(),
       getFlagUrl = { flowOf("") },
       isPremiumUnlocked = true,
       onClick = {},
+      isExpanded = true,
+      onExpandedClick = {},
+      onPremiumClick = {}
     )
   }
 }
 
 @Preview
 @Composable
-fun PreviewCommonItemPremium() {
+fun PreviewCommonChildItem() {
   CommonPreviewTheme {
-    CommonItem(
-      config = createTestConfiguration().copy(premium = true),
-      getFlagUrl = { flowOf("") },
-      isPremiumUnlocked = false,
-      onClick = {}
-    )
-  }
-}
-
-@Preview
-@Composable
-fun PreviewServerHeaders() {
-  CommonPreviewTheme {
-    Column(modifier = Modifier.padding(20.dp)) {
-      ServerHeader(
-        title = "Premium Servers", premium = true
-      )
-      Spacer(modifier = Modifier.height(10.dp))
-      ServerHeader(
-        title = "Free Servers"
-      )
-      Spacer(modifier = Modifier.height(10.dp))
-      ServerHeader(
-        title = "Hidden Servers", expanded = false
-      )
-    }
+    CommonChildItem(config = createTestConfiguration(), onClick = {})
   }
 }
 
@@ -598,5 +566,6 @@ private fun createTestConfiguration() =
     ip = "192.168.1.1",
     sessions = "61 sessions",
     upTime = "89 days",
-    speed = 73.24f
+    speed = 73.24f,
+    premium = true,
   )

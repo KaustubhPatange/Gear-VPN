@@ -1,6 +1,7 @@
 package com.kpstv.vpn.data.models
 
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.kpstv.vpn.extensions.utils.DateUtils
@@ -8,6 +9,7 @@ import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 import java.util.*
 
+@Immutable
 @Entity(tableName = "table_vpnconfigs")
 @Parcelize
 @JsonClass(generateAdapter = true)

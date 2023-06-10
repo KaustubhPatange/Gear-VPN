@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class VpnResponse(
     val data: List<VpnConfiguration>,
-    val count: Int,
-    val lastKey: String?
+    val total: Int,
+    val nextSegment: String = "",
+    val prevSegment: String = ""
 )
