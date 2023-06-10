@@ -84,6 +84,7 @@ fun PremiumBottomSheet(
         close = { premiumBottomSheet.hide() },
         hasPremium = false,
         isLoading = isPlanLoading,
+        isVisible = premiumBottomSheet.isVisible(),
         plans = plans
       )
     } else {
@@ -109,6 +110,7 @@ private fun CommonSheet(
   close: () -> Unit,
   hasPremium: Boolean,
   isLoading: Boolean = false,
+  isVisible: Boolean = false,
   plans: List<SkuState.Sku.Data> = emptyList()
 ) {
   val context = LocalContext.current
@@ -147,7 +149,11 @@ private fun CommonSheet(
             LottieAnimation(
               modifier = Modifier.size(dp100), // it needs fixed size otherwise it fills the entire screen, [cc](github.com/airbnb/lottie-android/issues/1866)
               composition = composition,
-              progress = progress
+              // beware, if you are iterating (looping) lottie forever then make sure you
+              // only play it when necessary (for eg: here when the bottom sheet is visible),
+              // as each rendering iteration of lottie file will keep piling up the memory
+              // which would eventually cause GC to run frequently making app experience laggy
+              progress = if (isVisible) progress else 0f
             )
             Text(
               modifier = Modifier.align(Alignment.CenterVertically),
@@ -300,6 +306,7 @@ fun PreviewPremiumBottomSheet() {
       close = {},
       isLoading = false,
       hasPremium = false,
+      isVisible = true,
       plans = listOf(
         SkuState.Sku.Data(id = "sku", "Quarterly", 3, "₹129"),
         SkuState.Sku.Data(id = "sku", "Monthly", 1, "₹59")
@@ -320,6 +327,7 @@ fun PreviewPremiumLoadingBottomSheet() {
       close = {},
       hasPremium = false,
       isLoading = true,
+      isVisible = true,
     )
   }
 }
@@ -334,6 +342,7 @@ fun PreviewPremiumPurchasedBottomSheet() {
       buttonText = stringResource(R.string.premium_complete_button),
       onBuyButtonClick = { },
       close = {},
+      isVisible = true,
       hasPremium = true,
     )
   }
