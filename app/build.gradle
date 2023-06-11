@@ -14,7 +14,7 @@ android {
     def props = new Properties()
     file("${rootProject.projectDir}/local.properties").withInputStream { props.load(it) }
 
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.kpstv.vpn"
@@ -140,7 +140,7 @@ dependencies {
     implementation "com.google.dagger:dagger:2.44.2"
     kapt "com.google.dagger:dagger-compiler:2.44.2"
 
-    implementation "com.airbnb.android:lottie-compose:4.0.0"
+    implementation "com.airbnb.android:lottie-compose:6.1.0-SNAPSHOT"
     implementation "androidx.browser:browser:1.4.0"
 
     implementation "io.github.kaustubhpatange:app-updater:1.2"

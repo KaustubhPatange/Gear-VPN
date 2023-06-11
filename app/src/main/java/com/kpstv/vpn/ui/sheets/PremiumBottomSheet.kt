@@ -36,6 +36,7 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.AsyncUpdates
 import com.airbnb.lottie.compose.*
 import com.google.accompanist.insets.navigationBarsPadding
 import com.kpstv.vpn.R
@@ -141,7 +142,10 @@ private fun CommonSheet(
 
         Column {
           Row {
-            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(lottieRes))
+            val composition by rememberLottieComposition(
+              spec = LottieCompositionSpec.RawRes(lottieRes),
+              cacheKey = "premium"
+            )
             val progress by animateLottieCompositionAsState(
               composition = composition,
               iterations = LottieConstants.IterateForever
@@ -153,7 +157,8 @@ private fun CommonSheet(
               // only play it when necessary (for eg: here when the bottom sheet is visible),
               // as each rendering iteration of lottie file will keep piling up the memory
               // which would eventually cause GC to run frequently making app experience laggy
-              progress = if (isVisible) progress else 0f
+              progress = { progress },
+              asyncUpdates = AsyncUpdates.ENABLED
             )
             Text(
               modifier = Modifier.align(Alignment.CenterVertically),

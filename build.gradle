@@ -1,10 +1,10 @@
 buildscript {
     ext {
         versions = [
-                "compose": "1.2.0",
-                "compose_tool": "1.2.0",
-                "kotlin": "1.7.0",
-                "gradlePlugin": "7.2.0",
+                "compose": "1.4.3",
+                "compose_tool": "1.4.3",
+                "kotlin": "1.8.10",
+                "gradlePlugin": "7.4.0",
         ]
         app = [
                 "versionCode": 40,
@@ -19,11 +19,11 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$versions.gradlePlugin"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
-        classpath 'com.google.gms:google-services:4.3.10'
+        classpath 'com.google.gms:google-services:4.3.15'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
         classpath 'com.spotify.ruler:ruler-gradle-plugin:1.2.0'
         classpath "dev.shreyaspatil.compose-compiler-report-generator:gradle-plugin:1.0.1"
-        classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:${versions.kotlin}-1.0.6"
+        classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:${versions.kotlin}-1.0.9"
     }
 }
 
