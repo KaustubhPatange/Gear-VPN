@@ -42,6 +42,7 @@ import com.kpstv.vpn.ui.theme.Dimen.dp90
 import com.kpstv.vpn.ui.theme.cyanDark
 import com.kpstv.vpn.ui.theme.greenColorDark
 import com.kpstv.vpn.ui.theme.purpleColor
+import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.flow.*
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -110,7 +111,20 @@ fun MainScreen(
 
     Spacer(modifier = Modifier.weight(0.5f))
 
-    CircularBox(status = connectivityStatus)
+    CircularBox(
+      status = connectivityStatus,
+      onClick = {
+        if (connectivityStatus.isDisconnected()) {
+          if (configuration.isNotEmpty()) {
+            onConnectClick()
+          } else {
+            Toasty.warning(context, context.getString(R.string.error_no_server)).show()
+          }
+        } else {
+          onDisconnect()
+        }
+      }
+    )
 
     Spacer(modifier = Modifier.padding(top = 30.dp))
 

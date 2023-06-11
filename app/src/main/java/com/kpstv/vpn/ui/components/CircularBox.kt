@@ -31,6 +31,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.kpstv.vpn.R
+import com.kpstv.vpn.extensions.clickableNoIndication
 import com.kpstv.vpn.ui.theme.Dimen.dp160
 
 enum class ConnectivityStatus {
@@ -75,6 +76,7 @@ private fun getStatusAsText(context: Context, status: ConnectivityStatus): Strin
 fun CircularBox(
   modifier: Modifier = Modifier,
   status: ConnectivityStatus,
+  onClick: () -> Unit,
 ) {
   val context = LocalContext.current
 
@@ -142,7 +144,10 @@ fun CircularBox(
   val alphaArc = remember { Animatable(1f) }
   val alphaText = remember { Animatable(1f) }
 
-  BoxWithConstraints(modifier = Modifier.height(boxHeight)) {
+  BoxWithConstraints(
+    modifier = Modifier.height(boxHeight)
+      .clickableNoIndication(onClick)
+  ) {
     Text(
       modifier = Modifier
         .align(Alignment.Center)
@@ -509,7 +514,7 @@ fun CircularBox(
 @Composable
 fun DefaultPreview() {
   CommonPreviewTheme {
-    CircularBox(status = ConnectivityStatus.NONE)
+    CircularBox(status = ConnectivityStatus.NONE) {}
   }
 }
 
@@ -533,7 +538,7 @@ fun PlaygroundPreview() {
       verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      CircularBox(status = status.value)
+      CircularBox(status = status.value) {}
       Spacer(modifier = Modifier.height(30.dp))
       ThemeButton(
         onClick = {

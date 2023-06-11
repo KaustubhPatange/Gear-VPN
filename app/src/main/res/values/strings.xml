@@ -8,6 +8,8 @@
     <string name="status_connected">CONNECTED</string>
     <string name="status_reconnecting">RECONNECTING</string>
 
+    <string name="error_no_server">No server selected</string>
+
     <string name="channel_refresh">Refresh Vpn</string>
     <string name="channel_common_alert">Common Alert</string>
     <string name="channel_update">Update</string>

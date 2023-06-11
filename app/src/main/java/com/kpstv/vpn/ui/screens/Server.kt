@@ -445,7 +445,7 @@ fun RefreshInterruptBanner(visible: Boolean, onRefresh: () -> Unit) {
 
 @Composable
 private fun ScreenQuickTips() {
-  ServerQuickTip()
+//  ServerQuickTip()
   HowToRefreshQuickTip()
 }
 
@@ -474,11 +474,11 @@ private fun ServerQuickTip() {
 @Composable
 private fun HowToRefreshQuickTip() {
   val navController = findNavController(key = NavigationRoute.key)
-  val serverTipShown by Settings.ServerQuickTipShown.getAsState()
+//  val serverTipShown by Settings.ServerQuickTipShown.getAsState()
   val showTip by Settings.HowToRefreshTipShown.getAsState(defaultValue = !LocalInspectionMode.current)
   QuickTip(
     message = stringResource(R.string.how_to_refresh_tip_text),
-    visible = !showTip && serverTipShown,
+    visible = !showTip,
     button = {
       ThemeButton(
         onClick = {
