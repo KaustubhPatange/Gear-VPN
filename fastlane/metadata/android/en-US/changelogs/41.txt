@@ -1,0 +1,2 @@
+Add: VPN server verification (all servers shown will be verified and will connect)
+Improve: App overall performance (no laggy experience when scrolling)
