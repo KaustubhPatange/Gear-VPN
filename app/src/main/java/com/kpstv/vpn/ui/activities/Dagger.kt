@@ -24,7 +24,10 @@ open class Dagger : ComponentActivity() {
   @Inject
   lateinit var abstractViewModelFactory: dagger.Lazy<InjectingSavedStateViewModelFactory>
 
-  override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory =
-    abstractViewModelFactory.get().create(this)
+  override val defaultViewModelProviderFactory get() = abstractViewModelFactory.get().create(this)
+
+//  override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory =
+//
+//    abstractViewModelFactory.get().create(this)
 
 }
