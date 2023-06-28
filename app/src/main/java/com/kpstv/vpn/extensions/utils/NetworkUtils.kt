@@ -5,7 +5,6 @@ import com.kpstv.vpn.BuildConfig
 import com.kpstv.vpn.di.app.AppScope
 import com.kpstv.vpn.extensions.interceptor.VpnInterceptor
 import com.kpstv.vpn.logging.Logger
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -16,18 +15,11 @@ import java.io.IOException
 import java.net.ProtocolException
 import java.net.SocketException
 import java.net.UnknownHostException
-import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import javax.inject.Singleton
-import javax.net.ssl.X509TrustManager
-import java.security.cert.X509Certificate
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 // https://github.com/KaustubhPatange/Moviesy/blob/master/app/src/main/java/com/kpstv/yts/extensions/utils/RetrofitUtils.kt
 @AppScope
@@ -114,16 +106,16 @@ class NetworkUtils @Inject constructor(private val appContext: Context) {
   }
 
   private fun OkHttpClient.Builder.ignoreAllSSLErrors(): OkHttpClient.Builder {
-    val naiveTrustManager = object : X509TrustManager {
-      override fun getAcceptedIssuers(): Array<out X509Certificate> = arrayOf()
-      override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-      override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-    }
-
-    val insecureSocketFactory = SSLContext.getInstance("TLSv1.2").apply {
-      val trustAllCerts = arrayOf<TrustManager>(naiveTrustManager)
-      init(null, trustAllCerts, SecureRandom())
-    }.socketFactory
+//    val naiveTrustManager = object : X509TrustManager {
+//      override fun getAcceptedIssuers(): Array<out X509Certificate> = arrayOf()
+//      override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
+//      override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
+//    }
+//
+//    val insecureSocketFactory = SSLContext.getInstance("TLSv1.2").apply {
+//      val trustAllCerts = arrayOf<TrustManager>(naiveTrustManager)
+//      init(null, trustAllCerts, SecureRandom())
+//    }.socketFactory
 
     val verifiedHosts = HostnameVerifier host@{ hostname, _ ->
       return@host hostname.contains(
@@ -131,10 +123,10 @@ class NetworkUtils @Inject constructor(private val appContext: Context) {
       )
     }
 
-    sslSocketFactory(insecureSocketFactory, naiveTrustManager)
+//    sslSocketFactory(insecureSocketFactory, naiveTrustManager)
     hostnameVerifier(verifiedHosts)
 
-    HttpsURLConnection.setDefaultSSLSocketFactory(insecureSocketFactory)
+//    HttpsURLConnection.setDefaultSSLSocketFactory(insecureSocketFactory)
     HttpsURLConnection.setDefaultHostnameVerifier(verifiedHosts)
 
     return this
