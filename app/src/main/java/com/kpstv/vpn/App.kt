@@ -29,7 +29,6 @@ class App : Application(), Configuration.Provider {
     appComponent.inject(this)
     super.onCreate()
     Device.init(this)
-    Notifications.init(this)
 
     Logger.init(BuildConfig.DEBUG)
     Settings.init(this)

@@ -13,6 +13,7 @@ import com.kpstv.vpn.extensions.SlideTopTransition
 import com.kpstv.vpn.extensions.utils.AppUtils.setEdgeToEdgeSystemUiFlags
 import com.kpstv.vpn.extensions.utils.Initializer
 import com.kpstv.vpn.extensions.utils.NetworkMonitor
+import com.kpstv.vpn.extensions.utils.Notifications
 import com.kpstv.vpn.ui.helpers.BillingHelper
 import com.kpstv.vpn.ui.helpers.InAppUpdates
 import com.kpstv.vpn.ui.helpers.VpnActivityHelper
@@ -54,6 +55,7 @@ class Main : Dagger() {
     vpnHelper.initializeAndObserve()
     billingHelper.init()
     updateHelper.init()
+    Notifications.init(this)
     NetworkMonitor.init(applicationContext)
   }
 

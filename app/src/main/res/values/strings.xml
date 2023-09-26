@@ -152,4 +152,6 @@
 
     <string name="error_plan_id">Could not find plan id</string>
     <string name="buy_premium">Buy Premium</string>
+
+    <string name="err_notification_permission">Notification permission denied, enable it from settings</string>
 </resources>

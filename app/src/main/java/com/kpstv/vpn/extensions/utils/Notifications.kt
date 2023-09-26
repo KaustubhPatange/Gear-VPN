@@ -1,11 +1,14 @@
 package com.kpstv.vpn.extensions.utils
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
@@ -16,9 +19,20 @@ import androidx.work.WorkManager
 import com.kpstv.vpn.R
 import com.kpstv.vpn.ui.activities.Main
 import com.kpstv.vpn.ui.activities.Splash
+import es.dmoral.toasty.Toasty
 
 object Notifications {
-  fun init(context: Context) = with(context) {
+  fun init(context: ComponentActivity) = with(context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      val launcher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
+          if (!result) {
+            Toasty.error(this, getString(R.string.err_notification_permission)).show()
+          }
+        }
+      launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val notificationManager = getSystemService<NotificationManager>()!!
       notificationManager.createNotificationChannel(
@@ -34,7 +48,6 @@ object Notifications {
       )
     }
   }
-
   fun createVpnRefreshNotification(context: Context, worker: ListenableWorker): ForegroundInfo =
     createRefreshForegroundInfo(context, worker, context.getString(R.string.vpn_refresh), NOTIFICATION_REFRESH)
 
