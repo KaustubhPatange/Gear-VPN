@@ -15,13 +15,13 @@ plugins {
 }
 
 android {
-    compileSdk = 32
+    compileSdk = 33
 
     //ndkVersion = "23.0.7599858"
 
     defaultConfig {
         minSdk = 16
-        targetSdk = 31
+        targetSdk = 33
 
         externalNativeBuild {
             cmake {
