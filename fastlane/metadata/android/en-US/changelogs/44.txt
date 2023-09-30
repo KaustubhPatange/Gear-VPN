@@ -1,0 +1,2 @@
+Improve: App overall performance (no laggy experience when scrolling)
+Bump: Target SDK for Android
