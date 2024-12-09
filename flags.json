@@ -318,5 +318,9 @@
   {
     "country": "South Korea",
     "flag": "https://hatscripts.github.io/circle-flags/flags/kr.svg"
+  },
+  {
+    "country": "Belarus",
+    "flag": "https://hatscripts.github.io/circle-flags/flags/by.svg"
   }
 ]
